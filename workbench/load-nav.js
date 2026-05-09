@@ -8,6 +8,10 @@
 (function () {
   const FALLBACK_ATTR = 'data-nav-fallback';
   const CRITICAL_STYLE_ID = 'nl-workbench-nav-critical';
+  const LOADER_STYLE_ID = 'nl-workbench-loader-critical';
+  const LOADER_ID = 'nl-workbench-fetch-loader';
+  let activeFetches = 0;
+  let hideLoaderTimer = null;
 
   function navLinks() {
     return [
@@ -118,6 +122,135 @@
     document.head.appendChild(style);
   }
 
+  function injectLoaderStyles() {
+    if (document.getElementById(LOADER_STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = LOADER_STYLE_ID;
+    style.textContent = `
+      .nl-workbench-fetch-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 360;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(6,28,21,.22);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        pointer-events: none;
+      }
+      .nl-workbench-fetch-loader[hidden] { display: none; }
+      .nl-workbench-loader-card {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 14px 18px;
+        border: 1px solid rgba(215,181,109,.24);
+        border-radius: 8px;
+        background: rgba(247,245,239,.96);
+        color: #0b2d23;
+        box-shadow: 0 18px 46px rgba(6,28,21,.18);
+        font: 800 12px Inter, system-ui, sans-serif;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .nl-workbench-loader-mark {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+      }
+      .nl-workbench-loader-mark::before,
+      .nl-workbench-loader-mark::after {
+        content: '';
+        position: absolute;
+        border-radius: 999px 999px 999px 0;
+        transform-origin: 0 100%;
+        animation: nlWorkbenchLoader 1.4s ease-in-out infinite;
+      }
+      .nl-workbench-loader-mark::before {
+        left: 13px;
+        bottom: 3px;
+        width: 5px;
+        height: 24px;
+        border-radius: 999px;
+        background: #155a42;
+      }
+      .nl-workbench-loader-mark::after {
+        left: 15px;
+        top: 5px;
+        width: 14px;
+        height: 18px;
+        background: #d7b56d;
+        transform: rotate(-38deg) scale(.9);
+      }
+      @keyframes nlWorkbenchLoader {
+        0%, 100% { opacity: .72; }
+        50% { opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function getLoader() {
+    injectLoaderStyles();
+    let loader = document.getElementById(LOADER_ID);
+    if (!loader) {
+      loader = document.createElement('div');
+      loader.id = LOADER_ID;
+      loader.className = 'nl-workbench-fetch-loader';
+      loader.hidden = true;
+      loader.innerHTML = '<div class="nl-workbench-loader-card"><span class="nl-workbench-loader-mark" aria-hidden="true"></span><span>Loading market data</span></div>';
+      document.body.appendChild(loader);
+    }
+    return loader;
+  }
+
+  function setLoaderVisible(visible) {
+    const loader = getLoader();
+    clearTimeout(hideLoaderTimer);
+    if (visible) {
+      loader.hidden = false;
+      return;
+    }
+    hideLoaderTimer = setTimeout(function () {
+      if (activeFetches === 0) loader.hidden = true;
+    }, 120);
+  }
+
+  function shouldTrackFetch(input) {
+    const value = typeof input === 'string' ? input : (input && input.url) || '';
+    if (!value || value.indexOf('nav-component.html') !== -1) return false;
+    return (
+      value.indexOf('/reports/') !== -1 ||
+      value.indexOf('/r2') !== -1 ||
+      value.indexOf('r2.dev') !== -1 ||
+      value.indexOf('watchlist-snapshots.json') !== -1 ||
+      value.indexOf('manifest.json') !== -1 ||
+      value.indexOf('company-metadata.json') !== -1
+    );
+  }
+
+  function installFetchLoader() {
+    if (window.__newleafWorkbenchFetchLoaderInstalled || typeof window.fetch !== 'function') return;
+    window.__newleafWorkbenchFetchLoaderInstalled = true;
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = function () {
+      const track = shouldTrackFetch(arguments[0]);
+      if (track) {
+        activeFetches += 1;
+        setLoaderVisible(true);
+      }
+      return nativeFetch.apply(null, arguments).finally(function () {
+        if (track) {
+          activeFetches = Math.max(0, activeFetches - 1);
+          if (activeFetches === 0) setLoaderVisible(false);
+        }
+      });
+    };
+  }
+
   function mountFallback() {
     if (document.querySelector(`.nl-nav[${FALLBACK_ATTR}]`) || document.querySelector('.nl-nav')) return;
     injectCriticalStyles();
@@ -143,7 +276,7 @@
 
   async function upgradeNav() {
     try {
-      const response = await fetch('nav-component.html');
+      const response = await fetch('/workbench/nav-component.html');
       const navHTML = await response.text();
       const temp = document.createElement('div');
       temp.innerHTML = navHTML;
@@ -161,10 +294,10 @@
         document.body.appendChild(newScript);
       });
     } catch (error) {
-      console.error('Failed to load navigation:', error);
     }
   }
 
   mountFallback();
+  installFetchLoader();
   upgradeNav();
 })();

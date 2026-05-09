@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './shared/hooks/useAuth';
 import { BrandBar } from './shared/components/BrandBar';
 import { SectionLoader } from './shared/components/LeafLoader';
+import GlobalDataLoader from './shared/components/GlobalDataLoader';
 
 // Lightweight layout shells — loaded eagerly (tiny)
 import PublicLayout from './trading/PublicLayout';
@@ -95,8 +96,10 @@ function LandingWithAuth() {
 
 export default function App() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F7F5F0' }}><BrandBar surface="root" authState="loading" /><PageSkeleton /></div>}>
-      <Routes>
+    <>
+      <GlobalDataLoader />
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F7F5F0' }}><BrandBar surface="root" authState="loading" /><PageSkeleton /></div>}>
+        <Routes>
         {/* ═══ PUBLIC PAGES ═══ */}
         <Route path="/" element={<LandingWithAuth />} />
         <Route path="/register" element={<AuthPage defaultMode="signup" />} />
@@ -170,7 +173,8 @@ export default function App() {
         <Route element={<PublicLayout />}>
           <Route path="*" element={<NotFoundPage />} />
         </Route>
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </>
   );
 }

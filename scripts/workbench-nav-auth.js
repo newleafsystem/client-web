@@ -286,7 +286,7 @@ function escapeHTML(value) {
 }
 
 function userLabel(user) {
-  return user.email || user.displayName || 'Signed in';
+  return user.displayName || user.email || 'Signed in';
 }
 
 function signedOutHTML() {
@@ -345,11 +345,15 @@ function accessFromSession(session) {
 }
 
 function renderAuthState(user, profile, access) {
+  var displayUser = user && profile && !user.displayName && profile.displayName
+    ? Object.assign({}, user, { displayName: profile.displayName })
+    : user;
   applyRoleBasedNav(access);
-  applyWorkbenchPageGate(access, user);
+  applyWorkbenchPageGate(access, displayUser);
 
   var navRight = document.querySelector('.nl-nav-right');
   if (navRight) {
+    navRight.querySelectorAll('.nl-nav-auth-skeleton').forEach(function (el) { el.remove(); });
     var authEl = navRight.querySelector('.nl-nav-auth');
     if (!authEl) {
       authEl = document.createElement('div');
@@ -360,7 +364,7 @@ function renderAuthState(user, profile, access) {
       if (cta) cta.remove();
       navRight.appendChild(authEl);
     }
-    authEl.innerHTML = user ? signedInHTML(user) : signedOutHTML();
+    authEl.innerHTML = displayUser ? signedInHTML(displayUser) : signedOutHTML();
 
     var signInBtn = document.getElementById('navSignIn');
     var signOutBtn = document.getElementById('navSignOut');
@@ -370,6 +374,7 @@ function renderAuthState(user, profile, access) {
 
   var mobileUtility = document.querySelector('.nl-mobile-utility');
   if (mobileUtility) {
+    mobileUtility.querySelectorAll('.nl-nav-auth-skeleton').forEach(function (el) { el.remove(); });
     var mobileGhost = mobileUtility.querySelector('.nl-nav-ghost');
     var mobileCta = mobileUtility.querySelector('.nl-nav-cta');
     if (mobileGhost) mobileGhost.remove();
@@ -381,7 +386,7 @@ function renderAuthState(user, profile, access) {
       mobileAuthEl.className = 'nl-mobile-auth-zone';
       mobileUtility.appendChild(mobileAuthEl);
     }
-    mobileAuthEl.innerHTML = user ? mobileSignedInHTML(user) : mobileSignedOutHTML();
+    mobileAuthEl.innerHTML = displayUser ? mobileSignedInHTML(displayUser) : mobileSignedOutHTML();
 
     var mobileSignInBtn = document.getElementById('mobileSignIn');
     var mobileSignOutBtn = document.getElementById('mobileSignOut');

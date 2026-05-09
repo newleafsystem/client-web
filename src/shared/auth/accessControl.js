@@ -228,8 +228,12 @@ export function filterNavSections(sections, access, options = {}) {
   return (sections || []).flatMap((item) => {
     if (item.kind === 'dropdown') {
       const items = filterDropdownItems(item.items, userAccess, options);
-      if (!items.length) return [];
       if (!canShowItem(item, userAccess, options) && !item.public) return [];
+      if (!items.length) {
+        return item.href && canShowItem(item, userAccess, options)
+          ? [{ ...item, kind: 'link', items: undefined }]
+          : [];
+      }
       return [{ ...item, items }];
     }
 

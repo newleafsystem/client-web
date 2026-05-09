@@ -8,7 +8,7 @@ const THEME_COLOR = '#ec4899';
 
 export default function ButterflySkill() {
   const navigate = useNavigate();
-  const { user, access, signOut } = useAuth();
+  const { user, access, loading, signOut, signInWithGoogle } = useAuth();
   const [activeTab, setActiveTab] = useState('learn');
   const canvasRef = useRef(null);
   const [hoverX, setHoverX] = useState(null);
@@ -132,7 +132,7 @@ export default function ButterflySkill() {
   return (
     <div style={{ minHeight: '100vh', background: '#0a0f1a', color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif', padding: 0 }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-      <BrandBar surface="invest" authState="in" user={user} access={access} onSignOut={signOut} />
+      <BrandBar surface="invest" authState={user ? 'in' : loading ? 'loading' : 'out'} user={user} access={access} onSignOut={signOut} onSignIn={signInWithGoogle} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 20px' }}>
         <button onClick={() => navigate('/strategies')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: 14, cursor: 'pointer', marginBottom: 30, display: 'flex', alignItems: 'center', gap: 6 }}>

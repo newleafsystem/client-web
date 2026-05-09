@@ -415,10 +415,7 @@ async function loadAllSymbolsFromR2() {
     updateSummary();
     G('sumTime').textContent = new Date(latest.savedAt).toLocaleTimeString();
 
-    console.log('[R2] ✓ Loaded snapshot:', latest.date, 'Expiry:', latest.expiry, 'Symbols:', latest.count);
-
   } catch (err) {
-    console.error('[R2] Failed to load snapshots:', err);
     await window.NewLeafModal?.showError({
       title: 'Watchlist data unavailable',
       message: 'Failed to load data from R2.\n\nRun pipeline to generate snapshots:\ncd pipeline\nnode save-watchlist-snapshot.js weekly'
@@ -465,20 +462,16 @@ async function loadWatchlist() {
   const localWL = loadLocalWL();
   if (localWL.length > 0) {
     watchlist = localWL;
-    console.log('[Watchlist] Loaded from localStorage:', watchlist.length, 'symbols');
   } else {
     try {
       const res = await fetch(`${R2}/reports/manifest.json`);
       if (res.ok) {
         const manifest = await res.json();
         watchlist = manifest.reports.map(r => r.symbol).sort();
-        console.log('[Watchlist] Loaded from manifest:', watchlist.length, 'symbols');
       } else {
         watchlist = ['SPY', 'AAPL', 'TSLA', 'NVDA', 'META'];
-        console.log('[Watchlist] Using fallback defaults');
       }
     } catch (err) {
-      console.warn('[Watchlist] Failed to load manifest:', err.message);
       watchlist = ['SPY', 'AAPL', 'TSLA', 'NVDA', 'META'];
     }
   }
@@ -538,7 +531,6 @@ async function saveSnapshot(auto = false) {
     setTimeout(() => btn.classList.remove('saved'), 2000);
   }
   updateSummary(); renderHistory();
-  console.log('[NewLeaf] Snapshot saved', TODAY, expiryType, Object.keys(tickers).length, 'tickers');
 }
 
 async function loadAllSnapshots() {
@@ -559,7 +551,6 @@ async function loadAllSnapshots() {
       }
     }
   } catch (err) {
-    console.log('[R2] Could not load snapshots:', err.message);
   }
 
   for (const date of listLocalSnapDates()) {
@@ -601,7 +592,6 @@ async function refreshAll() {
   try {
     await loadAllSymbolsFromR2();
   } catch (err) {
-    console.error('[R2] Refresh failed:', err);
   }
 
   G('refreshBtn').disabled = false;
@@ -768,7 +758,6 @@ async function init() {
     const metaRes = await fetch(R2 + '/reports/company-metadata.json?_=' + Date.now());
     if (metaRes.ok) companyMetadata = await metaRes.json();
   } catch(e) {
-    console.warn('Could not load company metadata:', e);
   }
 
   G('sortSelect').addEventListener('change', e => { sortCol = e.target.value; sortAsc = false; renderTable(); });

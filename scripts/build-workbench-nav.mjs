@@ -11,7 +11,7 @@
  *
  * Run:  node scripts/build-workbench-nav.mjs
  */
-import { createServer } from 'vite';
+import { createServer, loadEnv } from 'vite';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server.js';
@@ -21,18 +21,25 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
+const MODE = process.env.MODE || process.env.NODE_ENV || 'production';
+const LOAD_DOTENV_FOR_NAV = process.env.NEWLEAF_LOAD_DOTENV_FOR_NAV === '1';
+const VITE_ENV = LOAD_DOTENV_FOR_NAV ? loadEnv(MODE, ROOT, '') : {};
+
+function envValue(key) {
+  return process.env[key] ?? VITE_ENV[key] ?? '';
+}
 
 function browserRuntimeConfigScript() {
   const firebaseConfig = {
-    apiKey: process.env.VITE_FIREBASE_API_KEY || '',
-    authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-    projectId: process.env.VITE_FIREBASE_PROJECT_ID || '',
-    storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-    messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-    appId: process.env.VITE_FIREBASE_APP_ID || '',
-    measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID || '',
+    apiKey: envValue('VITE_FIREBASE_API_KEY'),
+    authDomain: envValue('VITE_FIREBASE_AUTH_DOMAIN'),
+    projectId: envValue('VITE_FIREBASE_PROJECT_ID'),
+    storageBucket: envValue('VITE_FIREBASE_STORAGE_BUCKET'),
+    messagingSenderId: envValue('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+    appId: envValue('VITE_FIREBASE_APP_ID'),
+    measurementId: envValue('VITE_FIREBASE_MEASUREMENT_ID'),
   };
-  const authSessionApiBaseUrl = process.env.VITE_AUTH_SESSION_API_BASE_URL || '';
+  const authSessionApiBaseUrl = envValue('VITE_AUTH_SESSION_API_BASE_URL');
 
   return [
     `window.NEWLEAF_FIREBASE_CONFIG = window.NEWLEAF_FIREBASE_CONFIG || ${JSON.stringify(firebaseConfig)};`,
@@ -67,7 +74,7 @@ async function main() {
         { location: '/workbench/' },
         createElement(BrandBar, {
           surface: 'workbench',
-          authState: 'out',
+          authState: 'loading',
           access: {
             canAccessApp: (appId) => appId === 'workbench',
             hasRole: () => false,

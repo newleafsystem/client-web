@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   NewLeaf Nav — exact mirror of newleaf-alpaca-r2 nav-component.html
+   NewLeaf Nav — shared header chrome for React and static Workbench pages
    Used by both the landing site (LandingPage) and the authenticated app
    (AppHeader). Single source of truth for nav typography + chrome.
    ════════════════════════════════════════════════════════════════════════════ */
@@ -513,6 +513,36 @@ nav.nl-nav,
 
 .nl-mobile-dd-trigger {
   justify-content: space-between;
+}
+
+.nl-mobile-dd-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  align-items: stretch;
+  border-bottom: 1px solid rgba(215,181,109,0.10);
+}
+
+.nl-mobile-dd-top .nl-mobile-link {
+  border-bottom: none !important;
+}
+
+.nl-mobile-dd-label {
+  min-width: 0;
+}
+
+.nl-mobile-dd-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-left: 1px solid rgba(215,181,109,0.10);
+  background: transparent;
+  color: var(--brand-gold, #d7b56d);
+  cursor: pointer;
+}
+
+.nl-mobile-dd-toggle:hover {
+  background: rgba(215,181,109,0.10);
 }
 
 .nl-mobile-dd-items {

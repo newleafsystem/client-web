@@ -18,6 +18,18 @@ if (!fs.existsSync(workbenchDir)) {
 
 let count = 0;
 
+function makeExtensionlessHtmlPortable(html) {
+  return html
+    .replaceAll('src="load-nav.js"', 'src="/workbench/load-nav.js"')
+    .replaceAll("src='load-nav.js'", "src='/workbench/load-nav.js'")
+    .replaceAll('href="nl-brand.css"', 'href="/workbench/nl-brand.css"')
+    .replaceAll("href='nl-brand.css'", "href='/workbench/nl-brand.css'")
+    .replaceAll('src="public/', 'src="/workbench/public/')
+    .replaceAll("src='public/", "src='/workbench/public/")
+    .replaceAll('href="public/', 'href="/workbench/public/')
+    .replaceAll("href='public/", "href='/workbench/public/");
+}
+
 for (const dirent of fs.readdirSync(workbenchDir, { withFileTypes: true })) {
   if (!dirent.isFile() || !dirent.name.endsWith('.html') || skipFiles.has(dirent.name)) continue;
 
@@ -27,7 +39,7 @@ for (const dirent of fs.readdirSync(workbenchDir, { withFileTypes: true })) {
   const target = path.join(targetDir, 'index.html');
 
   fs.mkdirSync(targetDir, { recursive: true });
-  fs.copyFileSync(source, target);
+  fs.writeFileSync(target, makeExtensionlessHtmlPortable(fs.readFileSync(source, 'utf-8')));
   count += 1;
 }
 

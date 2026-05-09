@@ -12,6 +12,7 @@ import {
   calculateTechnicalScore,
   suggestStrategy,
 } from '../utils/technicalScoring';
+import { emitDataLoading } from '../../shared/lib/dataLoading';
 
 // ── R2 public bucket URL ─────────────────────────────────────────────────────
 
@@ -36,12 +37,17 @@ export async function fetchR2Report(symbol) {
   }
 
   const url = `${R2_BASE}/reports/${key}/latest.json`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`R2 fetch failed: ${res.status} for ${key}`);
-  const data = await res.json();
+  emitDataLoading(true, `Loading ${key} market data`);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`R2 fetch failed: ${res.status} for ${key}`);
+    const data = await res.json();
 
-  cache.set(key, { data, fetchedAt: Date.now() });
-  return data;
+    cache.set(key, { data, fetchedAt: Date.now() });
+    return data;
+  } finally {
+    emitDataLoading(false, `Loading ${key} market data`);
+  }
 }
 
 // ── Gamma data transformation ────────────────────────────────────────────────

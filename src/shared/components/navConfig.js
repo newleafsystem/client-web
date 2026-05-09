@@ -60,13 +60,11 @@ function requireAppForLinks(items, appId) {
 }
 
 export const PICKS_ITEMS = [
-  { label: 'Picks overview', href: '/picks', public: true },
   { label: 'Weekly recap', href: '/picks/recap', requiredApp: APP_IDS.PICKS },
   { label: 'Monthly performance', href: '/picks/monthly', requiredApp: APP_IDS.PICKS },
 ];
 
 export const WORKBENCH_ITEMS = [
-  { label: 'Workbench hub', href: '/workbench/', public: true },
   { label: 'Stock scanner', href: '/workbench/all-stocks', requiredApp: APP_IDS.WORKBENCH },
   { label: 'Watchlist', href: '/workbench/watchlist', requiredApp: APP_IDS.WORKBENCH },
   { label: 'Analysis', href: '/workbench/analysis', requiredApp: APP_IDS.WORKBENCH },
@@ -76,7 +74,6 @@ export const WORKBENCH_ITEMS = [
 ];
 
 export const INVEST_ITEMS = [
-  { label: 'Invest home', href: '/invest', public: true },
   { label: 'Discover', href: '/invest/discover', requiredApp: APP_IDS.INVEST },
   { label: 'Build trade', href: '/invest/build', requiredApp: APP_IDS.INVEST },
   { label: 'Positions', href: '/invest/positions', requiredApp: APP_IDS.INVEST },
@@ -85,7 +82,6 @@ export const INVEST_ITEMS = [
 ];
 
 export const QUANT_ITEMS = [
-  { label: 'Quant overview', href: '/quant', public: true },
   { label: 'Scoring algorithm', href: '/how-we-score', public: true },
   { label: 'Probability engine', href: '/probability-engine', public: true },
   { label: 'Technical analysis', href: '/technical-analysis', public: true },
@@ -93,16 +89,15 @@ export const QUANT_ITEMS = [
 ];
 
 export const DESK_ITEMS = [
-  { label: 'Desk overview', href: '/desk', public: true },
   { label: 'Verification Desk', href: '/verification-desk', public: true },
 ];
 
 export const MAIN_NAV_SECTIONS = [
-  { kind: 'dropdown', label: 'Picks', items: PICKS_ITEMS, dark: true, public: true, activePrefixes: ['/picks'] },
-  { kind: 'dropdown', label: 'Workbench', items: WORKBENCH_ITEMS, dark: true, public: true, activePrefixes: ['/workbench'] },
-  { kind: 'dropdown', label: 'Invest', items: INVEST_ITEMS, dark: true, public: true, activePrefixes: ['/invest', '/strategies'] },
-  { kind: 'dropdown', label: 'Quant', items: QUANT_ITEMS, dark: true, public: true, activePrefixes: ['/quant', '/how-we-score', '/probability-engine', '/technical-analysis', '/gamma-analysis'] },
-  { kind: 'dropdown', label: 'Desk', items: DESK_ITEMS, dark: true, public: true, activePrefixes: ['/desk', '/verification-desk'] },
+  { kind: 'dropdown', label: 'Picks', href: '/picks', items: PICKS_ITEMS, dark: true, public: true, activePrefixes: ['/picks'] },
+  { kind: 'dropdown', label: 'Workbench', href: '/workbench/', items: WORKBENCH_ITEMS, dark: true, public: true, activePrefixes: ['/workbench'] },
+  { kind: 'dropdown', label: 'Invest', href: '/invest', items: INVEST_ITEMS, dark: true, public: true, activePrefixes: ['/invest', '/strategies'] },
+  { kind: 'dropdown', label: 'Quant', href: '/quant', items: QUANT_ITEMS, dark: true, public: true, activePrefixes: ['/quant', '/how-we-score', '/probability-engine', '/technical-analysis', '/gamma-analysis'] },
+  { kind: 'dropdown', label: 'Desk', href: '/desk', items: DESK_ITEMS, dark: true, public: true, activePrefixes: ['/desk', '/verification-desk'] },
   { kind: 'link', label: 'Blog', href: '/blog', public: true },
   { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true, activePrefixes: ['/how-we', '/track-record', '/ai-sentiment', '/ai-portfolio'] },
 ];

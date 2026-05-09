@@ -2727,7 +2727,7 @@ document.addEventListener('keydown', e => {
 // ════════════════════════════════════════════════════════════════════════════
 // Builds a Firestore-tile-shaped payload from the current strategy-builder
 // state and hands it to window.publishTile (defined in the firebase module
-// block below). Same schema as newleaf-workbench's analystApi.buildTile so
+// block below). Same schema as the Workbench analyst tile builder so
 // the existing investor app reads it without changes.
 function buildTilePayload() {
   if (!atmData || !selectedExpiry || !strikes.length) return null;
@@ -2889,8 +2889,8 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <!-- ════════════════════════════════════════════════════════════════════════
-     FIREBASE MODULE — same project as newleaf-workbench (newleaf-trading /
-     newleafdb). Loaded from CDN as an ES module so we don't need a bundler.
+     FIREBASE MODULE — runtime project config from the generated shared nav.
+     Loaded from CDN as an ES module so we don't need a bundler.
      Pushes tiles to the same `tiles` collection workbench writes to.
      ════════════════════════════════════════════════════════════════════════ -->
 <script type="module">
@@ -2900,27 +2900,27 @@ import { getFirestore, collection, addDoc, serverTimestamp }
 import { getAuth, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-// Public Firebase web config (same as newleaf-workbench/src/firebase.js).
-// Firebase web config is loaded from runtime configuration.
-const firebaseConfig = {
-  apiKey: window.NEWLEAF_FIREBASE_CONFIG?.apiKey || "",
-  authDomain: "newleaf-trading.firebaseapp.com",
-  projectId: "newleaf-trading",
-  storageBucket: "newleaf-trading.firebasestorage.app",
-  messagingSenderId: "240392819045",
-  appId: "1:240392819045:web:a1dc19e5dcfa29e6cdd18c"
-};
+// Firebase web config is injected by the generated shared Workbench nav.
+async function waitForFirebaseConfig() {
+  for (let i = 0; i < 30; i += 1) {
+    if (window.NEWLEAF_FIREBASE_CONFIG?.apiKey) return window.NEWLEAF_FIREBASE_CONFIG;
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  return window.NEWLEAF_FIREBASE_CONFIG || {};
+}
 
-const app  = initializeApp(firebaseConfig);
-const db   = getFirestore(app, 'newleafdb');
-const auth = getAuth(app);
+const firebaseConfig = await waitForFirebaseConfig();
+const hasFirebaseConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId && firebaseConfig.appId);
+const app  = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
+const db   = app ? getFirestore(app, 'newleafdb') : null;
+const auth = app ? getAuth(app) : null;
 
 function signInHref() {
   return '/signin?redirect=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
 }
 
 // Auth state — kept in sync with the inline script via window.firebaseUser.
-onAuthStateChanged(auth, user => {
+if (auth) onAuthStateChanged(auth, user => {
   window.firebaseUser = user || null;
   const authEl = document.getElementById('fbAuth');
   if (authEl) {
@@ -2938,7 +2938,7 @@ window.firebaseSignIn = async function() {
 };
 
 window.firebaseSignOut = async function() {
-  try { await signOut(auth); } catch (e) { console.error(e); }
+  if (auth) await signOut(auth).catch(() => {});
 };
 
 // Recursively strip `undefined` field values — Firestore rejects them with
@@ -2965,9 +2965,9 @@ function stripUndefined(value) {
 
 // publishTile — receives the payload built by buildTilePayload() in the
 // inline script and writes it to the `tiles` collection in the exact shape
-// newleaf-workbench's analystApi.buildTile produces.
+// the Workbench analyst tile builder produces.
 window.publishTile = async function(payload) {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser || !db) {
     return { success: false, error: 'Not signed in — sign in or register first' };
   }
   try {

@@ -5,7 +5,8 @@
  */
 (function () {
   // ── Active page detection ──
-  var currentPage = (location.pathname.split('/').pop() || 'index.html').replace('.html', '') || 'index';
+  var normalizedPath = location.pathname.replace(/\/+$/, '');
+  var currentPage = (normalizedPath.split('/').pop() || 'index.html').replace('.html', '') || 'index';
   document.querySelectorAll('.nl-nav-links a[data-page]').forEach(function (link) {
     if (link.dataset.page === currentPage) link.classList.add('active');
   });
@@ -13,7 +14,7 @@
     if (link.dataset.page === currentPage) {
       link.style.color = 'var(--brand-gold, #d7b56d)';
       link.style.fontWeight = '600';
-      var trigger = document.querySelector('.nl-dd-trigger');
+      var trigger = link.closest('.nl-dd-wrap') && link.closest('.nl-dd-wrap').querySelector('.nl-dd-trigger');
       if (trigger) trigger.classList.add('active');
     }
   });
@@ -30,16 +31,31 @@
   setInterval(updateClock, 1000);
 
   // ── Strategies dropdown (desktop: hover + click) ──
-  var ddWrap = document.querySelector('.nl-dd-wrap');
-  var ddTrigger = document.querySelector('.nl-dd-trigger');
-  var ddPanel = document.querySelector('.nl-dd-panel');
-  var hoverTimeout;
+  document.querySelectorAll('.nl-dd-wrap').forEach(function (ddWrap) {
+    var ddTrigger = ddWrap.querySelector('.nl-dd-trigger');
+    var ddPanel = ddWrap.querySelector('.nl-dd-panel');
+    var hoverTimeout;
 
-  if (ddWrap && ddTrigger && ddPanel) {
+    if (!ddTrigger || !ddPanel) return;
+
     function showDD() { ddPanel.hidden = false; ddTrigger.setAttribute('aria-expanded', 'true'); }
     function hideDD() { ddPanel.hidden = true; ddTrigger.setAttribute('aria-expanded', 'false'); }
 
-    ddTrigger.addEventListener('click', function () { ddPanel.hidden ? showDD() : hideDD(); });
+    if (ddTrigger.tagName !== 'A') {
+      ddTrigger.addEventListener('click', function () { ddPanel.hidden ? showDD() : hideDD(); });
+    }
+    ddTrigger.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        showDD();
+        var first = ddPanel.querySelector('.nl-dd-item');
+        if (first) first.focus();
+      }
+      if (e.key === ' ' && ddTrigger.tagName === 'A') {
+        e.preventDefault();
+        ddPanel.hidden ? showDD() : hideDD();
+      }
+    });
     ddWrap.addEventListener('mouseenter', function () {
       if (window.innerWidth > 1080) { clearTimeout(hoverTimeout); showDD(); }
     });
@@ -52,7 +68,7 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && !ddPanel.hidden) hideDD();
     });
-  }
+  });
 
   // ── Mobile menu ──
   var hamburger = document.querySelector('.nl-hamburger');
@@ -86,15 +102,19 @@
   }
 
   // Mobile strategies accordion
-  var mobileTrigger = panel && panel.querySelector('.nl-mobile-dd-trigger');
-  var mobileItems = panel && panel.querySelector('.nl-mobile-dd-items');
-  if (mobileTrigger && mobileItems) {
-    mobileTrigger.addEventListener('click', function () {
-      var expanded = !mobileItems.hidden;
-      mobileItems.hidden = !mobileItems.hidden;
-      mobileTrigger.setAttribute('aria-expanded', String(!expanded));
-      var arrow = mobileTrigger.querySelector('.nl-dd-arrow');
-      if (arrow) arrow.style.transform = expanded ? 'none' : 'rotate(180deg)';
+  if (panel) {
+    panel.querySelectorAll('.nl-mobile-dd').forEach(function (wrap) {
+      var mobileTrigger = wrap.querySelector('.nl-mobile-dd-trigger, .nl-mobile-dd-toggle');
+      var mobileItems = wrap.querySelector('.nl-mobile-dd-items');
+      if (!mobileTrigger || !mobileItems) return;
+
+      mobileTrigger.addEventListener('click', function () {
+        var expanded = !mobileItems.hidden;
+        mobileItems.hidden = !mobileItems.hidden;
+        mobileTrigger.setAttribute('aria-expanded', String(!expanded));
+        var arrow = mobileTrigger.querySelector('.nl-dd-arrow');
+        if (arrow) arrow.style.transform = expanded ? 'none' : 'rotate(180deg)';
+      });
     });
   }
 })();

@@ -9,7 +9,7 @@ const STRATEGY_COLOR = '#10b981'; // Emerald accent for Bull Put Spread
 
 export default function BullPutSpreadSkill() {
   const navigate = useNavigate();
-  const { user, access, signOut } = useAuth();
+  const { user, access, loading, signOut, signInWithGoogle } = useAuth();
   const [activeTab, setActiveTab] = useState('learn');
   const canvasRef = useRef(null);
   const [hoverX, setHoverX] = useState(null);
@@ -146,7 +146,7 @@ export default function BullPutSpreadSkill() {
       <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
       {/* App Header */}
-      <BrandBar surface="invest" authState="in" user={user} access={access} onSignOut={signOut} />
+      <BrandBar surface="invest" authState={user ? 'in' : loading ? 'loading' : 'out'} user={user} access={access} onSignOut={signOut} onSignIn={signInWithGoogle} />
 
       {/* Header section with mint wash */}
       <div style={{ background: '#ffffff', borderBottom: '1px solid rgba(17,24,39,0.08)', padding: '40px 24px 36px' }}>

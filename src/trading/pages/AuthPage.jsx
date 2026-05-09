@@ -5,18 +5,18 @@ import { LoginPage } from '../components/LoginPage';
 import { useAuth } from '../../shared/hooks/useAuth';
 import PageSEO from '../../shared/components/PageSEO';
 
-function safeRedirectPath(search) {
+function safeRedirectPath(search, fallback = '/invest') {
   const value = new URLSearchParams(search).get('redirect') || '';
-  if (!value.startsWith('/') || value.startsWith('//')) return '/invest';
-  if (value.startsWith('/signin') || value.startsWith('/register')) return '/invest';
+  if (!value.startsWith('/') || value.startsWith('//')) return fallback;
+  if (value.startsWith('/signin') || value.startsWith('/register')) return fallback;
   return value;
 }
 
 export function AuthPage({ defaultMode = 'signup' }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const redirectPath = safeRedirectPath(location.search);
   const isSignup = defaultMode === 'signup';
+  const redirectPath = safeRedirectPath(location.search, isSignup ? '/' : '/invest');
   const {
     user,
     access,

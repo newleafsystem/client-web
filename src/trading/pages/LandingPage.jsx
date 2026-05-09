@@ -12,6 +12,9 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
     setShowAuth(null);
     window.history.replaceState(null, '', '/');
   };
+  const scrollToDemo = () => {
+    document.getElementById('video')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   // Check for hash on mount and hash changes
   useEffect(() => {
@@ -80,7 +83,14 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
 
         <div className="hero-ctas-tr">
           <a className="hero-cta-gold" href="/register">Get Started Free →</a>
-          <button className="hero-cta-glass" onClick={() => document.getElementById('video')?.scrollIntoView({ behavior: 'smooth' })}>Watch Demo</button>
+          <div className="hero-demo-cue">
+            <span>Watch demo</span>
+            <button className="hero-demo-arrow" onClick={scrollToDemo} aria-label="Watch demo">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="hero-lower">
@@ -228,7 +238,7 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
             {/* Stage 2 — FIRST LIGHT */}
             <div className="stage-card sc-w gs2">
               <div className="sc-badge"><span className="sc-badge-dot"></span>FIRST LIGHT · 02</div>
-              <div className="sc-app">newleaf-workbench</div>
+              <div className="sc-app">NewLeaf Workbench</div>
               <div className="sc-verb">Design &<br/>Promote</div>
               <p className="sc-desc">The analyst's craft table. The Trade Builder generates multiple strategy variants per proposal — iron condors, verticals, calendars — each scored and priced with live IB quotes.</p>
               <div className="sc-features">
@@ -319,7 +329,7 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
                 <div className="pipe-num">02</div>
                 🔧
               </div>
-              <div className="pipe-name">newleaf-workbench</div>
+              <div className="pipe-name">NewLeaf Workbench</div>
               <div className="pipe-verb">Build & Approve</div>
               <div className="pipe-desc">An analyst reviews top proposals, builds multi-variant structures, and selects only the best for the investor library.</div>
             </div>
@@ -417,7 +427,7 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
                 <div className="ac-icon">🔧</div>
                 <div className="ac-badge b-new"><div className="b-dot"></div> Curation Engine</div>
               </div>
-              <div className="ac-name">newleaf-workbench</div>
+              <div className="ac-name">NewLeaf Workbench</div>
               <div className="ac-role">Analyst tool — curates what you see in the library</div>
               <div className="ac-desc">An analyst reviews all quant proposals, builds multi-variant structures with live IB pricing.</div>
               <div className="ac-features">
@@ -497,7 +507,7 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
               <div className="hub-cols">
                 {[
                   { color:'#7c3aed', app:'newleaf-quant', flow:'Writes proposals & scores' },
-                  { color:'#d97706', app:'newleaf-workbench', flow:'Promotes strategy tiles' },
+                  { color:'#d97706', app:'NewLeaf Workbench', flow:'Promotes strategy tiles' },
                   { color:'#2563eb', app:'newleaf-picks', flow:'Surfaces curated picks' },
                   { color:'#0d9488', app:'newleaf-invest', flow:'Writes portfolio allocation' },
                   { color:'#dc2626', app:'newleaf-desk', flow:'Reads qty · writes fills' },

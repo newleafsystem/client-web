@@ -153,12 +153,16 @@ async function loadUserProfile(currentUser) {
 
 function applyAuthenticatedState(user, profile, source = 'firebase-auth') {
   const safeProfile = sanitizeProfile(profile);
-  const nextUser = user || null;
-  const accessUser = sanitizeUser(nextUser);
+  const safeUser = sanitizeUser(user);
+  const accessUser = safeUser ? {
+    ...safeUser,
+    displayName: safeUser.displayName || safeProfile?.displayName || safeProfile?.communicationEmail?.split('@')[0] || safeUser.email?.split('@')[0] || null,
+    photoURL: safeUser.photoURL || safeProfile?.photoURL || null,
+  } : null;
   const access = normalizeUserAccess(safeProfile, accessUser);
 
   emitAuthState({
-    user: nextUser,
+    user: accessUser,
     profile: safeProfile,
     access,
     loading: false,

@@ -239,13 +239,12 @@ class DataLoader {
     }
 
     // Load scripts dynamically
-    await this.loadScript('public/js/pipelineAdapter.browser.js');
-    await this.loadScript('public/js/strategyEngine.browser.js');
+    await this.loadScript('/workbench/public/js/pipelineAdapter.browser.js');
+    await this.loadScript('/workbench/public/js/strategyEngine.browser.js');
 
     this.adapterLoaded = true;
     this.engineLoaded = true;
 
-    console.log('✓ Engine modules loaded');
   }
 
   /**

@@ -40,7 +40,7 @@ function accessAttrs(item) {
 // NavDropdown — reusable for "How it works", "Strategies", etc.
 // ═══════════════════════════════════════════════════════════════
 
-function NavDropdown({ label, items, isActive, dark, accessProps = {} }) {
+function NavDropdown({ label, href, items, isActive, dark, accessProps = {} }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const hoverTimeout = useRef(null);
@@ -67,14 +67,19 @@ function NavDropdown({ label, items, isActive, dark, accessProps = {} }) {
     hoverTimeout.current = setTimeout(() => setOpen(false), 150);
   };
 
+  const focusFirstItem = () => {
+    requestAnimationFrame(() => ref.current?.querySelector('.nl-dd-item')?.focus());
+  };
+
   const handleTriggerKey = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === ' ' || (!href && e.key === 'Enter')) {
       e.preventDefault();
       setOpen((o) => !o);
     }
-    if (e.key === 'ArrowDown' && open) {
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
-      ref.current?.querySelector('.nl-dd-item')?.focus();
+      setOpen(true);
+      focusFirstItem();
     }
   };
 
@@ -97,21 +102,42 @@ function NavDropdown({ label, items, isActive, dark, accessProps = {} }) {
       onMouseLeave={handleMouseLeave}
       {...accessProps}
     >
-      <button
-        className={`nl-nav-link nl-dd-trigger${isActive ? ' active' : ''}`}
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={handleTriggerKey}
-        aria-expanded={open}
-        aria-haspopup="true"
-      >
-        {label}
-        <span
-          className="nl-dd-arrow"
-          style={{ transform: open ? 'rotate(180deg)' : 'none' }}
+      {href ? (
+        <NavAnchor
+          href={href}
+          className={`nl-nav-link nl-dd-trigger${isActive ? ' active' : ''}`}
+          onFocus={() => setOpen(true)}
+          onKeyDown={handleTriggerKey}
+          aria-expanded={open}
+          aria-haspopup="true"
+          aria-current={isActive ? 'page' : undefined}
         >
-          &#9662;
-        </span>
-      </button>
+          {label}
+          <span
+            className="nl-dd-arrow"
+            style={{ transform: open ? 'rotate(180deg)' : 'none' }}
+          >
+            &#9662;
+          </span>
+        </NavAnchor>
+      ) : (
+        <button
+          type="button"
+          className={`nl-nav-link nl-dd-trigger${isActive ? ' active' : ''}`}
+          onClick={() => setOpen((o) => !o)}
+          onKeyDown={handleTriggerKey}
+          aria-expanded={open}
+          aria-haspopup="true"
+        >
+          {label}
+          <span
+            className="nl-dd-arrow"
+            style={{ transform: open ? 'rotate(180deg)' : 'none' }}
+          >
+            &#9662;
+          </span>
+        </button>
+      )}
 
       <div className={`nl-dd-panel${dark ? ' nl-dd-dark' : ''}`} role="menu" hidden={!open}>
           {items.map((item, idx) => {
@@ -254,6 +280,7 @@ function MobileMenu({ isOpen, onClose, sections, children }) {
                 <MobileDropdown
                   key={idx}
                   label={item.label}
+                  href={item.href}
                   items={item.items}
                   onNavigate={onClose}
                   accessProps={accessAttrs(item)}
@@ -280,43 +307,68 @@ function MobileMenu({ isOpen, onClose, sections, children }) {
   );
 }
 
-function MobileDropdown({ label, items, onNavigate, accessProps = {} }) {
+function MobileDropdown({ label, href, items, onNavigate, accessProps = {} }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <div className="nl-mobile-dd" {...accessProps}>
-      <button
-        className="nl-mobile-link nl-mobile-dd-trigger"
-        onClick={() => setExpanded((o) => !o)}
-        aria-expanded={expanded}
-      >
-        {label}
-        <span
-          className="nl-dd-arrow"
-          style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
-        >
-          &#9662;
-        </span>
-      </button>
-      {expanded && (
-        <div className="nl-mobile-dd-items">
-          {items.map((item, idx) => {
-            if (item.divider) return <div key={`d${idx}`} className="nl-dd-divider" />;
-            if (item.heading) return <div key={`h${idx}`} className="nl-dd-heading">{item.heading}</div>;
-            return (
-              <NavAnchor
-                key={item.href}
-                href={item.href}
-                className={`nl-mobile-dd-item${item.accent ? ' accent' : ''}`}
-                onClick={onNavigate}
-                {...accessAttrs(item)}
-              >
-                {item.label}
-              </NavAnchor>
-            );
-          })}
+      {href ? (
+        <div className="nl-mobile-dd-top">
+          <NavAnchor
+            href={href}
+            className="nl-mobile-link nl-mobile-dd-label"
+            onClick={onNavigate}
+          >
+            {label}
+          </NavAnchor>
+          <button
+            type="button"
+            className="nl-mobile-dd-toggle"
+            onClick={() => setExpanded((o) => !o)}
+            aria-expanded={expanded}
+            aria-label={`${expanded ? 'Hide' : 'Show'} ${label} links`}
+          >
+            <span
+              className="nl-dd-arrow"
+              style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
+            >
+              &#9662;
+            </span>
+          </button>
         </div>
+      ) : (
+        <button
+          type="button"
+          className="nl-mobile-link nl-mobile-dd-trigger"
+          onClick={() => setExpanded((o) => !o)}
+          aria-expanded={expanded}
+        >
+          {label}
+          <span
+            className="nl-dd-arrow"
+            style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
+          >
+            &#9662;
+          </span>
+        </button>
       )}
+      <div className="nl-mobile-dd-items" hidden={!expanded}>
+        {items.map((item, idx) => {
+          if (item.divider) return <div key={`d${idx}`} className="nl-dd-divider" />;
+          if (item.heading) return <div key={`h${idx}`} className="nl-dd-heading">{item.heading}</div>;
+          return (
+            <NavAnchor
+              key={item.href}
+              href={item.href}
+              className={`nl-mobile-dd-item${item.accent ? ' accent' : ''}`}
+              onClick={onNavigate}
+              {...accessAttrs(item)}
+            >
+              {item.label}
+            </NavAnchor>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -384,6 +436,7 @@ export function BrandBar({
     : user?.email
       ? user.email.charAt(0).toUpperCase()
       : 'U';
+  const userDisplayLabel = user?.displayName || user?.email || 'Signed in';
 
   // ── Ask AI button (shared between desktop + mobile) ──
   const askAiBtn = isSignedIn && onOpenChat ? (
@@ -423,6 +476,7 @@ export function BrandBar({
               <NavDropdown
                 key={idx}
                 label={item.label}
+                href={item.href}
                 items={item.items}
                 dark={item.dark}
                 isActive={isDropdownActive(item)}
@@ -463,7 +517,7 @@ export function BrandBar({
           ) : isSignedIn ? (
             <div className="nl-nav-user">
               <div className="nl-nav-avatar">{initials}</div>
-              <span className="nl-nav-user-email">{user.email || user.displayName || 'Signed in'}</span>
+              <span className="nl-nav-user-email">{userDisplayLabel}</span>
               <button
                 onClick={onSignOut}
                 className="nl-nav-ghost"
@@ -522,7 +576,7 @@ export function BrandBar({
           ) : isSignedIn ? (
             <div className="nl-mobile-auth">
               <div className="nl-nav-avatar">{initials}</div>
-              <span className="nl-nav-user-email">{user.email || user.displayName || 'Signed in'}</span>
+              <span className="nl-nav-user-email">{userDisplayLabel}</span>
               <button
                 onClick={() => { onSignOut?.(); closeMobile(); }}
                 className="nl-nav-ghost"

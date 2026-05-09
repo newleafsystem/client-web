@@ -100,6 +100,27 @@
   background: transparent;
 }
 
+.nl-global-data-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(6, 28, 21, 0.22);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+.nl-global-data-loader-card {
+  padding: 16px 20px;
+  border: 1px solid rgba(215, 181, 109, 0.24);
+  border-radius: 8px;
+  background: rgba(247, 245, 239, 0.96);
+  box-shadow: 0 18px 46px rgba(6, 28, 21, 0.18);
+}
+
 .leaf-loader {
   display: grid;
   justify-items: center;
