@@ -7,15 +7,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-const app = initializeApp({
-  apiKey: window.NEWLEAF_FIREBASE_CONFIG?.apiKey || "",
-  authDomain: "newleaf-trading.firebaseapp.com",
-  projectId: "newleaf-trading",
-  storageBucket: "newleaf-trading.firebasestorage.app",
-  messagingSenderId: "240392819045",
-  appId: "1:240392819045:web:a1dc19e5dcfa29e6cdd18c"
-});
-const auth = getAuth(app);
+const firebaseConfig = window.NEWLEAF_FIREBASE_CONFIG || {};
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId
+);
+const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
+const auth = app ? getAuth(app) : null;
 
 function getInitials(user) {
   if (user.displayName) {
@@ -50,6 +50,17 @@ function mobileSignedInHTML(user) {
     '</div>';
 }
 
+function wireFallbackAuthLinks() {
+  document.querySelectorAll('#navSignIn, #mobileSignIn, .nl-nav-right .nl-nav-ghost, .nl-mobile-utility .nl-nav-ghost').forEach(function (button) {
+    button.addEventListener('click', function () {
+      window.location.href = '/invest#signin';
+    });
+  });
+}
+
+if (!auth) {
+  wireFallbackAuthLinks();
+} else {
 onAuthStateChanged(auth, function (user) {
   // Desktop auth zone
   var navRight = document.querySelector('.nl-nav-right');
@@ -99,3 +110,4 @@ onAuthStateChanged(auth, function (user) {
     if (mobileSignOutBtn) mobileSignOutBtn.addEventListener('click', function () { signOut(auth); });
   }
 });
+}

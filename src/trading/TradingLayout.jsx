@@ -46,12 +46,27 @@ export default function TradingLayout() {
     setChatInitialMessage(null);
   }, []);
 
+  const renderInvestShell = (children, headerProps = {}) => (
+    <div style={{ minHeight: '100vh', background: '#F7F5F0' }}>
+      <BrandBar
+        surface="invest"
+        authState={headerProps.authState || (user ? 'in' : 'out')}
+        user={headerProps.user ?? user}
+        onSignOut={signOut}
+        onSignIn={signInWithGoogle}
+        onOpenChat={headerProps.onOpenChat}
+      />
+      {children}
+    </div>
+  );
+
   if (authLoading) {
-    return (
+    return renderInvestShell(
       <div className="loading-container">
         <div className="loading-spinner">&#127811;</div>
         <p className="loading-text">Loading NewLeaf System...</p>
-      </div>
+      </div>,
+      { authState: 'out', user: null }
     );
   }
 
@@ -74,16 +89,17 @@ export default function TradingLayout() {
   }
 
   if (tilesLoading) {
-    return (
+    return renderInvestShell(
       <div className="loading-container">
         <div className="loading-spinner">&#127811;</div>
         <p className="loading-text">Loading opportunities...</p>
-      </div>
+      </div>,
+      { authState: 'in', user, onOpenChat: openChat }
     );
   }
 
   if (error) {
-    return (
+    return renderInvestShell(
       <div className="loading-container">
         <h2 style={{ fontSize: '1.875rem', fontWeight: '700', color: '#dc2626', marginBottom: '1rem' }}>
           Error Loading Tiles
@@ -99,7 +115,8 @@ export default function TradingLayout() {
         >
           Sign Out
         </button>
-      </div>
+      </div>,
+      { authState: 'in', user, onOpenChat: openChat }
     );
   }
 

@@ -55,6 +55,8 @@ export const WORKBENCH_STRATEGIES = [
 
 export const surfaceConfig = {
   root: {
+    ariaLabel: 'NewLeaf System navigation',
+    brandSuffix: 'System',
     sections: [
       { kind: 'link', label: 'Picks', href: '/picks' },
       { kind: 'link', label: 'Workbench', href: '/workbench/' },
@@ -67,6 +69,8 @@ export const surfaceConfig = {
   },
 
   picks: {
+    ariaLabel: 'NewLeaf Picks navigation',
+    brandSuffix: 'Picks',
     sections: [
       { kind: 'link', label: 'Picks', href: '/picks' },
       { kind: 'link', label: 'Performance', href: '/picks/recap' },
@@ -76,6 +80,8 @@ export const surfaceConfig = {
   },
 
   workbench: {
+    ariaLabel: 'NewLeaf Workbench navigation',
+    brandSuffix: 'Workbench',
     sections: [
       { kind: 'link', label: 'Hub', href: '/workbench/' },
       { kind: 'link', label: 'Scanner', href: '/workbench/all-stocks.html' },
@@ -89,6 +95,8 @@ export const surfaceConfig = {
   },
 
   invest: {
+    ariaLabel: 'NewLeaf Invest navigation',
+    brandSuffix: 'Invest',
     sections: [
       { kind: 'link', label: 'Home', href: '/invest' },
       { kind: 'link', label: 'Discover', href: '/invest/discover' },

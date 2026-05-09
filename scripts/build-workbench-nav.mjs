@@ -14,7 +14,7 @@
 import { createServer } from 'vite';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MemoryRouter } from 'react-router-dom';
+import { StaticRouter } from 'react-router-dom/server.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -45,8 +45,8 @@ async function main() {
     // Render the workbench nav to static HTML
     const markup = renderToStaticMarkup(
       createElement(
-        MemoryRouter,
-        { initialEntries: ['/workbench/'] },
+        StaticRouter,
+        { location: '/workbench/' },
         createElement(BrandBar, { surface: 'workbench', authState: 'out' })
       )
     );

@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react';
 import { LoginPage } from '../components/LoginPage';
 import { PlantGrowthIllustration } from '../components/PlantGrowthIllustration';
-import { BrandBar } from '../../shared/components/BrandBar';
 import PageSEO from '../../shared/components/PageSEO';
-import { useAuth } from '../../shared/hooks/useAuth';
-import { Footer } from '../components/Footer';
 import '../styles/landing-v7.css';
 
 export function LandingPageV7({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) {
-  const { user, signOut, signInWithGoogle } = useAuth();
   const [showAuth, setShowAuth] = useState(null); // null | 'login' | 'signup'
 
   const handleGetStarted = (mode = 'signup') => setShowAuth(mode);
@@ -54,13 +50,6 @@ export function LandingPageV7({ onSignInWithGoogle, onSignInWithEmail, onSignUp 
         title="NewLeaf System — AI-Powered Options Intelligence Platform"
         description="NewLeaf System scans 108 stocks in real time across 8 options strategies. AI-powered scoring, analyst-curated picks, and a full strategy workbench for smarter options trading."
         path="/"
-      />
-      <BrandBar
-        surface="root"
-        authState={user ? 'in' : 'out'}
-        user={user}
-        onSignOut={signOut}
-        onSignIn={signInWithGoogle}
       />
 
       {/* HERO — full-bleed video */}
@@ -562,7 +551,6 @@ export function LandingPageV7({ onSignInWithGoogle, onSignInWithEmail, onSignUp 
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

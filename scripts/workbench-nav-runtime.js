@@ -11,7 +11,7 @@
   });
   document.querySelectorAll('.nl-dd-item[data-page]').forEach(function (link) {
     if (link.dataset.page === currentPage) {
-      link.style.color = '#C9A96E';
+      link.style.color = 'var(--brand-gold, #d7b56d)';
       link.style.fontWeight = '600';
       var trigger = document.querySelector('.nl-dd-trigger');
       if (trigger) trigger.classList.add('active');
@@ -29,31 +29,6 @@
   updateClock();
   setInterval(updateClock, 1000);
 
-  // ── Product switcher ──
-  var switcherBtn = document.querySelector('.nl-switcher-btn');
-  var switcherPanel = document.querySelector('.nl-switcher-panel');
-  var switcherWrap = document.querySelector('.nl-switcher-wrap');
-
-  if (switcherBtn && switcherPanel) {
-    switcherBtn.addEventListener('click', function () {
-      var open = !switcherPanel.hidden;
-      switcherPanel.hidden = !switcherPanel.hidden;
-      switcherBtn.setAttribute('aria-expanded', String(!open));
-    });
-    document.addEventListener('mousedown', function (e) {
-      if (switcherWrap && !switcherWrap.contains(e.target)) {
-        switcherPanel.hidden = true;
-        switcherBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !switcherPanel.hidden) {
-        switcherPanel.hidden = true;
-        switcherBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
-  }
-
   // ── Strategies dropdown (desktop: hover + click) ──
   var ddWrap = document.querySelector('.nl-dd-wrap');
   var ddTrigger = document.querySelector('.nl-dd-trigger');
@@ -66,10 +41,10 @@
 
     ddTrigger.addEventListener('click', function () { ddPanel.hidden ? showDD() : hideDD(); });
     ddWrap.addEventListener('mouseenter', function () {
-      if (window.innerWidth > 860) { clearTimeout(hoverTimeout); showDD(); }
+      if (window.innerWidth > 1080) { clearTimeout(hoverTimeout); showDD(); }
     });
     ddWrap.addEventListener('mouseleave', function () {
-      if (window.innerWidth > 860) { hoverTimeout = setTimeout(hideDD, 150); }
+      if (window.innerWidth > 1080) { hoverTimeout = setTimeout(hideDD, 150); }
     });
     document.addEventListener('mousedown', function (e) {
       if (!ddWrap.contains(e.target)) hideDD();

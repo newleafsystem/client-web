@@ -7,6 +7,7 @@ import { BrandBar } from './shared/components/BrandBar';
 import PublicLayout from './trading/PublicLayout';
 import WorkbenchLayout from './shared/components/WorkbenchLayout';
 import PicksLayout from './picks/PicksLayout';
+import { Footer } from './trading/components/Footer';
 
 // Loading skeleton — shows nav immediately, content fades in
 function PageSkeleton() {
@@ -77,15 +78,25 @@ const JadeLizardSkill = lazy(() => import('./trading/pages/strategies/JadeLizard
 
 // Landing page wrapper
 function LandingWithAuth() {
-  const { signInWithGoogle, signInWithEmail, signUp } = useAuth();
+  const { user, signOut, signInWithGoogle, signInWithEmail, signUp } = useAuth();
   return (
-    <Suspense fallback={<PageSkeleton />}>
-      <LandingPage
-        onSignInWithGoogle={signInWithGoogle}
-        onSignInWithEmail={signInWithEmail}
-        onSignUp={signUp}
+    <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+      <BrandBar
+        surface="root"
+        authState={user ? 'in' : 'out'}
+        user={user}
+        onSignOut={signOut}
+        onSignIn={signInWithGoogle}
       />
-    </Suspense>
+      <Suspense fallback={<PageSkeleton />}>
+        <LandingPage
+          onSignInWithGoogle={signInWithGoogle}
+          onSignInWithEmail={signInWithEmail}
+          onSignUp={signUp}
+        />
+      </Suspense>
+      <Footer />
+    </div>
   );
 }
 

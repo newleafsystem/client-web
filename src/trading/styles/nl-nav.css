@@ -7,7 +7,7 @@
 .nl-nav,
 nav.nl-nav,
 .landing-v7 nav.nl-nav {
-  background: #0B2D23 !important;
+  background: var(--brand-gradient, linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%)) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   padding: 0 clamp(1.25rem, 3vw, 2.25rem) !important;
@@ -57,10 +57,11 @@ nav.nl-nav,
   color: #fff !important;
   letter-spacing: -.005em !important;
   line-height: 1 !important;
+  white-space: nowrap !important;
 }
 .nl-nav-wordmark em,
 .nl-nav-wordmark .system {
-  color: #C9A96E !important;
+  color: var(--brand-gold, #d7b56d) !important;
   font-style: italic !important;
   font-weight: 500 !important;
   font-size: 18px !important;
@@ -86,8 +87,8 @@ nav.nl-nav,
 /* Each nav link */
 .nl-nav-link,
 .nl-nav .nl-nav-link,
-.nl-nav-links a:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item):not(.nl-switcher-item),
-.nl-nav .nl-nav-links a:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item):not(.nl-switcher-item) {
+.nl-nav-links a:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item),
+.nl-nav .nl-nav-links a:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item) {
   font-family: 'Inter', sans-serif !important;
   font-size: 12px !important;
   letter-spacing: .12em !important;
@@ -112,17 +113,17 @@ nav.nl-nav,
 .nl-nav-link:hover,
 .nl-nav-link.active,
 .nl-nav-link.on,
-.nl-nav .nl-nav-links a:not(.nl-dd-item):not(.nl-switcher-item):hover,
-.nl-nav .nl-nav-links a:not(.nl-dd-item):not(.nl-switcher-item).active {
-  color: #C9A96E !important;
-  border-bottom-color: #C9A96E !important;
+.nl-nav .nl-nav-links a:not(.nl-dd-item):hover,
+.nl-nav .nl-nav-links a:not(.nl-dd-item).active {
+  color: var(--brand-gold, #d7b56d) !important;
+  border-bottom-color: var(--brand-gold, #d7b56d) !important;
   background: transparent !important;
 }
 
 /* "How it works" / outline pill */
 .nl-nav-pill,
 .nl-nav .nl-nav-pill {
-  border: 1px solid rgba(201,169,110,.45) !important;
+  border: 1px solid rgba(215,181,109,.45) !important;
   border-radius: 4px !important;
   padding: 0 14px !important;
   height: 32px !important;
@@ -132,7 +133,7 @@ nav.nl-nav,
   font-family: 'Inter', sans-serif !important;
   text-transform: uppercase !important;
   font-weight: 600 !important;
-  color: #C9A96E !important;
+  color: var(--brand-gold, #d7b56d) !important;
   text-decoration: none !important;
   display: flex !important;
   align-items: center !important;
@@ -142,16 +143,16 @@ nav.nl-nav,
 }
 .nl-nav-pill:hover,
 .nl-nav .nl-nav-pill:hover {
-  background: #C9A96E !important;
-  color: #0B2D23 !important;
-  border-color: #C9A96E !important;
+  background: var(--brand-gold, #d7b56d) !important;
+  color: var(--brand-forest, #0b2d23) !important;
+  border-color: var(--brand-gold, #d7b56d) !important;
 }
 
 /* Cross-app separator + dimmed links */
 .nl-nav-sep {
   width: 1px !important;
   height: 20px !important;
-  background: rgba(201,169,110,.18) !important;
+  background: rgba(215,181,109,.18) !important;
   margin: 0 6px !important;
   flex-shrink: 0 !important;
 }
@@ -169,9 +170,9 @@ nav.nl-nav,
 /* Get Started CTA (filled gold — punched up for visibility) */
 .nl-nav-cta,
 .nl-nav .nl-nav-cta {
-  background: #C8A85A !important;
-  color: #0B2D23 !important;
-  border: 1px solid #C8A85A !important;
+  background: var(--brand-gold, #d7b56d) !important;
+  color: var(--brand-forest, #0b2d23) !important;
+  border: 1px solid var(--brand-gold, #d7b56d) !important;
   border-radius: 6px !important;
   padding: 0 24px !important;
   height: 38px !important;
@@ -190,8 +191,8 @@ nav.nl-nav,
 }
 .nl-nav-cta:hover,
 .nl-nav .nl-nav-cta:hover {
-  background: #d4b46a !important;
-  border-color: #d4b46a !important;
+  background: #e1c57f !important;
+  border-color: #e1c57f !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 6px 16px rgba(200,168,90,.4) !important;
 }
@@ -217,7 +218,7 @@ nav.nl-nav,
 }
 .nl-nav-ghost:hover,
 .nl-nav .nl-nav-ghost:hover {
-  color: #C9A96E !important;
+  color: var(--brand-gold, #d7b56d) !important;
   text-decoration: underline !important;
   text-underline-offset: 3px !important;
 }
@@ -242,7 +243,7 @@ nav.nl-nav,
   display: inline-block;
   animation: nlPulse 2s infinite;
 }
-.nl-live-time { color: #C9A96E; font-weight: 600; }
+.nl-live-time { color: var(--brand-gold, #d7b56d); font-weight: 600; }
 @keyframes nlPulse {
   0%, 100% { box-shadow: 0 0 0 2px rgba(93,186,142,.25); }
   50%      { box-shadow: 0 0 0 6px rgba(93,186,142,0); }
@@ -272,14 +273,14 @@ nav.nl-nav,
   gap: 8px;
   margin-left: 6px;
   padding-left: 10px;
-  border-left: 1px solid rgba(201,169,110,.18);
+  border-left: 1px solid rgba(215,181,109,.18);
 }
 .nl-nav-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #C9A96E, #b89556);
-  color: #0B2D23;
+  background: linear-gradient(135deg, var(--brand-gold, #d7b56d), #b8862d);
+  color: var(--brand-forest, #0b2d23);
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 700;
@@ -289,13 +290,9 @@ nav.nl-nav,
   flex-shrink: 0;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   BrandBar — brand zone, product switcher, dropdowns,
-   mobile hamburger + overlay.  All colours reference tokens.js:
-     primaryGreen #0B2D23 · softGold #C9A96E · cream #F7F4EE
-   ═══════════════════════════════════════════════════════════════ */
+/* BrandBar modules */
 
-/* Brand zone — wraps logo + switcher */
+/* Brand zone */
 .nl-brand-zone {
   display: flex !important;
   align-items: center !important;
@@ -303,84 +300,6 @@ nav.nl-nav,
   flex-shrink: 0 !important;
   justify-self: start !important;
   grid-column: 1 !important;
-}
-
-/* ── Product Switcher ── */
-
-.nl-switcher-wrap {
-  position: relative;
-}
-.nl-switcher-btn {
-  background: rgba(255,255,255,0.06) !important;
-  border: 1px solid rgba(201,169,110,0.25) !important;
-  border-radius: 6px !important;
-  padding: 6px !important;
-  color: rgba(255,255,255,0.6) !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.18s !important;
-  line-height: 1 !important;
-}
-.nl-switcher-btn:hover {
-  background: rgba(201,169,110,0.12) !important;
-  color: #C9A96E !important;
-  border-color: rgba(201,169,110,0.45) !important;
-}
-
-.nl-switcher-panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  min-width: 280px;
-  background: #0B2D23;
-  border: 1px solid rgba(201,169,110,0.18);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  padding: 6px;
-  z-index: 210;
-}
-
-.nl-switcher-item {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  padding: 12px !important;
-  border-radius: 8px !important;
-  text-decoration: none !important;
-  transition: background 0.15s !important;
-  border: none !important;
-  border-bottom: none !important;
-  height: auto !important;
-}
-.nl-switcher-item:hover {
-  background: rgba(201,169,110,0.08) !important;
-}
-.nl-switcher-item.current {
-  background: rgba(201,169,110,0.06) !important;
-}
-
-.nl-switcher-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.nl-switcher-label {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 16px;
-  font-weight: 400;
-  color: #fff;
-}
-.nl-switcher-desc {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-}
-.nl-switcher-check {
-  color: #C9A96E;
-  margin-left: auto;
-  flex-shrink: 0;
 }
 
 /* ── NavDropdown (How it works · Strategies) ── */
@@ -422,7 +341,7 @@ nav.nl-nav,
   font-family: 'Inter', sans-serif !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  color: #0B2D23 !important;
+  color: var(--brand-forest, #0b2d23) !important;
   text-decoration: none !important;
   background: transparent !important;
   border: none !important;
@@ -435,14 +354,14 @@ nav.nl-nav,
 }
 .nl-dd-item:hover {
   background: rgba(11,45,35,0.06) !important;
-  color: #0B2D23 !important;
+  color: var(--brand-forest, #0b2d23) !important;
 }
 .nl-dd-item:focus-visible {
-  outline: 2px solid #C9A96E !important;
+  outline: 2px solid var(--brand-gold, #d7b56d) !important;
   outline-offset: -2px !important;
 }
 .nl-dd-item.accent {
-  color: #C9A96E !important;
+  color: var(--brand-gold, #d7b56d) !important;
 }
 
 .nl-dd-divider {
@@ -463,22 +382,22 @@ nav.nl-nav,
 
 /* Dark panel variant (used for Workbench Strategies) */
 .nl-dd-panel.nl-dd-dark {
-  background: #0B2D23;
-  border-color: rgba(201,169,110,0.18);
+  background: var(--brand-forest, #0b2d23);
+  border-color: rgba(215,181,109,0.18);
 }
 .nl-dd-dark .nl-dd-item {
   color: rgba(255,255,255,0.85) !important;
 }
 .nl-dd-dark .nl-dd-item:hover {
-  color: #C9A96E !important;
-  background: rgba(201,169,110,0.10) !important;
+  color: var(--brand-gold, #d7b56d) !important;
+  background: rgba(215,181,109,0.10) !important;
   padding-left: 22px !important;
 }
 .nl-dd-dark .nl-dd-heading {
-  color: rgba(201,169,110,0.7);
+  color: rgba(215,181,109,0.7);
 }
 .nl-dd-dark .nl-dd-divider {
-  background: rgba(201,169,110,0.12);
+  background: rgba(215,181,109,0.12);
 }
 
 /* ── Mobile hamburger ── */
@@ -486,9 +405,9 @@ nav.nl-nav,
 .nl-hamburger {
   display: none;
   background: none;
-  border: 1px solid rgba(201,169,110,0.25);
+  border: 1px solid rgba(215,181,109,0.25);
   border-radius: 4px;
-  color: #C9A96E;
+  color: var(--brand-gold, #d7b56d);
   cursor: pointer;
   padding: 6px 10px;
   margin-left: auto;
@@ -500,7 +419,7 @@ nav.nl-nav,
   flex-shrink: 0;
 }
 .nl-hamburger:hover {
-  background: rgba(201,169,110,0.12);
+  background: rgba(215,181,109,0.12);
 }
 
 /* ── Mobile overlay + panel ── */
@@ -519,7 +438,7 @@ nav.nl-nav,
   right: 0;
   max-height: calc(100vh - 60px);
   overflow-y: auto;
-  background: #0B2D23;
+  background: var(--brand-forest, #0b2d23);
   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   z-index: 200;
 }
@@ -535,7 +454,7 @@ nav.nl-nav,
   cursor: pointer;
   width: 100%;
 }
-.nl-mobile-close:hover { color: #C9A96E; }
+.nl-mobile-close:hover { color: var(--brand-gold, #d7b56d); }
 
 .nl-mobile-sections {
   display: flex;
@@ -554,13 +473,13 @@ nav.nl-nav,
   color: rgba(255,255,255,0.72) !important;
   text-decoration: none !important;
   border: none !important;
-  border-bottom: 1px solid rgba(201,169,110,0.10) !important;
+  border-bottom: 1px solid rgba(215,181,109,0.10) !important;
   background: none !important;
   width: 100% !important;
   cursor: pointer !important;
   transition: color 0.18s !important;
 }
-.nl-mobile-link:hover { color: #C9A96E; }
+.nl-mobile-link:hover { color: var(--brand-gold, #d7b56d); }
 
 .nl-mobile-dd-trigger {
   justify-content: space-between;
@@ -581,15 +500,15 @@ nav.nl-nav,
   text-decoration: none !important;
   transition: color 0.15s !important;
 }
-.nl-mobile-dd-item:hover { color: #C9A96E !important; }
-.nl-mobile-dd-item.accent { color: #C9A96E !important; font-weight: 600 !important; }
+.nl-mobile-dd-item:hover { color: var(--brand-gold, #d7b56d) !important; }
+.nl-mobile-dd-item.accent { color: var(--brand-gold, #d7b56d) !important; font-weight: 600 !important; }
 
 .nl-mobile-utility {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
   padding: 16px 24px !important;
-  border-top: 1px solid rgba(201,169,110,0.18) !important;
+  border-top: 1px solid rgba(215,181,109,0.18) !important;
 }
 /* Make pills / CTAs full-width inside mobile panel */
 .nl-mobile-btn {
@@ -607,7 +526,12 @@ nav.nl-nav,
 
 /* ═══ Mobile breakpoint (≤860px) ═══ */
 @media (max-width: 1080px) {
-  .nl-nav { padding: 0 1rem !important; height: 60px !important; }
+  .nl-nav,
+  nav.nl-nav,
+  .landing-v7 nav.nl-nav {
+    padding: 0 1rem !important;
+    height: 60px !important;
+  }
   .nl-nav-spacer { height: 60px !important; flex-basis: 60px !important; }
   .nl-nav-wordmark { font-size: 17px !important; }
   .nl-nav-wordmark em { font-size: 15px !important; }

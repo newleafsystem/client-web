@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { surfaceConfig, switcherProducts } from './navConfig';
+import { surfaceConfig } from './navConfig';
 import { useMarketState } from '../../trading/hooks/useMarketState';
 
 // ═══════════════════════════════════════════════════════════════
@@ -22,71 +22,6 @@ function formatET() {
     minute: '2-digit',
     hour12: false,
   }) + ' ET';
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ProductSwitcher — grid icon + dropdown listing 3 products
-// ═══════════════════════════════════════════════════════════════
-
-function ProductSwitcher({ currentSurface }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onOutside = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    const onEsc = (e) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', onOutside);
-    document.addEventListener('keydown', onEsc);
-    return () => {
-      document.removeEventListener('mousedown', onOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
-  }, [open]);
-
-  return (
-    <div ref={ref} className="nl-switcher-wrap">
-      <button
-        className="nl-switcher-btn"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-haspopup="true"
-        aria-label="Switch product"
-      >
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
-          <rect x="1" y="1" width="6" height="6" rx="1.5" />
-          <rect x="9" y="1" width="6" height="6" rx="1.5" />
-          <rect x="1" y="9" width="6" height="6" rx="1.5" />
-          <rect x="9" y="9" width="6" height="6" rx="1.5" />
-        </svg>
-      </button>
-
-      <div className="nl-switcher-panel" role="menu" hidden={!open}>
-        {switcherProducts.map((p) => (
-          <NavAnchor
-            key={p.key}
-            href={p.href}
-            className={`nl-switcher-item${p.key === currentSurface ? ' current' : ''}`}
-            role="menuitem"
-            aria-current={p.key === currentSurface ? 'true' : undefined}
-            onClick={() => setOpen(false)}
-          >
-            <div className="nl-switcher-text">
-              <span className="nl-switcher-label">{p.label}</span>
-              <span className="nl-switcher-desc">{p.description}</span>
-            </div>
-            {p.key === currentSurface && (
-              <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" className="nl-switcher-check">
-                <path d="M13.3 4.3a1 1 0 0 1 0 1.4l-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 0 1 1.4-1.4L6.5 9.6l5.3-5.3a1 1 0 0 1 1.4 0z" />
-              </svg>
-            )}
-          </NavAnchor>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -373,26 +308,29 @@ function MobileDropdown({ label, items, onNavigate }) {
 // ═══════════════════════════════════════════════════════════════
 
 export function BrandBar({
-  surface,
+  surface = 'root',
   authState = 'out',
   user = null,
   onSignOut,
   onSignIn,
   onOpenChat,
+  brandSuffix,
+  sections: sectionsOverride,
+  showAuth: showAuthOverride = true,
+  className = '',
 }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const config = surfaceConfig[surface];
+  const config = surfaceConfig[surface] || surfaceConfig.root;
+  const navClassName = ['nl-nav', `nl-nav--${surface}`, className].filter(Boolean).join(' ');
+  const productSuffix = brandSuffix || config.brandSuffix || 'System';
 
   // Each surface uses its own sections. When logged out, a surface can
   // provide sectionsOut (e.g. invest shows cross-product links until
   // marketing routes like Overview/Pricing exist).
-  const sections = (authState === 'out' && config.sectionsOut) || config.sections;
-  // Keep one site navigation surface: the centered header links.
-  // The product switcher duplicated those links immediately after the logo.
-  const showSwitcher = false;
+  const sections = sectionsOverride || (authState === 'out' && config.sectionsOut) || config.sections;
   const showBuilderCta = config.builderCta;
-  const showAuth = true;
+  const showAuth = showAuthOverride;
 
   // Admin detection (invest authenticated only)
   const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || '')
@@ -454,16 +392,15 @@ export function BrandBar({
 
   return (
     <>
-    <nav className="nl-nav">
+    <nav className={navClassName} aria-label={config.ariaLabel || 'NewLeaf navigation'}>
       {/* ── Brand zone ── */}
       <div className="nl-brand-zone">
         <Link to="/" className="nl-nav-brand">
           <img src="/logo-icon.png" width="36" height="36" alt="NewLeaf" />
           <span className="nl-nav-wordmark">
-            NewLeaf <em>System</em>
+            NewLeaf <em>{productSuffix}</em>
           </span>
         </Link>
-        {showSwitcher && <ProductSwitcher currentSurface={surface} />}
       </div>
 
       {/* ── Section nav (desktop) ── */}

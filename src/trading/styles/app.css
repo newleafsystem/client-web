@@ -6,9 +6,17 @@
 :root {
   /* Brand Colors — NewLeaf System */
   --brand-primary: #0B2D23;    /* Forest Green */
-  --brand-accent: #C9A96E;     /* Soft Gold */
+  --brand-accent: #d7b56d;     /* Soft Gold */
   --brand-dark: #1A1F2E;       /* Charcoal */
   --brand-light: #E8F5F0;      /* Mint Wash */
+  --brand-forest-dark: #061c15;
+  --brand-forest: #0b2d23;
+  --brand-evergreen: #155a42;
+  --brand-gold: #d7b56d;
+  --brand-gold-strong: #b8862d;
+  --brand-cream: #f7f5ef;
+  --brand-gradient: linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%);
+  --brand-gradient-deep: linear-gradient(180deg, #061c15 0%, #0b2d23 58%, #13251f 100%);
 
   /* Leaf Green Palette (mapped to new brand) */
   --leaf-50: #e8f5f0;
@@ -27,8 +35,8 @@
   --gold-100: #f5ecd0;
   --gold-200: #e8d9a3;
   --gold-300: #dcc88a;
-  --gold-400: #C9A96E;
-  --gold-500: #C9A96E;
+  --gold-400: #d7b56d;
+  --gold-500: #d7b56d;
   --gold-600: #a8893a;
   --gold-700: #88701e;
   --gold-800: #685510;
@@ -501,14 +509,31 @@ body {
 
   /* === FOOTER === */
   .auth-footer.app-footer {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 12px 16px;
+    padding: 32px 18px 18px;
   }
 
-  .auth-footer nav {
-    justify-content: center;
+  .site-footer-inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .site-footer-brand {
+    max-width: none;
+  }
+
+  .site-footer-nav {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .site-footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 28px;
+  }
+
+  .site-footer-bottom nav {
+    justify-content: flex-start;
   }
 }
 
@@ -1326,25 +1351,18 @@ body {
 
 /* FOOTER */
 .auth-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  border-top: 1px solid rgba(247, 245, 239, 0.14);
-  padding-top: 16px;
-  color: rgba(247, 245, 239, 0.64);
-  font-size: 0.84rem;
+  color: rgba(247, 245, 239, 0.78);
+  font-size: 0.88rem;
 }
 
 .auth-footer nav {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 14px;
+  gap: 12px;
 }
 
 .auth-footer a {
-  color: #f6d88e;
+  color: var(--brand-gold);
   font-weight: 700;
   text-decoration: none;
 }
@@ -1355,14 +1373,116 @@ body {
 
 .app-footer {
   border-top-color: rgba(215, 181, 109, 0.42);
-  padding: 13px 24px;
-  background: linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%);
+  padding: clamp(36px, 5vw, 58px) clamp(20px, 4vw, 48px) 22px;
+  background: var(--brand-gradient);
   color: rgba(247, 245, 239, 0.78);
   box-shadow: 0 -12px 30px rgba(11, 45, 35, 0.16);
 }
 
 .app-footer a {
-  color: #d7b56d;
+  color: var(--brand-gold);
+}
+
+.site-footer-inner {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(260px, 1.25fr) minmax(0, 1.75fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+
+.site-footer-brand {
+  display: grid;
+  gap: 14px;
+  max-width: 430px;
+}
+
+.site-footer-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+}
+
+.site-footer-lockup img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.site-footer-lockup span {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 650;
+  line-height: 1;
+  color: var(--brand-cream);
+}
+
+.site-footer-lockup em {
+  color: var(--brand-gold);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.site-footer-brand p {
+  margin: 0;
+  color: rgba(247, 245, 239, 0.76);
+  line-height: 1.72;
+}
+
+.site-footer-risk {
+  padding-top: 4px;
+  color: rgba(247, 245, 239, 0.58) !important;
+  font-size: 0.82rem;
+}
+
+.site-footer-nav {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+  gap: clamp(22px, 3vw, 40px);
+}
+
+.site-footer-column {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.site-footer-column h2 {
+  margin: 0 0 4px;
+  color: var(--brand-cream);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.site-footer-column a {
+  color: rgba(247, 245, 239, 0.72);
+  font-weight: 650;
+}
+
+.site-footer-column a:hover {
+  color: var(--brand-gold);
+}
+
+.site-footer-bottom {
+  width: min(1180px, 100%);
+  margin: 34px auto 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(247, 245, 239, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(247, 245, 239, 0.62);
+  font-size: 0.82rem;
+}
+
+.site-footer-bottom nav {
+  justify-content: flex-end;
 }
 
 /* EMPTY STATE */
