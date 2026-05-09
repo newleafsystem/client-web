@@ -59,8 +59,9 @@ UI patterns:
 - Use `Footer` in every route surface. Layout shells should own footer placement when the page belongs to a route family.
 - Use `src/shared/components/LeafLoader.jsx` for route, auth, and API loading states. Do not add one-off loading text, emoji spinners, or blank suspense fallbacks.
 - Use `src/trading/styles/brand.css` for canonical brand tokens. The official large-surface gradient is `--brand-gradient`; shared primary and secondary buttons use `--brand-button-*` variables or the `.nl-btn-primary` and `.nl-btn-secondary` helpers.
-- Do not introduce one-off dark green gradients for large branded areas. Reuse `--brand-gradient` for header/footer-adjacent surfaces, hero bands, CTA bands, and product story sections.
-- When two or more `--brand-gradient` content blocks are adjacent, group them under one continuous gradient surface and make inner sections transparent. Use spacing, dividers, or content rhythm inside the surface instead of restarting the gradient on each small section.
+- Do not introduce one-off dark green gradients for large branded areas. Reuse `--brand-gradient` for header/footer-adjacent surfaces, hero bands, compact CTA bands, and focused product story moments.
+- Do not stack repeated full-width dark green surfaces, and do not stretch one large brand gradient across long content runs. Use one intentional brand-gradient moment, then alternate adjacent content onto warm ivory, white, or very soft green surfaces with restrained gold accents.
+- Keep `Banner` surfaces compact and accent-led. If a banner grows into a page section, redesign it as a full section with its own visual hierarchy instead of reusing the compact dark banner treatment.
 - Do not use green or gradient-filled primary buttons. Primary actions use the solid muted-gold brand button token; secondary actions use the warm-ivory token with a muted-gold border.
 - Use `src/shared/auth/accessControl.js` for product app ids, role ids, app-access normalization, and navigation filtering.
 - Do not hand-maintain duplicate product navs inside page bodies.

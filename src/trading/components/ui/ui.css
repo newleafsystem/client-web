@@ -531,15 +531,20 @@
 .nl-banner {
   padding: 16px;
   border-radius: var(--nl-radius-xl, 22px);
-  border: 1px solid rgba(11, 45, 35, 0.18);
-  background: var(--brand-gradient, var(--nl-brand-gradient, linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%)));
+  border: 1px solid rgba(201, 169, 110, 0.28);
+  background:
+    radial-gradient(720px 220px at 100% -24%, rgba(214, 180, 88, 0.34), rgba(214, 180, 88, 0) 58%),
+    linear-gradient(112deg, #061c15 0%, #0b2d23 52%, #24422f 76%, #7e682b 100%);
   color: #fff;
-  box-shadow: var(--nl-shadow-lg, 0 18px 44px rgba(17, 24, 39, 0.10));
+  box-shadow:
+    var(--nl-shadow-lg, 0 18px 44px rgba(17, 24, 39, 0.10)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  overflow: hidden;
 }
 
 .nl-banner-content {

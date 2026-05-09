@@ -315,13 +315,17 @@ function PhaseCard({ phase }) {
 // Signup band — reusable CTA section
 // ═══════════════════════════════════════════════════════════════
 
-function SignupBand({ label, headline, subhead, surface = 'brand' }) {
-  const embedded = surface === 'embedded';
+function SignupBand({ label, headline, subhead, surface = 'light' }) {
+  const dark = surface === 'brand';
 
   return (
     <section style={{
-      background: embedded ? 'transparent' : 'var(--brand-gradient)',
-      padding: embedded ? '40px 0 76px' : '64px 0',
+      background: dark
+        ? 'linear-gradient(110deg, #061c15 0%, #0b2d23 58%, #7e682b 100%)'
+        : 'linear-gradient(135deg, #fbf7ed 0%, #f7f4ee 55%, #edf4ed 100%)',
+      borderBottom: dark ? '1px solid rgba(255,255,255,.08)' : '1px solid rgba(11,45,35,.08)',
+      borderTop: dark ? '1px solid rgba(255,255,255,.08)' : '1px solid rgba(201,169,110,.18)',
+      padding: '48px 0',
       textAlign: 'center',
       position: 'relative',
       zIndex: 1,
@@ -329,16 +333,12 @@ function SignupBand({ label, headline, subhead, surface = 'brand' }) {
       <div style={{
         width: 'min(600px, calc(100% - 40px))',
         margin: '0 auto',
-        ...(embedded ? {
-          borderTop: '1px solid rgba(255,255,255,.08)',
-          paddingTop: 44,
-        } : {}),
       }}>
         {/* Label */}
         <p style={{
           fontFamily: "'Space Mono', monospace",
           fontSize: 10, letterSpacing: '.2em', textTransform: 'uppercase',
-          color: '#C9A96E', fontWeight: 700,
+          color: dark ? '#C9A96E' : '#9d7b36', fontWeight: 700,
           marginBottom: 14,
         }}>{label}</p>
 
@@ -347,7 +347,7 @@ function SignupBand({ label, headline, subhead, surface = 'brand' }) {
           fontFamily: "'Fraunces', 'Playfair Display', Georgia, serif",
           fontSize: 'clamp(24px, 2.8vw, 34px)',
           fontWeight: 600, lineHeight: 1.2,
-          color: '#F7F4EE',
+          color: dark ? '#F7F4EE' : '#0B2D23',
           letterSpacing: '-0.5px',
           marginBottom: 10,
         }}>{headline}</h2>
@@ -355,7 +355,7 @@ function SignupBand({ label, headline, subhead, surface = 'brand' }) {
         {/* Subhead */}
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: 14, color: 'rgba(255,255,255,.45)',
+          fontSize: 14, color: dark ? 'rgba(255,255,255,.5)' : 'rgba(11,45,35,.62)',
           lineHeight: 1.6,
           marginBottom: 28,
         }}>{subhead}</p>
@@ -390,7 +390,7 @@ function SignupBand({ label, headline, subhead, surface = 'brand' }) {
             href="/signin"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              color: '#C9A96E', fontSize: 13, fontWeight: 700,
+              color: dark ? '#C9A96E' : '#0B2D23', fontSize: 13, fontWeight: 700,
               fontFamily: "'DM Sans', sans-serif", textDecoration: 'underline',
               textUnderlineOffset: 2, padding: 0,
             }}
@@ -692,31 +692,16 @@ export function InvestPage() {
       </section>
 
       {/* 3B — The NewLeaf system — three product cards */}
-      <div className="invest-joined-brand-surface" style={{
-        background: 'var(--brand-gradient)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(201,169,110,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,.035) 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
-          pointerEvents: 'none',
-        }}/>
-
       <section style={{
-        background: 'transparent',
-        padding: '76px 0 44px',
+        background: 'linear-gradient(135deg, #fbf7ed 0%, #f7f4ee 58%, #edf4ed 100%)',
+        padding: '84px 0 76px',
         position: 'relative',
         overflow: 'hidden',
-        zIndex: 1,
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(201,169,110,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,.035) 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
+          backgroundImage: 'linear-gradient(120deg, rgba(201,169,110,.18) 0%, rgba(201,169,110,0) 34%), linear-gradient(180deg, rgba(11,45,35,.04), rgba(11,45,35,0) 48%)',
           pointerEvents: 'none',
-          display: 'none',
         }}/>
 
         <div style={{
@@ -730,14 +715,14 @@ export function InvestPage() {
             fontFamily: "'Playfair Display', Georgia, serif",
             fontSize: 'clamp(28px, 3.2vw, 40px)',
             fontWeight: 900, lineHeight: 1.08,
-            letterSpacing: '-1.5px', color: '#fff',
+            letterSpacing: '-1.5px', color: '#0B2D23',
             marginBottom: 8,
           }}>
             The NewLeaf system.
           </h2>
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 15, color: 'rgba(255,255,255,.5)',
+            fontSize: 15, color: 'rgba(11,45,35,.58)',
             lineHeight: 1.7, marginBottom: 40,
           }}>
             Three apps. One philosophy. Every trade covered.
@@ -752,23 +737,24 @@ export function InvestPage() {
           }}>
             {/* Picks */}
             <div style={{
-              background: '#0B2D23',
+              background: 'rgba(255,255,255,.72)',
               borderRadius: 16,
               padding: '28px 24px 24px',
-              border: '1px solid rgba(255,255,255,.08)',
+              border: '1px solid rgba(11,45,35,.12)',
+              boxShadow: '0 18px 50px rgba(11,45,35,.06)',
               textAlign: 'left',
             }}>
-              <InvestProductEyebrow>Trade Ideas</InvestProductEyebrow>
+              <InvestProductEyebrow style={{ color: 'rgba(11,45,35,.46)' }}>Trade Ideas</InvestProductEyebrow>
               <h3 style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: 22, fontWeight: 900, color: '#fff',
+                fontSize: 22, fontWeight: 900, color: '#0B2D23',
                 marginBottom: 8,
               }}>
-                NewLeaf <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,.55)', fontWeight: 500 }}>Picks</em>
+                NewLeaf <em style={{ fontStyle: 'italic', color: '#9d7b36', fontWeight: 500 }}>Picks</em>
               </h3>
               <p style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,.5)',
+                fontSize: 14, lineHeight: 1.7, color: 'rgba(11,45,35,.62)',
               }}>
                 Curated trade recommendations, delivered daily.
               </p>
@@ -776,23 +762,24 @@ export function InvestPage() {
 
             {/* Workbench */}
             <div style={{
-              background: '#0B2D23',
+              background: 'rgba(255,255,255,.72)',
               borderRadius: 16,
               padding: '28px 24px 24px',
-              border: '1px solid rgba(255,255,255,.08)',
+              border: '1px solid rgba(11,45,35,.12)',
+              boxShadow: '0 18px 50px rgba(11,45,35,.06)',
               textAlign: 'left',
             }}>
-              <InvestProductEyebrow>Research Workspace</InvestProductEyebrow>
+              <InvestProductEyebrow style={{ color: 'rgba(11,45,35,.46)' }}>Research Workspace</InvestProductEyebrow>
               <h3 style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: 22, fontWeight: 900, color: '#fff',
+                fontSize: 22, fontWeight: 900, color: '#0B2D23',
                 marginBottom: 8,
               }}>
-                NewLeaf <em style={{ fontStyle: 'italic', color: 'rgba(255,255,255,.55)', fontWeight: 500 }}>Workbench</em>
+                NewLeaf <em style={{ fontStyle: 'italic', color: '#9d7b36', fontWeight: 500 }}>Workbench</em>
               </h3>
               <p style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,.5)',
+                fontSize: 14, lineHeight: 1.7, color: 'rgba(11,45,35,.62)',
               }}>
                 Where our analysts screen 150+ stocks to find them.
               </p>
@@ -800,13 +787,13 @@ export function InvestPage() {
 
             {/* Invest — highlighted */}
             <div style={{
-              background: '#0B2D23',
+              background: 'linear-gradient(135deg, #061c15 0%, #0B2D23 54%, #6f5926 100%)',
               borderRadius: 16,
               padding: '28px 24px 24px',
-              border: '1px solid rgba(201,169,110,.35)',
+              border: '1px solid rgba(201,169,110,.48)',
               textAlign: 'left',
               position: 'relative',
-              boxShadow: '0 0 32px rgba(201,169,110,.08)',
+              boxShadow: '0 22px 58px rgba(11,45,35,.2), 0 0 0 1px rgba(201,169,110,.08) inset',
             }}>
               {/* Gold accent top */}
               <div style={{
@@ -814,7 +801,7 @@ export function InvestPage() {
                 background: '#C9A96E', borderRadius: '16px 16px 0 0',
               }}/>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <InvestProductEyebrow style={{ margin: 0 }}>Portfolio Lifecycle</InvestProductEyebrow>
+                <InvestProductEyebrow style={{ margin: 0, color: 'rgba(255,255,255,.58)' }}>Portfolio Lifecycle</InvestProductEyebrow>
                 <span style={{
                   fontFamily: "'Space Mono', monospace",
                   fontSize: 9, letterSpacing: '.08em',
@@ -841,7 +828,7 @@ export function InvestPage() {
 
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 14, color: 'rgba(255,255,255,.38)',
+            fontSize: 14, color: 'rgba(11,45,35,.54)',
             lineHeight: 1.72, maxWidth: '60ch',
             margin: '0 auto',
           }}>
@@ -852,58 +839,120 @@ export function InvestPage() {
 
       {/* 3C — "Who this is for" band */}
       <section style={{
-        background: 'transparent',
-        padding: '10px 0 36px',
-        textAlign: 'center',
+        background: 'linear-gradient(112deg, #061c15 0%, #0B2D23 46%, #243d2b 68%, #8a6e2d 100%)',
+        padding: '70px 0',
         position: 'relative',
-        zIndex: 1,
+        overflow: 'hidden',
       }}>
         <div style={{
-          width: 'min(840px, calc(100% - 40px))',
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,0) 34%), linear-gradient(180deg, rgba(201,169,110,.09), rgba(201,169,110,0) 58%)',
+          pointerEvents: 'none',
+        }}/>
+        <div style={{
+          width: 'min(1060px, calc(100% - 40px))',
           margin: '0 auto',
-          borderTop: '1px solid rgba(255,255,255,.08)',
-          borderBottom: '1px solid rgba(255,255,255,.08)',
-          padding: '42px 30px',
-        }}>
-          <p style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 'clamp(17px, 1.9vw, 21px)',
-            fontWeight: 400,
-            lineHeight: 1.72,
-            color: '#F7F4EE',
-            letterSpacing: '-0.2px',
-            margin: 0,
+          display: 'grid',
+          gridTemplateColumns: '1.2fr .8fr',
+          gap: 48,
+          alignItems: 'center',
+          position: 'relative',
+          zIndex: 1,
+        }} className="invest-cta-grid">
+          <div>
+            <p style={{
+              fontFamily: "'Space Mono', monospace",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '.2em',
+              textTransform: 'uppercase',
+              color: '#C9A96E',
+              margin: '0 0 14px',
+            }}>
+              Built for live trades
+            </p>
+            <p style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(18px, 2vw, 24px)',
+              fontWeight: 500,
+              lineHeight: 1.58,
+              color: '#F7F4EE',
+              letterSpacing: '-0.2px',
+              margin: 0,
+            }}>
+              For the retail trader running iron condors, spreads, and wheels - who&rsquo;s
+              tired of spreadsheets, missed exits, and platforms that stop helping the
+              moment the order fills.
+            </p>
+          </div>
+
+          <div style={{
+            borderLeft: '1px solid rgba(255,255,255,.14)',
+            paddingLeft: 34,
           }}>
-            For the retail trader running iron condors, spreads, and wheels — who&rsquo;s
-            tired of spreadsheets, missed exits, and platforms that stop helping the
-            moment the order fills.
-          </p>
+            <p style={{
+              fontFamily: "'Space Mono', monospace",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '.2em',
+              textTransform: 'uppercase',
+              color: '#C9A96E',
+              margin: '0 0 14px',
+            }}>
+              One last thing
+            </p>
+            <h2 style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(30px, 3.2vw, 44px)',
+              lineHeight: 1.06,
+              letterSpacing: '-0.8px',
+              color: '#F7F4EE',
+              margin: '0 0 12px',
+            }}>
+              The cycle runs every day. Start yours.
+            </h2>
+            <p style={{
+              color: 'rgba(255,255,255,.58)',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              lineHeight: 1.7,
+              margin: '0 0 24px',
+            }}>
+              Free to get started. Upgrade when you&rsquo;re ready.
+            </p>
+            <a href="/register" className="invest-signup-cta" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: 190,
+              height: 48,
+              borderRadius: 8,
+              background: '#D6B458',
+              color: '#061c15',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 14,
+              fontWeight: 800,
+              textDecoration: 'none',
+              boxShadow: '0 14px 34px rgba(0,0,0,.22)',
+            }}>
+              Get started free &rarr;
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* Closing signup band */}
-      <SignupBand
-        label="ONE LAST THING"
-        headline="The cycle runs every day. Start yours."
-        subhead="Free to get started. Upgrade when you're ready."
-        surface="embedded"
-      />
-
       {/* Six Phases — below the fold */}
       <section style={{
-        background: 'transparent',
-        padding: '70px 0 84px',
+        background: 'linear-gradient(180deg, #F7F4EE 0%, #FBF7ED 100%)',
+        padding: '84px 0 88px',
         position: 'relative',
         overflow: 'hidden',
-        zIndex: 1,
       }}>
-        {/* Grid overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(201,169,110,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,.035) 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
+          backgroundImage: 'linear-gradient(90deg, rgba(201,169,110,.12), rgba(201,169,110,0) 35%), linear-gradient(180deg, rgba(11,45,35,.05), rgba(11,45,35,0) 52%)',
           pointerEvents: 'none',
-          display: 'none',
         }}/>
 
         <div className="invest-hero-grid" style={{
@@ -922,9 +971,9 @@ export function InvestPage() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '5px 13px', borderRadius: 999,
-              background: 'rgba(201,169,110,.11)',
-              border: '1px solid rgba(201,169,110,.28)',
-              color: '#C9A96E',
+              background: 'rgba(201,169,110,.14)',
+              border: '1px solid rgba(157,123,54,.25)',
+              color: '#9d7b36',
               fontSize: 10.5, fontWeight: 700,
               letterSpacing: '.1em', textTransform: 'uppercase',
               marginBottom: 22,
@@ -932,7 +981,7 @@ export function InvestPage() {
             }}>
               <span style={{
                 width: 6, height: 6, borderRadius: '50%',
-                background: '#C9A96E',
+                background: '#9d7b36',
                 animation: 'pulse 2.2s ease-in-out infinite',
               }}/>
               THE SIX PHASES
@@ -942,15 +991,15 @@ export function InvestPage() {
               fontFamily: "'Playfair Display', Georgia, serif",
               fontSize: 'clamp(38px, 4.5vw, 58px)',
               fontWeight: 900, lineHeight: 0.97,
-              letterSpacing: '-2px', color: '#fff',
+              letterSpacing: '-2px', color: '#0B2D23',
               marginBottom: 18,
             }}>
               Every trade travels<br/>
-              <em style={{ fontStyle: 'italic', color: '#C9A96E' }}>the same path.</em>
+              <em style={{ fontStyle: 'italic', color: '#9d7b36' }}>the same path.</em>
             </h1>
 
             <p style={{
-              fontSize: 16, color: 'rgba(255,255,255,.58)',
+              fontSize: 16, color: 'rgba(11,45,35,.64)',
               lineHeight: 1.78, maxWidth: '50ch',
               marginBottom: 30,
               fontFamily: "'Inter', sans-serif",
@@ -967,7 +1016,6 @@ export function InvestPage() {
           </div>
         </div>
       </section>
-      </div>
 
       {/* Phase cards section */}
       <section style={{ padding: '80px 0' }}>
@@ -1028,6 +1076,13 @@ export function InvestPage() {
         @media (max-width: 960px) {
           .invest-hero-grid { grid-template-columns: 1fr !important; gap: 44px !important; }
           .invest-hero-grid > div:last-child { max-width: 420px; margin: 0 auto; }
+          .invest-cta-grid { grid-template-columns: 1fr !important; gap: 30px !important; }
+          .invest-cta-grid > div:last-child {
+            border-left: 0 !important;
+            border-top: 1px solid rgba(255,255,255,.14) !important;
+            padding-left: 0 !important;
+            padding-top: 28px !important;
+          }
         }
         @media (max-width: 768px) {
           .invest-cards-grid { grid-template-columns: 1fr 1fr !important; }
