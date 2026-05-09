@@ -25,7 +25,7 @@ const { loadRuntimeConfig } = require('./lib/runtime-config.cjs');
 
 const runtimeConfig = loadRuntimeConfig();
 const R2_BASE = runtimeConfig.r2.publicBaseUrl;
-const PORT    = parseInt(process.argv.find(a => a.startsWith('--port='))?.split('=')[1] || '3000');
+const PORT    = parseInt(process.argv.find(a => a.startsWith('--port='))?.split('=')[1] || process.env.PORT || '3000', 10);
 
 // ── Firebase init ──────────────────────────────────────────────────
 const db = getFirestoreDb();

@@ -1,0 +1,168 @@
+name: Ops Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Pipeline entry point to run.
+        required: true
+        type: choice
+        options:
+          - picks-preview
+          - weekly-publish
+          - close-week
+          - email-preview
+          - email-send
+          - scanner-daily
+          - scanner-intraday
+          - scanner-fast
+          - scanner-watchlist
+          - scanner-oi
+          - upload-watchlist
+      theme:
+        description: Weekly publish market theme.
+        required: false
+        type: string
+      confirm_email_send:
+        description: Required for email-send.
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: Run ${{ inputs.task }}
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+      FIRESTORE_DATABASE_ID: ${{ vars.FIRESTORE_DATABASE_ID }}
+      FIREBASE_USE_APPLICATION_DEFAULT: ${{ vars.FIREBASE_USE_APPLICATION_DEFAULT }}
+      FIREBASE_CREDENTIALS_BASE64: ${{ secrets.FIREBASE_CREDENTIALS_BASE64 }}
+      FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
+      R2_ACCOUNT_ID: ${{ vars.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
+      R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
+      R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      YAHOO_SVC_URL: ${{ vars.YAHOO_SVC_URL }}
+      PIPELINE_DTE_MIN: ${{ vars.PIPELINE_DTE_MIN }}
+      PIPELINE_DTE_MAX: ${{ vars.PIPELINE_DTE_MAX }}
+      PIPELINE_CONCURRENCY: ${{ vars.PIPELINE_CONCURRENCY }}
+      WATCHLIST: ${{ vars.WATCHLIST }}
+      SMTP_HOST: ${{ vars.SMTP_HOST }}
+      SMTP_PORT: ${{ vars.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      EMAIL_FROM: ${{ vars.EMAIL_FROM }}
+      EMAIL_RECIPIENTS: ${{ vars.EMAIL_RECIPIENTS }}
+      SENTIMENT_ENABLED: ${{ vars.SENTIMENT_ENABLED }}
+      SENTIMENT_CACHE_MAX_AGE_MINUTES: ${{ vars.SENTIMENT_CACHE_MAX_AGE_MINUTES }}
+      CLAUDE_SENTIMENT_ENABLED: ${{ vars.CLAUDE_SENTIMENT_ENABLED }}
+      CLAUDE_SENTIMENT_WEIGHT: ${{ vars.CLAUDE_SENTIMENT_WEIGHT }}
+      GROK_SENTIMENT_ENABLED: ${{ vars.GROK_SENTIMENT_ENABLED }}
+      GROK_SENTIMENT_WEIGHT: ${{ vars.GROK_SENTIMENT_WEIGHT }}
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      GEMINI_SENTIMENT_ENABLED: ${{ vars.GEMINI_SENTIMENT_ENABLED }}
+      GEMINI_SENTIMENT_WEIGHT: ${{ vars.GEMINI_SENTIMENT_WEIGHT }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      REDDIT_SENTIMENT_ENABLED: ${{ vars.REDDIT_SENTIMENT_ENABLED }}
+      REDDIT_SENTIMENT_WEIGHT: ${{ vars.REDDIT_SENTIMENT_WEIGHT }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install scanner dependencies
+        run: npm ci --prefix scanner
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+
+      - name: Write Firebase service account
+        run: |
+          set -euo pipefail
+          cred_file="$RUNNER_TEMP/firebase-service-account.json"
+          if [ -n "${FIREBASE_CREDENTIALS_BASE64:-}" ]; then
+            printf '%s' "$FIREBASE_CREDENTIALS_BASE64" | base64 -d > "$cred_file"
+          elif [ -n "${FIREBASE_CREDENTIALS_JSON:-}" ]; then
+            printf '%s' "$FIREBASE_CREDENTIALS_JSON" > "$cred_file"
+          else
+            echo "FIREBASE_CREDENTIALS_BASE64 or FIREBASE_CREDENTIALS_JSON is required." >&2
+            exit 1
+          fi
+          chmod 600 "$cred_file"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$cred_file" >> "$GITHUB_ENV"
+
+      - name: Run selected entry point
+        env:
+          TASK: ${{ inputs.task }}
+          THEME: ${{ inputs.theme }}
+          CONFIRM_EMAIL_SEND: ${{ inputs.confirm_email_send }}
+        run: |
+          set -euo pipefail
+          case "$TASK" in
+            picks-preview)
+              npm run picks:preview
+              ;;
+            weekly-publish)
+              bash scripts/run-weekly.sh "${THEME:-Options strategies selected by NewLeaf scoring engine}"
+              ;;
+            close-week)
+              bash scripts/run-close-week.sh
+              ;;
+            email-preview)
+              npm run email:preview
+              ;;
+            email-send)
+              if [ "$CONFIRM_EMAIL_SEND" != "true" ]; then
+                echo "email-send requires confirm_email_send=true." >&2
+                exit 1
+              fi
+              npm run email:send
+              ;;
+            scanner-daily)
+              bash scripts/scanner/newleaf-daily.sh
+              ;;
+            scanner-intraday)
+              bash scripts/scanner/newleaf-intraday.sh
+              ;;
+            scanner-fast)
+              bash scripts/scanner/run-fast-pipeline.sh
+              ;;
+            scanner-watchlist)
+              bash scripts/scanner/run-watchlist-pipeline.sh
+              ;;
+            scanner-oi)
+              bash scripts/scanner/run-oi-enrichment.sh
+              ;;
+            upload-watchlist)
+              node scanner/upload-watchlist.js
+              ;;
+            *)
+              echo "Unknown task: $TASK" >&2
+              exit 1
+              ;;
+          esac

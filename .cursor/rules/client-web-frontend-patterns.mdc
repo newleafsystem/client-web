@@ -1,0 +1,26 @@
+---
+description: Frontend rules for React, Vite, public pages, investor pages, blog, picks, and workbench integration.
+globs:
+  - "src/**/*"
+  - "public/**/*"
+  - "workbench/**/*"
+  - "index.html"
+  - "vite.config.js"
+  - "tailwind.config.js"
+alwaysApply: false
+---
+
+# Frontend Patterns
+
+- `src/App.jsx` owns top-level routes.
+- Use existing layouts: `PublicLayout`, `TradingLayout`, `WorkbenchLayout`, and `PicksLayout`.
+- Put investor/tooling app work under `src/trading`.
+- Put public explanation pages under `src/marketing`.
+- Put weekly picks work under `src/picks`.
+- Put blog work under `src/blog`.
+- Put shared shell, nav, SEO, and auth code under `src/shared`.
+- Keep static workbench pages browser-runnable and compatible with copy into `dist/workbench`.
+- Do not hardcode Firebase web config. Use `import.meta.env.VITE_FIREBASE_*`.
+- Avoid guaranteed-profit or risk-free language in options content.
+
+Run `npm run build` after frontend route, asset, Firebase config, or Vite changes.

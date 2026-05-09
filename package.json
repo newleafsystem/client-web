@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "node server.cjs",
     "build": "node scripts/clean-spa.js && vite build && node scripts/prerender.js",
     "preview": "vite preview",
     "publish": "node pipeline/publish-pick.cjs",

@@ -5,6 +5,7 @@
   "targets": {
     "newleaf-trading": {
       "hosting": {
+        "newleaf-preview": ["newleaf-preview"],
         "newleafsystem": ["newleafsystem"]
       }
     }

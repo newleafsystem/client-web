@@ -212,9 +212,36 @@ newleafsystem/
 
 - **Project:** `newleaf-trading`
 - **Database:** `newleafdb` (Firestore)
-- **Hosting site:** `newleafsystem` → newleafsystem.com
+- **Test Hosting site:** `newleaf-preview` -> newleaf-preview.web.app
+- **Production Hosting site:** `newleafsystem` -> newleafsystem.com
 - **Auth:** Google + email/password
 - **Service account:** use `FIREBASE_CREDENTIALS_BASE64` locally and in GitHub Actions secrets. Do not keep service account JSON files in the repo.
+
+## GitHub Actions
+
+- `CI` validates shell, JS, Python syntax, sensitive candidate scans, and the Vite build.
+- `Deploy Web` builds once, then deploys Firebase test by default.
+- Pushes to `main` deploy to `FIREBASE_TEST_HOSTING_TARGET`, defaulting to `newleaf-preview`.
+- Production Firebase deploys require manual dispatch with `deploy_environment=production`.
+- Cloudflare Pages and Google Cloud Run jobs are manual and use the selected `test` or `production` GitHub environment.
+
+Useful deploy variables:
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `FIREBASE_PROJECT_ID` | `newleaf-trading` | Firebase/GCP project |
+| `FIREBASE_TEST_HOSTING_TARGET` | `newleaf-preview` | Test Hosting target |
+| `FIREBASE_HOSTING_TARGET` | `newleafsystem` | Production Hosting target |
+| `CLOUDFLARE_PAGES_PROJECT` | empty | Optional Cloudflare Pages project |
+| `GCP_TEST_CLOUD_RUN_SERVICE` | empty | Optional test Cloud Run service |
+| `GCP_CLOUD_RUN_SERVICE` | empty | Optional production Cloud Run service |
+
+Sync repo variables/secrets from local `.env` without printing values:
+
+```bash
+bash scripts/setup-github-actions-config.sh --dry-run --repo OWNER/REPO
+bash scripts/setup-github-actions-config.sh --repo OWNER/REPO
+```
 
 ## DNS (names.co.uk)
 

@@ -1,0 +1,39 @@
+---
+description: Deployment, GitHub Actions, Firebase Hosting, Cloudflare, Google Cloud, and secret-safety rules.
+globs:
+  - ".github/**/*"
+  - "firebase.json"
+  - ".firebaserc"
+  - ".gitignore"
+  - ".env.example"
+  - "scripts/setup-github-actions-config.sh"
+  - "scripts/load-env-file.sh"
+  - "scripts/scan-sensitive-candidates.cjs"
+alwaysApply: false
+---
+
+# Deployment And Security
+
+Firebase Hosting:
+
+- Test target: `newleaf-preview`.
+- Production target: `newleafsystem`.
+- Pushes to `main` may deploy test only.
+- Production deploys must be manual with `deploy_environment=production`.
+- Firebase target names must exist in both `.firebaserc` and `firebase.json`.
+
+GitHub Actions:
+
+- Use repo variables for non-secret config.
+- Use GitHub secrets for credentials and keys.
+- Use `scripts/setup-github-actions-config.sh --dry-run` before syncing config.
+- Do not print secret values.
+- Keep Cloudflare Pages and Google Cloud Run jobs manual unless production config is explicitly added.
+
+Validation:
+
+```bash
+bash scripts/setup-github-actions-config.sh --dry-run --repo OWNER/REPO
+npx -y firebase-tools@latest deploy --project newleaf-trading --only hosting:newleaf-preview --dry-run
+node scripts/scan-sensitive-candidates.cjs --all
+```

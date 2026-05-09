@@ -1,0 +1,31 @@
+---
+description: Pipeline, scanner, R2, Firestore, email, and runtime config rules.
+globs:
+  - "pipeline/**/*"
+  - "scanner/**/*"
+  - "lib/**/*"
+  - "scripts/**/*"
+  - ".env.example"
+alwaysApply: false
+---
+
+# Pipeline And Runtime Patterns
+
+- Node runtime config belongs in `lib/runtime-config.cjs`.
+- Firebase Admin belongs in `lib/firebase-admin.cjs`.
+- Scanner config belongs in `scanner/lib/config.js`.
+- Python config belongs in `pipeline/config_loader.py`.
+- Add config keys to `.env.example` and `scripts/setup-github-actions-config.sh` together.
+- Fail with missing key names only. Never print values.
+- Do not read or write legacy JSON credentials/config files.
+- Keep scripts repo-relative and cross-platform where practical.
+- Keep generated outputs under ignored paths.
+
+Checks:
+
+```bash
+bash -n scripts/*.sh scripts/scanner/*.sh scanner/yahoo-svc/start.sh
+node --check path/to/file.js
+python -m py_compile path/to/file.py
+node scripts/scan-sensitive-candidates.cjs --all
+```

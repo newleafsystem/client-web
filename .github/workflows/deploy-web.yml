@@ -1,0 +1,322 @@
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: Test uses staging targets; production updates live targets.
+        required: true
+        default: test
+        type: choice
+        options:
+          - test
+          - production
+      deploy_firebase:
+        description: Deploy Firebase Hosting.
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      deploy_cloudflare_pages:
+        description: Deploy dist/ to Cloudflare Pages.
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      deploy_gcp_cloud_run:
+        description: Deploy a Google Cloud Run service from source.
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      cloud_run_service:
+        description: Optional Cloud Run service override.
+        required: false
+        type: string
+      cloud_run_region:
+        description: Optional Cloud Run region override.
+        required: false
+        type: string
+      cloud_run_source:
+        description: Optional Cloud Run source directory override.
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-web-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Scan for sensitive commit candidates
+        run: node scripts/scan-sensitive-candidates.cjs --all
+
+      - name: Build web app
+        env:
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ vars.VITE_FIREBASE_MEASUREMENT_ID }}
+          VITE_ADMIN_EMAILS: ${{ vars.VITE_ADMIN_EMAILS }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_SCHEDULER_API: ${{ vars.VITE_SCHEDULER_API }}
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+          if-no-files-found: error
+
+  firebase-test:
+    name: Firebase Hosting Test
+    needs: build
+    runs-on: ubuntu-latest
+    environment: test
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy_environment == 'test' && inputs.deploy_firebase == 'true')
+    env:
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+      FIREBASE_TEST_HOSTING_TARGET: ${{ vars.FIREBASE_TEST_HOSTING_TARGET }}
+      FIREBASE_CREDENTIALS_BASE64: ${{ secrets.FIREBASE_CREDENTIALS_BASE64 }}
+      FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
+
+    steps:
+      - name: Check out deploy config
+        uses: actions/checkout@v4
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Write Firebase service account
+        run: |
+          set -euo pipefail
+          cred_file="$RUNNER_TEMP/firebase-service-account.json"
+          if [ -n "${FIREBASE_CREDENTIALS_BASE64:-}" ]; then
+            printf '%s' "$FIREBASE_CREDENTIALS_BASE64" | base64 -d > "$cred_file"
+          elif [ -n "${FIREBASE_CREDENTIALS_JSON:-}" ]; then
+            printf '%s' "$FIREBASE_CREDENTIALS_JSON" > "$cred_file"
+          else
+            echo "FIREBASE_CREDENTIALS_BASE64 or FIREBASE_CREDENTIALS_JSON is required." >&2
+            exit 1
+          fi
+          chmod 600 "$cred_file"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$cred_file" >> "$GITHUB_ENV"
+
+      - name: Deploy to Firebase test hosting
+        run: |
+          set -euo pipefail
+          project="${FIREBASE_PROJECT_ID:-newleaf-trading}"
+          target="${FIREBASE_TEST_HOSTING_TARGET:-newleaf-preview}"
+          target="${target#hosting:}"
+          npx -y firebase-tools@latest deploy --project "$project" --only "hosting:$target"
+
+  firebase-production:
+    name: Firebase Hosting Production
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_environment == 'production' && inputs.deploy_firebase == 'true'
+    env:
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+      FIREBASE_HOSTING_TARGET: ${{ vars.FIREBASE_HOSTING_TARGET }}
+      FIREBASE_CREDENTIALS_BASE64: ${{ secrets.FIREBASE_CREDENTIALS_BASE64 }}
+      FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
+
+    steps:
+      - name: Check out deploy config
+        uses: actions/checkout@v4
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Write Firebase service account
+        run: |
+          set -euo pipefail
+          cred_file="$RUNNER_TEMP/firebase-service-account.json"
+          if [ -n "${FIREBASE_CREDENTIALS_BASE64:-}" ]; then
+            printf '%s' "$FIREBASE_CREDENTIALS_BASE64" | base64 -d > "$cred_file"
+          elif [ -n "${FIREBASE_CREDENTIALS_JSON:-}" ]; then
+            printf '%s' "$FIREBASE_CREDENTIALS_JSON" > "$cred_file"
+          else
+            echo "FIREBASE_CREDENTIALS_BASE64 or FIREBASE_CREDENTIALS_JSON is required." >&2
+            exit 1
+          fi
+          chmod 600 "$cred_file"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$cred_file" >> "$GITHUB_ENV"
+
+      - name: Deploy to Firebase live hosting
+        run: |
+          set -euo pipefail
+          project="${FIREBASE_PROJECT_ID:-newleaf-trading}"
+          target="${FIREBASE_HOSTING_TARGET:-newleafsystem}"
+          target="${target#hosting:}"
+          npx -y firebase-tools@latest deploy --project "$project" --only "hosting:$target"
+
+  cloudflare-pages:
+    name: Cloudflare Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.deploy_environment }}
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_cloudflare_pages == 'true'
+    env:
+      DEPLOY_ENVIRONMENT: ${{ inputs.deploy_environment }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || vars.R2_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+      CLOUDFLARE_PAGES_PREVIEW_BRANCH: ${{ vars.CLOUDFLARE_PAGES_PREVIEW_BRANCH }}
+      CLOUDFLARE_PAGES_PRODUCTION_BRANCH: ${{ vars.CLOUDFLARE_PAGES_PRODUCTION_BRANCH }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Deploy to Cloudflare Pages
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ] || [ -z "${CLOUDFLARE_PAGES_PROJECT:-}" ]; then
+            echo "CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID/R2_ACCOUNT_ID, and CLOUDFLARE_PAGES_PROJECT are required." >&2
+            exit 1
+          fi
+          if [ "${DEPLOY_ENVIRONMENT:-test}" = "production" ]; then
+            branch="${CLOUDFLARE_PAGES_PRODUCTION_BRANCH:-main}"
+          else
+            branch="${CLOUDFLARE_PAGES_PREVIEW_BRANCH:-test-${GITHUB_RUN_NUMBER}}"
+          fi
+          npx -y wrangler@latest pages deploy dist \
+            --project-name "$CLOUDFLARE_PAGES_PROJECT" \
+            --branch "$branch" \
+            --commit-dirty=true
+
+  google-cloud-run:
+    name: Google Cloud Run
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.deploy_environment }}
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_gcp_cloud_run == 'true'
+    env:
+      DEPLOY_ENVIRONMENT: ${{ inputs.deploy_environment }}
+      REQUESTED_CLOUD_RUN_SERVICE: ${{ inputs.cloud_run_service }}
+      REQUESTED_CLOUD_RUN_REGION: ${{ inputs.cloud_run_region }}
+      REQUESTED_CLOUD_RUN_SOURCE: ${{ inputs.cloud_run_source }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID || vars.FIREBASE_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      GCP_TEST_CLOUD_RUN_SERVICE: ${{ vars.GCP_TEST_CLOUD_RUN_SERVICE }}
+      GCP_CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE }}
+      GCP_CLOUD_RUN_SOURCE: ${{ vars.GCP_CLOUD_RUN_SOURCE }}
+      GCP_RUN_ALLOW_UNAUTHENTICATED: ${{ vars.GCP_RUN_ALLOW_UNAUTHENTICATED }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      GCP_SERVICE_ACCOUNT_KEY_BASE64: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Workload Identity
+        if: env.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && env.GCP_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authenticate with service account key
+        if: env.GCP_WORKLOAD_IDENTITY_PROVIDER == '' && env.GCP_SERVICE_ACCOUNT_KEY_BASE64 != ''
+        run: |
+          set -euo pipefail
+          cred_file="$RUNNER_TEMP/gcp-service-account.json"
+          printf '%s' "$GCP_SERVICE_ACCOUNT_KEY_BASE64" | base64 -d > "$cred_file"
+          chmod 600 "$cred_file"
+          gcloud auth activate-service-account --key-file="$cred_file"
+
+      - name: Deploy to Cloud Run
+        run: |
+          set -euo pipefail
+          project="${GCP_PROJECT_ID:-newleaf-trading}"
+          region="${REQUESTED_CLOUD_RUN_REGION:-${GCP_REGION:-us-central1}}"
+          source_dir="${REQUESTED_CLOUD_RUN_SOURCE:-${GCP_CLOUD_RUN_SOURCE:-.}}"
+          service="${REQUESTED_CLOUD_RUN_SERVICE:-}"
+          allow_flag=()
+
+          if [ -z "$service" ] && [ "${DEPLOY_ENVIRONMENT:-test}" = "production" ]; then
+            service="${GCP_CLOUD_RUN_SERVICE:-}"
+          elif [ -z "$service" ]; then
+            service="${GCP_TEST_CLOUD_RUN_SERVICE:-}"
+          fi
+
+          if [ -z "$service" ]; then
+            echo "Set GCP_TEST_CLOUD_RUN_SERVICE for test or GCP_CLOUD_RUN_SERVICE for production, or pass cloud_run_service." >&2
+            exit 1
+          fi
+
+          if [ "${GCP_RUN_ALLOW_UNAUTHENTICATED:-true}" = "true" ]; then
+            allow_flag=(--allow-unauthenticated)
+          fi
+
+          gcloud run deploy "$service" \
+            --source "$source_dir" \
+            --project "$project" \
+            --region "$region" \
+            "${allow_flag[@]}" \
+            --quiet

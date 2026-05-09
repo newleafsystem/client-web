@@ -1,0 +1,31 @@
+---
+description: Always-on agent guide for the NewLeaf System client-web repo.
+alwaysApply: true
+---
+
+# Client Web Agent Guide
+
+Read `AGENTS.md`, `docs/implementation-patterns.md`, and `SKILLS.md` before broad changes.
+
+Project facts:
+
+- React 18 + Vite frontend.
+- Firebase project `newleaf-trading`.
+- Test Hosting target `newleaf-preview`.
+- Production Hosting target `newleafsystem`.
+- Firestore database `newleafdb`.
+- Runtime config comes from environment variables, not JSON credential files.
+
+Rules:
+
+- Never expose or commit `.env` values, service account JSON, Alpaca keys, R2 keys, SMTP credentials, API keys, OAuth tokens, or provider secrets.
+- Do not recreate `scanner/config.json`, the old Alpaca JSON config file under `pipeline/`, or Firebase service account JSON.
+- Do not commit generated output such as `dist/`, `pipeline/output/`, scanner reports/logs, `.firebase/`, `.claude/`, `.DS_Store`, or backup files.
+- Keep production deploys manual. Test deploys go to `newleaf-preview`.
+- Financial/options content must be educational and risk-aware.
+
+Verification:
+
+- Run syntax checks for changed languages.
+- Run `npm run build` for frontend/config changes.
+- Run `node scripts/scan-sensitive-candidates.cjs --all` before commit-readiness.
