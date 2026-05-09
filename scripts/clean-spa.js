@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 /**
  * clean-spa.js — Pre-build cleanup
- * Removes old SPA directories from dist/ before Vite build.
- * Preserves: dist/picks/ (until React picks pages replace them),
- *            dist/quant/, dist/desk/ (untouched apps)
+ * Removes stale SPA/static-app directories from dist/ before Vite build.
  */
 
 import { rmSync, existsSync } from 'fs';
@@ -17,7 +15,7 @@ const CLEAN_DIRS = [
   'trading',   // old pre-built trading SPA (now built by Vite into root)
   'assets',    // old Vite build chunks (rebuilt each time)
   'picks',     // now served dynamically by the React SPA
-  // NOTE: dist/workbench/ is static HTML (newleaf-alpaca-r2) — do NOT clean
+  'workbench', // static HTML copied after build; clean first to remove deleted pages
 ];
 
 for (const dir of CLEAN_DIRS) {

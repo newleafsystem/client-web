@@ -34,6 +34,11 @@ scanner/crontab.old
 .DS_Store
 *.bak
 *.backup
+*.backup.*
+*.old.*
+*.orig
+*.patch
+*.rej
 *.tmp
 *.pyc
 __pycache__/

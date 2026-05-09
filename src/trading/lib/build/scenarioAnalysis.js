@@ -1,7 +1,7 @@
 /**
  * Scenario analysis — pure functions for Bull/Flat/Bear projections.
  *
- * Ported from PortfolioPageRefactored.jsx (lines 552-597).
+ * Extracted from the previous portfolio build flow.
  * Adapted for pre-entry strategies: current P&L is zero, projections
  * estimate outcomes if the user executes the shortlisted trades today.
  */

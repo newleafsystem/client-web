@@ -160,7 +160,7 @@ export function StrategyCard({
         </div>
       )}
 
-      {/* Legacy CTA — kept for other consumers (PortfolioPageRefactored, etc.) */}
+      {/* Compatibility CTA for older strategy-card consumers. */}
       {!onTakeTrade && onAdd && (
         <div className="nl-strat-footer">
           <button

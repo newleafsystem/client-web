@@ -1,6 +1,6 @@
 /**
  * FundAllocationTab — risk budget, auto-allocate, per-strategy sizing.
- * Matches the old PortfolioPageRefactored Fund Allocation tab.
+ * Matches the previous portfolio Fund Allocation tab.
  */
 import { useState } from 'react';
 import { formatStrategy } from '../../utils/formatters';

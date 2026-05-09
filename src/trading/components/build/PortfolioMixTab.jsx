@@ -1,6 +1,6 @@
 /**
  * PortfolioMixTab — donut chart + strategy breakdown table.
- * Ported from PortfolioPageRefactored.jsx allocation view.
+ * Extracted from the previous portfolio allocation view.
  */
 import { useRef, useEffect } from 'react';
 import Highcharts from 'highcharts';

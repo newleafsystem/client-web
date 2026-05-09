@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const all = process.argv.includes('--all');
+const staged = process.argv.includes('--staged');
 const binaryExtensions = new Set([
   '.avif', '.gif', '.gz', '.ico', '.jpeg', '.jpg', '.mov', '.mp4', '.pdf',
   '.png', '.ttf', '.webp', '.woff', '.woff2', '.zip'
@@ -21,6 +22,10 @@ function git(args) {
 function candidatePaths() {
   if (all) {
     return git(['ls-files']);
+  }
+
+  if (staged) {
+    return git(['diff', '--cached', '--name-only', '--diff-filter=ACMR']);
   }
 
   return [

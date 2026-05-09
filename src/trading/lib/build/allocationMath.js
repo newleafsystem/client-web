@@ -1,7 +1,7 @@
 /**
  * Portfolio allocation math — pure functions.
  *
- * Ported from PortfolioPageRefactored.jsx (lines 370-502).
+ * Extracted from the previous portfolio build flow.
  * Adapted for shortlisted (pre-entry) strategies instead of owned positions.
  *
  * All functions take data in, return numbers. No React, no Firestore, no side effects.

@@ -8,7 +8,7 @@ _Auto-extracted from code on 2026-04-18. Source of truth is the code, not this d
 1. `src/trading/styles/tokens.js` — JS design token objects + CSS variable generator
 2. `src/trading/styles/newleaf-system.css` — CSS custom properties + component classes (NL design system)
 3. `src/trading/styles/app.css` — legacy/extended CSS with its own `:root` tokens
-4. `src/trading/styles/landing-v7.css` — landing page design with separate token set
+4. `src/trading/styles/landing.css` — landing page design with separate token set
 5. `src/trading/styles/nl-nav.css` — nav-specific styles
 6. `src/trading/styles/redesign.css` — redesigned page components
 7. `src/trading/styles/global.css` — Tailwind imports + animation keyframes
@@ -50,11 +50,11 @@ _Auto-extracted from code on 2026-04-18. Source of truth is the code, not this d
 
 | Name | Variable | Value | Defined In |
 |------|----------|-------|-----------|
-| OK / Success | `--ok` | `#2d7d4f` | `landing-v7.css:20` |
-| Purple accent | `--q` | `#7c3aed` | `landing-v7.css:23` |
-| Amber accent | `--w` | `#d97706` | `landing-v7.css:23` |
-| Teal accent | `--t` | `#0d9488` | `landing-v7.css:23` |
-| Red accent | `--d` | `#dc2626` | `landing-v7.css:24` |
+| OK / Success | `--ok` | `#2d7d4f` | `landing.css:20` |
+| Purple accent | `--q` | `#7c3aed` | `landing.css:23` |
+| Amber accent | `--w` | `#d97706` | `landing.css:23` |
+| Teal accent | `--t` | `#0d9488` | `landing.css:23` |
+| Red accent | `--d` | `#dc2626` | `landing.css:24` |
 
 ### Accent Colours (app.css)
 
@@ -114,24 +114,24 @@ _Auto-extracted from code on 2026-04-18. Source of truth is the code, not this d
 | Surface | Value | Source |
 |---------|-------|--------|
 | Page background (app) | `#F7F8FA` | `tokens.js:11`, `newleaf-system.css:13` |
-| Page background (landing) | `#F7F4EE` | `landing-v7.css:13`, `index.html:25` |
+| Page background (landing) | `#F7F4EE` | `landing.css:13`, `index.html:25` |
 | Page background (app.css body) | `#ffffff` | `app.css:91` via `var(--white)` |
 | Card background | `#FFFFFF` | `tokens.js:17`, `newleaf-system.css:18` |
 | Elevated card background | `rgba(247,248,250,0.65)` | `newleaf-system.css:369`, `ui.css:173` |
 | Nav background (authenticated) | `#0B2D23` | `nl-nav.css:10` |
 | Nav background (legacy) | `#ffffff` | `app.css:98` |
-| Dark sections (landing) | `#04120c` → `#0b2d23` gradient | `landing-v7.css:139-145` |
+| Dark sections (landing) | `#04120c` → `#0b2d23` gradient | `landing.css:139-145` |
 
 ### Text Colours
 
 | Role | Value | Source |
 |------|-------|--------|
 | Primary text | `#111827` | `tokens.js:12`, `app.css:47` |
-| Primary text (landing) | `#0B0F14` | `landing-v7.css:16`, `index.html:26` |
+| Primary text (landing) | `#0B0F14` | `landing.css:16`, `index.html:26` |
 | Muted text | `rgba(17,24,39,0.68)` | `tokens.js:13` |
 | Muted text 2 | `rgba(17,24,39,0.55)` | `tokens.js:14` |
 | Inverse (on dark) | `#fff` | Used inline across hero/banner components |
-| Disabled text | `rgba(17,24,39,0.40)` | `landing-v7.css:18` as `--dim` |
+| Disabled text | `rgba(17,24,39,0.40)` | `landing.css:18` as `--dim` |
 
 ### Border Colours
 
@@ -200,7 +200,7 @@ Note: The AI light and dark themes define the same variable names with different
 | `#6b7280` | `ui/index.jsx:93` | Inline muted text |
 | `#5dba8e` | `nl-nav.css:224` | Live indicator dot |
 | `#b89556` | `nl-nav.css:180` | Gold CTA hover state |
-| `#d4b468` | `landing-v7.css:133,214` | Gold button hover |
+| `#d4b468` | `landing.css:133,214` | Gold button hover |
 | `#ea580c` | `global.css:77`, `app.css:560` | View hint text, orange accent |
 | `#94a3b8` | `PnLChart.jsx:29` | Empty chart text |
 
@@ -229,16 +229,16 @@ The `--mono` variable in `app.css:78` maps to Inter (not a monospace font) with 
 ### Font Size Scale
 
 Responsive clamp sizes are used in several places:
-- `clamp(44px, 5.2vw, 64px)` — Landing hero h1 (`landing-v7.css:190`)
-- `clamp(30px, 3.5vw, 44px)` — Landing section h2 (`landing-v7.css:336`)
+- `clamp(44px, 5.2vw, 64px)` — Landing hero h1 (`landing.css:190`)
+- `clamp(30px, 3.5vw, 44px)` — Landing section h2 (`landing.css:336`)
 - `clamp(30px, 4vw, 44px)` — Trading layout h1 (`TradingLayout.jsx:60`)
 - `clamp(24px, 3.5vw, 36px)` — Picks page headers (`PicksPage.jsx:85`)
 - `clamp(20px, 2.5vw, 28px)` — Summary card values (`SummaryCards.jsx:18`)
 
 | Token / Class | Size | Weight | Usage | Source |
 |---------------|------|--------|-------|--------|
-| Landing h1 | `clamp(44px, 5.2vw, 64px)` | 900 | Hero headline | `landing-v7.css:190` |
-| Landing h2 | `clamp(30px, 3.5vw, 44px)` | 900 | Section headings | `landing-v7.css:336` |
+| Landing h1 | `clamp(44px, 5.2vw, 64px)` | 900 | Hero headline | `landing.css:190` |
+| Landing h2 | `clamp(30px, 3.5vw, 44px)` | 900 | Section headings | `landing.css:336` |
 | `pageH1` | `28px` | 900 | Page titles | `tokens.js:62`, `newleaf-system.css:69` |
 | Hero ticker | `36px` | 900 | Strategy hero ticker symbol | `ui.css:342` |
 | Hero stat primary | `24px` | 900 | Primary stat in hero | `ui.css:397` |
@@ -246,7 +246,7 @@ Responsive clamp sizes are used in several places:
 | `metric-value` | `2rem` (32px) | 300 | Metric card values | `app.css:1768` |
 | `gauge-value-large` | `2rem` (32px) | 900 | Risk gauge values | `newleaf-system.css:846` |
 | `.cc-amount` | `2rem` (32px) | 700 | Card return amount | `app.css:848` |
-| `hm-val` | `30px` | 900 | Hero metric value | `landing-v7.css:229` |
+| `hm-val` | `30px` | 900 | Hero metric value | `landing.css:229` |
 | `detail-ticker` | `3rem` (48px) | 300 | Detail page ticker | `app.css:1609` |
 | `portfolio-title` | `3rem` (48px) | 300 | Portfolio page title | `app.css:1973` |
 | `sectionH2` | `20px` | 900 | Section headings | `tokens.js:68` |
@@ -257,7 +257,7 @@ Responsive clamp sizes are used in several places:
 | `nl-kpi-value` | `22px` | 900 | KPI card values | `ui.css:29` |
 | `nl-card-title` | `16px` | 900 | Card titles | `newleaf-system.css:145` |
 | `.section-heading` | `1.125rem` (18px) | 900 | Section headings | `newleaf-system.css:763` |
-| `hero-sub` | `16px` | 400 | Hero subtitle | `landing-v7.css:199` |
+| `hero-sub` | `16px` | 400 | Hero subtitle | `landing.css:199` |
 | `body` | `14px` | 500 | Default body text | `tokens.js:88` |
 | `nl-hero-ticker` | `36px` | 900 | Hero ticker | `ui.css:342` |
 | `nl-hero-company` | `22px` | 700 | Hero company name | `ui.css:351` |
@@ -271,10 +271,10 @@ Responsive clamp sizes are used in several places:
 | `.nl-kpi-label` | `11px` | 900 | KPI labels | `ui.css:20` |
 | `.nl-metric-label` | `10px` | 900 | Metric labels | `ui.css:186` |
 | `.nl-hero-stat-label` | `10px` | 900 | Hero stat labels | `ui.css:381` |
-| `.sec-kicker` | `10px` | 700 | Landing section kickers | `landing-v7.css:329` |
-| `.hero-pill` | `10.5px` | 700 | Landing hero pill | `landing-v7.css:174` |
-| `.brand-tag` | `9.5px` | 600 | Landing brand tag | `landing-v7.css:102` |
-| `.sc-badge` | `9px` | 700 | Landing stage card badge | `landing-v7.css:636` |
+| `.sec-kicker` | `10px` | 700 | Landing section kickers | `landing.css:329` |
+| `.hero-pill` | `10.5px` | 700 | Landing hero pill | `landing.css:174` |
+| `.brand-tag` | `9.5px` | 600 | Landing brand tag | `landing.css:102` |
+| `.sc-badge` | `9px` | 700 | Landing stage card badge | `landing.css:636` |
 | `.pf-added-label` | `0.625rem` (10px) | 900 | Portfolio "added" label | `newleaf-system.css:293` |
 | `.pf-stat-label` | `0.625rem` (10px) | 900 | Stat label | `newleaf-system.css:376` |
 
@@ -283,7 +283,7 @@ Responsive clamp sizes are used in several places:
 | Weight | Usage | Examples |
 |--------|-------|---------|
 | 300 | Serif display text (light) | `detail-ticker`, `portfolio-title`, `metric-value`, `empty-title`, `risk-level` |
-| 400 | Body text, hero-sub | `hero-sub` (`landing-v7.css:199`) |
+| 400 | Body text, hero-sub | `hero-sub` (`landing.css:199`) |
 | 500 | Standard body, nav links | `body` token, `.nav-link`, `.filter-select` |
 | 600 | Labels, buttons, badges | `.nav-link.active`, `.brand-sub`, `btn-primary`, `.pf-card-badge` |
 | 650 | KPI subtitles | `.nl-kpi-subtitle` (`ui.css:39`) |
@@ -295,30 +295,30 @@ Responsive clamp sizes are used in several places:
 
 | Value | Usage | Source |
 |-------|-------|--------|
-| `0.97` | Landing hero h1 | `landing-v7.css:192` |
-| `1` | Numeric display values | `landing-v7.css:231` |
-| `1.06` | Landing h2 | `landing-v7.css:338` |
-| `1.1` | Stage card verb | `landing-v7.css:660` |
+| `0.97` | Landing hero h1 | `landing.css:192` |
+| `1` | Numeric display values | `landing.css:231` |
+| `1.06` | Landing h2 | `landing.css:338` |
+| `1.1` | Stage card verb | `landing.css:660` |
 | `1.2` | `pageH1` token | `tokens.js:65` |
 | `1.3` | `sectionH2` token | `tokens.js:71` |
 | `1.4` | Nav toggle button, `sectionH3` | `tokens.js:77`, `app.css:268` |
 | `1.5` | Body text, small body | `tokens.js:94`, `app.css:94` |
 | `1.6` | Body token, subtitles, descriptions | `tokens.js:90`, `newleaf-system.css:81` |
-| `1.65` | Landing descriptions | `landing-v7.css:527` |
-| `1.68` | Pipe description | `landing-v7.css:410` |
+| `1.65` | Landing descriptions | `landing.css:527` |
+| `1.68` | Pipe description | `landing.css:410` |
 | `1.7` | AI text (serif italic) | `app.css:656` |
-| `1.72` | Landing card descriptions | `landing-v7.css:472` |
-| `1.78` | Hero sub, section sub | `landing-v7.css:201`, `landing-v7.css:342` |
+| `1.72` | Landing card descriptions | `landing.css:472` |
+| `1.78` | Hero sub, section sub | `landing.css:201`, `landing.css:342` |
 
 ### Letter Spacing
 
 | Value | Usage | Source |
 |-------|-------|--------|
-| `-2.5px` | Landing hero h1 | `landing-v7.css:193` |
-| `-1.5px` | Landing h2 | `landing-v7.css:338` |
-| `-1px` | Hero metric values | `landing-v7.css:231` |
+| `-2.5px` | Landing hero h1 | `landing.css:193` |
+| `-1.5px` | Landing h2 | `landing.css:338` |
+| `-1px` | Hero metric values | `landing.css:231` |
 | `-0.6px` | `pageH1` | `tokens.js:64`, `newleaf-system.css:70` |
-| `-0.5px` | Stage card verb | `landing-v7.css:663` |
+| `-0.5px` | Stage card verb | `landing.css:663` |
 | `-0.3px` | KPI values | `ui.css:31` |
 | `-0.2px` | `sectionH2`, card titles | `tokens.js:69`, `newleaf-system.css:147` |
 | `-0.1px` | `sectionH3` | `tokens.js:76` |
@@ -331,12 +331,12 @@ Responsive clamp sizes are used in several places:
 | `0.05em` | AI label, stat labels | `app.css:647`, `app.css:875` |
 | `0.06em` | Insight label | `app.css:959` |
 | `0.08em` | Filter labels, CTA | `newleaf-system.css:1045`, `nl-nav.css:167` |
-| `0.1em` | Nav pill, hero pill | `nl-nav.css:119`, `landing-v7.css:175` |
+| `0.1em` | Nav pill, hero pill | `nl-nav.css:119`, `landing.css:175` |
 | `0.12em` | Nav links, stat labels | `nl-nav.css:81`, `newleaf-system.css:293` |
 | `0.14em` | `metaLabel` token, metric labels | `tokens.js:83`, `ui.css:21` |
-| `0.16em` | Brand tag | `landing-v7.css:103` |
-| `0.18em` | Stage card badge | `landing-v7.css:637` |
-| `0.2em` | Section kicker | `landing-v7.css:330` |
+| `0.16em` | Brand tag | `landing.css:103` |
+| `0.18em` | Stage card badge | `landing.css:637` |
+| `0.2em` | Section kicker | `landing.css:330` |
 
 ### Text Transform Patterns
 
@@ -415,7 +415,7 @@ Responsive clamp sizes are used in several places:
 | Card grid | `1400px` | `app.css:706` |
 | Position grid | `1400px` | `newleaf-system.css:192` |
 | Detail container | `1200px` | `app.css:1546` |
-| Landing page wrap | `1160px` | `landing-v7.css:67` |
+| Landing page wrap | `1160px` | `landing.css:67` |
 
 ### Breakpoints
 
@@ -464,13 +464,13 @@ Responsive clamp sizes are used in several places:
   grid-template-columns: 1fr 490px;
   gap: 40px;
 }
-/* Source: landing-v7.css:158-165 */
+/* Source: landing.css:158-165 */
 
 /* Landing pipeline */
 .pipeline {
   grid-template-columns: 1fr 28px 1fr 28px 1fr 28px 1fr;
 }
-/* Source: landing-v7.css:354 */
+/* Source: landing.css:354 */
 
 /* Auto-fit filter grid */
 .nl-filter-grid {
@@ -513,15 +513,15 @@ Responsive clamp sizes are used in several places:
 | `0.375rem` (6px) | Status select, contract btn | `newleaf-system.css:255,329` |
 | `8px` | Card bookmark, hamburger btn | `app.css:774`, `redesign.css:97` |
 | `0.5rem` (8px) | Toggle, leg card, filters, stats | `app.css:518`, `app.css:1685` |
-| `9px` | Landing nav logo | `landing-v7.css:87` |
-| `10px` | Landing nav button | `landing-v7.css:119` |
-| `12px` | Ticker badge, landing primary btn | `ui.css:122`, `landing-v7.css:209` |
+| `9px` | Landing nav logo | `landing.css:87` |
+| `10px` | Landing nav button | `landing.css:119` |
+| `12px` | Ticker badge, landing primary btn | `ui.css:122`, `landing.css:209` |
 | `0.75rem` (12px) | Pro card, portfolio card, AI analysis | `app.css:1080`, `app.css:2132` |
 | `1rem` (16px) | Client card | `app.css:728` |
-| `13px` | AC icon | `landing-v7.css:452` |
+| `13px` | AC icon | `landing.css:452` |
 | `14px` | Metric box, nl-btn, stage card | `ui.css:175`, `ui.css:591` |
 | `16px` | Month tile, stat-tile | `newleaf-system.css:602` |
-| `18px` | App card (landing), stage card | `landing-v7.css:614` |
+| `18px` | App card (landing), stage card | `landing.css:614` |
 | `20px` | Filter btn, nav voice btn | `redesign.css:196,47` |
 | `22px` | All NL cards (nl-card, strategy-card, etc.) | Multiple |
 | `9999px` | All pill shapes | `newleaf-system.css:584`, `app.css:244` |
@@ -537,7 +537,7 @@ Responsive clamp sizes are used in several places:
 | `--nl-shadow-lg` | `0 18px 44px rgba(17,24,39,0.10)` | Banners, large cards |
 | `--nl-shadow-card` | `0 10px 20px rgba(17,24,39,0.06)` | Standard card shadow |
 
-#### Landing Page Shadows (`landing-v7.css:34-36`)
+#### Landing Page Shadows (`landing.css:34-36`)
 
 | Token | Value |
 |-------|-------|
@@ -554,13 +554,13 @@ Responsive clamp sizes are used in several places:
 | `0 1px 3px rgba(0,0,0,0.1)` | AI icon box, toggle active | `app.css:628`, `app.css:546` |
 | `0 2px 12px rgba(0,0,0,0.12)` | Authenticated nav | `nl-nav.css:21` |
 | `0 4px 12px rgba(21,128,61,0.08)` | Portfolio card hover | `newleaf-system.css:223` |
-| `0 8px 24px rgba(201,169,110,0.28)` | Landing primary btn | `landing-v7.css:213` |
+| `0 8px 24px rgba(201,169,110,0.28)` | Landing primary btn | `landing.css:213` |
 | `0 10px 30px rgba(0,0,0,0.08)` | Pro card hover | `app.css:1088` |
 | `0 12px 40px rgba(0,0,0,0.08)` | Client card hover | `app.css:738` |
 | `0 14px 26px rgba(11,45,35,0.14)` | Primary button | `ui.css:623` |
 | `0 14px 28px rgba(17,24,39,0.10)` | Strategy card hover | `ui.css:100` |
 | `0 20px 60px rgba(0,0,0,0.3)` | Confirm dialog | `newleaf-system.css:689` |
-| `0 32px 80px rgba(4,18,12,0.32)` | Landing CTA box | `landing-v7.css:769` |
+| `0 32px 80px rgba(4,18,12,0.32)` | Landing CTA box | `landing.css:769` |
 | `0 -4px 12px rgba(0,0,0,0.05)` | Detail sticky action bar | `app.css:1929` |
 | `-8px 0 30px rgba(0,0,0,0.12)` | Mobile menu drawer | `redesign.css:122` |
 
@@ -571,7 +571,7 @@ Responsive clamp sizes are used in several places:
 | Standard card border | `1px solid var(--nl-border)` = `rgba(17,24,39,0.10)` | `newleaf-system.css:130` |
 | Standard card border (app.css) | `1px solid var(--gray-200)` = `#e5e7eb` | `app.css:726` |
 | Strategy card top accent | `3px solid [strategy-color]` | `app.css:486-503` |
-| App card left accent | `3px` left border via `::before` pseudo | `landing-v7.css:428-435` |
+| App card left accent | `3px` left border via `::before` pseudo | `landing.css:428-435` |
 | AI insight left accent | `4px solid var(--leaf-600)` | `app.css:1913` |
 | AI bar left accent | `4px solid var(--brand-accent)` | `app.css:617` |
 | Colour bar at top | `4px` height div | `app.css:741-745` |
@@ -594,10 +594,10 @@ Responsive clamp sizes are used in several places:
 | `linear-gradient(180deg, rgba(37,99,235,0.12), #fff)` | KpiCard softBlue variant | `ui/index.jsx:21` |
 | `linear-gradient(180deg, rgba(11,122,82,0.12), #fff)` | KpiCard softGreen variant | `ui/index.jsx:24` |
 | `radial-gradient(900px 420px at 20% 0%, rgba(11,45,35,0.12), transparent 60%)` + linear | Chart container background | `newleaf-system.css:577-578` |
-| `radial-gradient(…) + linear-gradient(145deg, #04120c…)` | Landing hero background | `landing-v7.css:139-145` |
+| `radial-gradient(…) + linear-gradient(145deg, #04120c…)` | Landing hero background | `landing.css:139-145` |
 | Banner: `radial-gradient(…, rgba(201,169,110,0.20)) + linear-gradient(90deg, rgba(11,45,35,0.95), rgba(11,45,35,0.80))` | Banner component | `ui.css:534-535` |
-| CTA box gradient | `linear-gradient(135deg, #04120c, var(--g), #1a5940)` | `landing-v7.css:765` |
-| Brand story section | `linear-gradient(180deg, #020d08, #051510, #071a12)` | `landing-v7.css:554` |
+| CTA box gradient | `linear-gradient(135deg, #04120c, var(--g), #1a5940)` | `landing.css:765` |
+| Brand story section | `linear-gradient(180deg, #020d08, #051510, #071a12)` | `landing.css:554` |
 
 ### Opacity Patterns
 
@@ -607,15 +607,15 @@ Responsive clamp sizes are used in several places:
 | `0.5` | Overlay backdrop | `newleaf-system.css:679` |
 | `0.6` | Closed market dot | `redesign.css:72` |
 | `0.65` | Stat background | `newleaf-system.css:369` |
-| `0.72` | Stage card background | `landing-v7.css:609` |
+| `0.72` | Stage card background | `landing.css:609` |
 
 ### Backdrop Blur
 
 | Value | Usage | Source |
 |-------|-------|--------|
 | `blur(2px)` | Mobile menu overlay | `redesign.css:113` |
-| `blur(16px)` | Stage card | `landing-v7.css:610` |
-| `blur(18px)` | Landing nav | `landing-v7.css:75` |
+| `blur(16px)` | Stage card | `landing.css:610` |
+| `blur(18px)` | Landing nav | `landing.css:75` |
 
 ---
 
@@ -651,8 +651,8 @@ Responsive clamp sizes are used in several places:
 | `.cc-cta` | Full-width, forest green bg, no border-radius | `app.css:976-999` |
 | `.pc-cta` | Full-width, white bg, border-top, green text | `app.css:1215-1235` |
 | `.btn-primary` (app.css) | `var(--leaf-700)` bg, white, 0.5rem radius | `app.css:1563-1577` |
-| `.btn-primary` (landing) | Gold bg, dark text, 12px radius, gold shadow | `landing-v7.css:208-214` |
-| `.btn-secondary` (landing) | Transparent, white border, white text | `landing-v7.css:216-224` |
+| `.btn-primary` (landing) | Gold bg, dark text, 12px radius, gold shadow | `landing.css:208-214` |
+| `.btn-secondary` (landing) | Transparent, white border, white text | `landing.css:216-224` |
 | `.nl-nav-cta` | Gold bg, dark text, 4px radius, uppercase | `nl-nav.css:158-184` |
 | `.nl-nav-pill` | Gold border, gold text, outline style | `nl-nav.css:111-136` |
 | `.nl-nav-ghost` | Transparent, white text, uppercase | `nl-nav.css:187-206` |
@@ -667,8 +667,8 @@ Responsive clamp sizes are used in several places:
 | `.nl-filter-reset` | Pill, danger-tinted border/bg | `newleaf-system.css:1003-1017` |
 | `.confirm-btn.cancel` | Gray bg, dark text | `newleaf-system.css:722-729` |
 | `.confirm-btn.confirm` | Danger red bg, white text | `newleaf-system.css:731-738` |
-| `.btn-cta-gold` | Gold bg, dark text, 12px radius | `landing-v7.css:788-795` |
-| `.btn-cta-ghost` | Transparent, white border | `landing-v7.css:796-799` |
+| `.btn-cta-gold` | Gold bg, dark text, 12px radius | `landing.css:788-795` |
+| `.btn-cta-ghost` | Transparent, white border | `landing.css:796-799` |
 
 ### Cards
 
@@ -733,11 +733,11 @@ Position card in portfolio. Features: themed top border, ticker (mono font), str
 
 Risk scenario display with bull/flat/bear variants using tinted backgrounds and borders.
 
-#### App Card (landing) (`.app-card`, `landing-v7.css:419-489`)
+#### App Card (landing) (`.app-card`, `landing.css:419-489`)
 
 Feature card on landing page. Left colour accent bar via `::before`, tinted top via `::after`, icon, badge, name, description, feature list, link.
 
-#### Stage Card (landing) (`.stage-card`, `landing-v7.css:608-694`)
+#### Stage Card (landing) (`.stage-card`, `landing.css:608-694`)
 
 Brand story section card. Dark glassmorphism style with backdrop blur, coloured top bar, staggered entrance animation.
 
@@ -1121,8 +1121,8 @@ Emoji characters are used extensively as decorative/functional icons:
 | `🚀` | Aggressive risk profile | `OnboardingModal.jsx:35` |
 | `💰` `📈` `📚` | Goal options | `OnboardingModal.jsx:46-49` |
 | `📊` `🔧` `⚡` `🏆` | Chat suggestion chips | `AIChatDrawer.jsx:8-11` |
-| `✓` | Checkmark in feature lists | `landing-v7.css:475` (CSS `content`) |
-| `›` | Chevron in feature lists | `landing-v7.css:687` (CSS `content`) |
+| `✓` | Checkmark in feature lists | `landing.css:475` (CSS `content`) |
+| `›` | Chevron in feature lists | `landing.css:687` (CSS `content`) |
 
 ### Colour Treatment
 
@@ -1137,10 +1137,10 @@ Icons are generally **monochrome**, coloured via `color` / CSS `color` inheritan
 | Duration | Easing | Usage | Source |
 |----------|--------|-------|--------|
 | `0.08s ease` | Button press (transform, shadow, background) | `ui.css:594` |
-| `0.12s` | Landing nav links, buttons | `landing-v7.css:113,124` |
-| `0.13s` | Landing CTA gold | `landing-v7.css:794` |
+| `0.12s` | Landing nav links, buttons | `landing.css:113,124` |
+| `0.13s` | Landing CTA gold | `landing.css:794` |
 | `0.15s ease` | NL buttons, filter reset, contract buttons, back button | `ui.css:64`, `newleaf-system.css:337,458` |
-| `0.18s` | NL nav links/buttons, app card | `nl-nav.css:97,175`, `landing-v7.css:425` |
+| `0.18s` | NL nav links/buttons, app card | `nl-nav.css:97,175`, `landing.css:425` |
 | `0.2s ease` | Most hover effects: nav links, toggles, selects, filters, bookmarks | `app.css:149,266,532,592,781` |
 | `0.25s ease` | Client card hover | `app.css:731` |
 | `0.3s ease` | Card hover (lottery, technical), portfolio card, risk fill | `global.css:59,66`, `newleaf-system.css:218,256` |
@@ -1157,16 +1157,16 @@ Icons are generally **monochrome**, coloured via `color` / CSS `color` inheritan
 | `nlPulse` | `2s` | infinite | `box-shadow` expansion `2px→6px` | `nl-nav.css:229-232` |
 | `navPulse` | `2s` | infinite | `opacity 1→0.35→1` | `redesign.css:74` |
 | `navVoiceShimmer` | `3s` | ease, infinite | `translateX(-100%→100%)` shimmer | `redesign.css:64` |
-| `ticker` | `34s` | linear, infinite | `translateX(0→-50%)` marquee | `landing-v7.css:320-323` |
-| `stage-in` | `0.8-0.9s` | ease-out, forwards | `opacity 0→1`, `translateY 18→0`, staggered delays | `landing-v7.css:696-704` |
-| `grow-up` | `1-1.1s` | ease-out, both | `scaleY(0→1)` plant growth | `landing-v7.css:712-715` |
-| `twinkle` | `4s` | ease-in-out, infinite | `opacity 1→0.2→1` | `landing-v7.css:738-741` |
-| `glint` | `2.5s` | ease-in-out, infinite | `opacity+scale pulse (1→1.5)` | `landing-v7.css:744-751` |
-| `seed-breathe` | `3s` | ease-in-out, infinite | `opacity 0.35→0.55`, radius change | `landing-v7.css:718-724` |
-| `flow-cw` | `10s` | linear, infinite | `stroke-dashoffset` ring rotation | `landing-v7.css:272-275` |
-| `dash-flow` | `1.8s` | linear, infinite | `stroke-dashoffset 14→0` arrow flow | `landing-v7.css:377-380` |
-| `hub-glow` | `3s` | ease-in-out, infinite | `opacity 0.25→0.55` pulse | `landing-v7.css:280-283` |
-| `ring-pulse` | `2.2s` | ease-out, infinite | SVG `r 10→20`, `opacity 0.4→0` | `landing-v7.css:754-758` |
+| `ticker` | `34s` | linear, infinite | `translateX(0→-50%)` marquee | `landing.css:320-323` |
+| `stage-in` | `0.8-0.9s` | ease-out, forwards | `opacity 0→1`, `translateY 18→0`, staggered delays | `landing.css:696-704` |
+| `grow-up` | `1-1.1s` | ease-out, both | `scaleY(0→1)` plant growth | `landing.css:712-715` |
+| `twinkle` | `4s` | ease-in-out, infinite | `opacity 1→0.2→1` | `landing.css:738-741` |
+| `glint` | `2.5s` | ease-in-out, infinite | `opacity+scale pulse (1→1.5)` | `landing.css:744-751` |
+| `seed-breathe` | `3s` | ease-in-out, infinite | `opacity 0.35→0.55`, radius change | `landing.css:718-724` |
+| `flow-cw` | `10s` | linear, infinite | `stroke-dashoffset` ring rotation | `landing.css:272-275` |
+| `dash-flow` | `1.8s` | linear, infinite | `stroke-dashoffset 14→0` arrow flow | `landing.css:377-380` |
+| `hub-glow` | `3s` | ease-in-out, infinite | `opacity 0.25→0.55` pulse | `landing.css:280-283` |
+| `ring-pulse` | `2.2s` | ease-out, infinite | SVG `r 10→20`, `opacity 0.4→0` | `landing.css:754-758` |
 | `slotPop` | — | — | Interactive pop effect | `redesign.css` |
 | `orbFloat` | — | — | `scale(1→1.04)` + `rotate(0→3deg)` | `redesign.css` |
 | `chatBounce` | — | — | Chat entry animation | `redesign.css` |
@@ -1181,18 +1181,18 @@ Icons are generally **monochrome**, coloured via `color` / CSS `color` inheritan
 | Effect | Target | Source |
 |--------|--------|--------|
 | `translateY(-2px)` | Strategy cards, lottery/technical cards, pro cards, app cards | `ui.css:99`, `global.css:63,69`, `app.css:1089` |
-| `translateY(-3px)` | Stage cards (landing) | `landing-v7.css:619` |
+| `translateY(-3px)` | Stage cards (landing) | `landing.css:619` |
 | `translateY(-4px)` | Client cards | `app.css:737` |
 | `translateY(-1px)` | CTA buttons, nav CTA | `nl-nav.css:182`, `redesign.css:55` |
 | `translateY(1px)` | Button active (press down) | `ui.css:600` |
 | `scale(1.1)` | Range slider thumb hover | `newleaf-system.css:1088` |
 | `brightness(1.1)` | cc-cta hover | `app.css:993` |
-| `brightness(1.18)` + `drop-shadow` | Landing diagram segments | `landing-v7.css:261-265` |
+| `brightness(1.18)` + `drop-shadow` | Landing diagram segments | `landing.css:261-265` |
 | `gap` expansion (8px→12px) | CTA arrows | `app.css:994` |
-| `gap` expansion (5px→9px) | App card links | `landing-v7.css:489` |
+| `gap` expansion (5px→9px) | App card links | `landing.css:489` |
 | `filter: brightness(1.1)` + `gap: 12px` | Card CTA hover | `app.css:993-994` |
 | `translateX(3px)` | CTA arrow SVG | `app.css:1001-1002` |
-| `animation-play-state: paused` | Ticker strip on hover | `landing-v7.css:311` |
+| `animation-play-state: paused` | Ticker strip on hover | `landing.css:311` |
 
 ### Loading Patterns
 
@@ -1237,7 +1237,7 @@ nav (sticky, dark, glassmorphic)
 #### Strategy Hero (`ui.css:267-399`)
 Dark gradient (`rgba(11,45,35,0.95)→0.88`) with gold radial accent. Large ticker (36px 900wt), strategy tag pill, stat tiles with primary variant in gold.
 
-#### Landing Hero (`landing-v7.css:138-255`)
+#### Landing Hero (`landing.css:138-255`)
 Multi-stop dark gradient with grid overlay. Two-column layout: copy (headline, sub, CTAs, metrics) + SVG diagram. Hero pill with pulsing dot. Clamp-sized headline (44-64px).
 
 ### Empty States (`app.css:1360-1399`)
@@ -1278,15 +1278,15 @@ Centered text, 4rem vertical padding. PnLChart has inline fallback: `padding: 40
 
 2. **Leaf colour scale conflict**: CSS custom properties (`app.css:13-24`) define `--leaf-50` through `--leaf-900` as a custom forest green scale (e.g., `--leaf-600: #0B2D23`). `tailwind.config.js:10-20` defines a completely different `leaf` colour scale using standard Tailwind greens (e.g., `leaf-600: #16a34a`). Classes like `bg-leaf-600` resolve differently from `var(--leaf-600)`.
 
-3. **Three page background colours**: `tokens.js` / `newleaf-system.css` use `#F7F8FA`. `landing-v7.css` / `index.html` use `#F7F4EE`. `app.css` body uses `var(--white)` = `#ffffff`. Three different backgrounds on the same site.
+3. **Three page background colours**: `tokens.js` / `newleaf-system.css` use `#F7F8FA`. `landing.css` / `index.html` use `#F7F4EE`. `app.css` body uses `var(--white)` = `#ffffff`. Three different backgrounds on the same site.
 
-4. **Three semantic colour systems**: (a) `tokens.js`: success=`#0B7A52`, warn=`#B7791F`, danger=`#C94F4F`. (b) `app.css`: profit=`#059669`, loss=`#dc2626`, warn=`#d97706`. (c) `landing-v7.css`: ok=`#2d7d4f`. All represent "green=good, red=bad" with different hex values.
+4. **Three semantic colour systems**: (a) `tokens.js`: success=`#0B7A52`, warn=`#B7791F`, danger=`#C94F4F`. (b) `app.css`: profit=`#059669`, loss=`#dc2626`, warn=`#d97706`. (c) `landing.css`: ok=`#2d7d4f`. All represent "green=good, red=bad" with different hex values.
 
 5. **Mono font variable points to non-mono font**: `--mono` in `app.css:78` is `'Inter', -apple-system, sans-serif` — a sans-serif font used for its `tabular-nums` feature, not actually monospace. `newleaf-system.css:238` uses `var(--mono, 'IBM Plex Mono', monospace)` as fallback, which would resolve to Inter.
 
 6. **Multiple nav implementations**: At least 4 separate navigation components exist with different visual styles: (a) `Navbar.jsx` — white bg, SVG logo, gray links. (b) `AppHeader.jsx` — dark green bg, PNG logo, gold accents. (c) `TopNav` (redesign) — white bg, different layout, hamburger menu. (d) `LandingNav` — dark/glassmorphic. They use separate CSS class namespaces (`.nav-*`, `.nl-nav-*`, `.topnav-*`).
 
-7. **16+ distinct button patterns**: Buttons are implemented as separate CSS classes with no shared base across the legacy (`app.css`) and NL system (`ui.css`) codebases. Examples: `.nl-btn-primary`, `.btn-primary` (app.css, different from landing `.btn-primary`), `.cc-cta`, `.pc-cta`, `.nl-nav-cta`, `.btn-cta-gold`, `.filter-chip`, `.action-btn`, etc. The `.btn-primary` class itself is defined differently in `app.css:1563` and `landing-v7.css:208`.
+7. **16+ distinct button patterns**: Buttons are implemented as separate CSS classes with no shared base across the legacy (`app.css`) and NL system (`ui.css`) codebases. Examples: `.nl-btn-primary`, `.btn-primary` (app.css, different from landing `.btn-primary`), `.cc-cta`, `.pc-cta`, `.nl-nav-cta`, `.btn-cta-gold`, `.filter-chip`, `.action-btn`, etc. The `.btn-primary` class itself is defined differently in `app.css:1563` and `landing.css:208`.
 
 8. **Duplicate portfolio card class definitions**: `.pf-card-badge`, `.pf-status-select`, `.pf-card-added`, `.pf-added-label`, `.pf-stats-grid`, `.pf-stat`, `.pf-stat-label`, `.pf-stat-value`, `.pf-prob-track`, `.pf-prob-fill`, `.portfolio-card` are all defined in BOTH `newleaf-system.css` and `app.css` with different values (e.g., `.pf-stat` padding `0.625rem` vs `0.75rem`, `.pf-stat-label` colour `var(--nl-muted-text-2)` vs `var(--gray-500)`).
 

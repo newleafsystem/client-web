@@ -1,6 +1,6 @@
 /**
  * RiskSummaryTab — risk gauges, bar chart, scenario analysis.
- * Ported from PortfolioPageRefactored.jsx risk view.
+ * Extracted from the previous portfolio risk view.
  */
 import { useRef, useEffect } from 'react';
 import Highcharts from 'highcharts';

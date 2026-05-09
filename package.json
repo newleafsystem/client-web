@@ -15,7 +15,8 @@
     "deploy": "npm run build && firebase deploy --only hosting:newleafsystem",
     "email:preview": "node pipeline/send-weekly-email.js --preview",
     "email:send": "node pipeline/send-weekly-email.js",
-    "email:dry-run": "node pipeline/send-weekly-email.js --dry-run"
+    "email:dry-run": "node pipeline/send-weekly-email.js --dry-run",
+    "audit:hygiene": "node scripts/audit-repo-hygiene.cjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

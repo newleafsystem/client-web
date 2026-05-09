@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NewLeaf PDF Report Generator v2
+NewLeaf PDF Report Generator
 Pipeline: JSON -> HTML (template fill) -> PDF (WeasyPrint)
 
 Usage:
@@ -12,7 +12,7 @@ Or with custom JSON:
     python3 generate-report.py <json-file> <output-pdf>
 
 Flags:
-    --legacy    Use old Adobe Java pipeline (v1 template)
+    --legacy    Use the Adobe Java pipeline template
     --part N    Generate only part N (1=Executive, 2=Trade, 3=Strategy)
     --all-parts Generate all 3 parts as separate PDFs
 """
@@ -27,9 +27,9 @@ from datetime import datetime
 
 # Configuration
 BASE_DIR = Path(__file__).parent
-TEMPLATE_V3 = BASE_DIR / "templates" / "report-v3.html"
-TEMPLATE_V2 = BASE_DIR / "templates" / "report-v2.html"
-TEMPLATE_V1 = BASE_DIR / "templates" / "institutional-report-enhanced.html"
+TEMPLATE_DEFAULT = BASE_DIR / "templates" / "report.html"
+TEMPLATE_PORTRAIT = BASE_DIR / "templates" / "report-portrait.html"
+TEMPLATE_LEGACY = BASE_DIR / "templates" / "institutional-report-enhanced.html"
 TEMPLATE_PART1 = BASE_DIR / "templates" / "report-part1.html"
 TEMPLATE_PART2 = BASE_DIR / "templates" / "report-part2.html"
 TEMPLATE_PART3 = BASE_DIR / "templates" / "report-part3.html"
@@ -42,7 +42,7 @@ TEMP_DIR = BASE_DIR / "converter" / "output"
 
 def print_header():
     print("=" * 70)
-    print("NewLeaf PDF Report Generator v2 (WeasyPrint)")
+    print("NewLeaf PDF Report Generator (WeasyPrint)")
     print("=" * 70)
     print()
 
@@ -437,11 +437,11 @@ def main():
         else:
             # Single full PDF (original behavior)
             if use_legacy:
-                template_file = TEMPLATE_V1
+                template_file = TEMPLATE_LEGACY
             elif "--portrait" in sys.argv:
-                template_file = TEMPLATE_V2
+                template_file = TEMPLATE_PORTRAIT
             else:
-                template_file = TEMPLATE_V3
+                template_file = TEMPLATE_DEFAULT
 
             validate_inputs(json_file, template_file)
             html = fill_template(template_file, data, logo_b64)

@@ -4,13 +4,13 @@
 <style>
 /* ════════════════════════════════════════════════════════════════════════════
    NewLeaf Nav — exact mirror of newleaf-alpaca-r2 nav-component.html
-   Used by both the landing site (LandingPageV7) and the authenticated app
+   Used by both the landing site (LandingPage) and the authenticated app
    (AppHeader). Single source of truth for nav typography + chrome.
    ════════════════════════════════════════════════════════════════════════════ */
 
 .nl-nav,
 nav.nl-nav,
-.landing-v7 nav.nl-nav {
+.landing-page nav.nl-nav {
   background: var(--brand-gradient, linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%)) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -532,7 +532,7 @@ nav.nl-nav,
 @media (max-width: 1080px) {
   .nl-nav,
   nav.nl-nav,
-  .landing-v7 nav.nl-nav {
+  .landing-page nav.nl-nav {
     padding: 0 1rem !important;
     height: 60px !important;
   }

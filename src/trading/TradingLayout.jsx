@@ -11,9 +11,8 @@ import { InvestPage } from '../marketing/invest/InvestPage';
 
 // Auth-gated pages
 import { DashboardPage } from './pages/DashboardPage';
-import { DiscoverPageNew as DiscoverPage } from './pages/DiscoverPageNew';
-import { PortfolioPageRefactored as LegacyPortfolioPage } from './pages/PortfolioPageRefactored';
-import { PerformancePageNew as PerformancePage } from './pages/PerformancePageNew';
+import { DiscoverPage } from './pages/DiscoverPage';
+import { PerformancePage } from './pages/PerformancePage';
 import { AdminPage } from './pages/AdminPage';
 import { AnalysisPage } from './pages/AnalysisPage';
 

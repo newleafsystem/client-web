@@ -26,7 +26,7 @@ function PageSkeleton() {
 }
 
 // Lazy-loaded route components
-const LandingPage = lazy(() => import('./trading/pages/LandingPageV7').then(m => ({ default: m.LandingPageV7 })));
+const LandingPage = lazy(() => import('./trading/pages/LandingPage').then(m => ({ default: m.LandingPage })));
 const LearnPage = lazy(() => import('./trading/pages/LearnPage').then(m => ({ default: m.LearnPage })));
 const TradingLayout = lazy(() => import('./trading/TradingLayout'));
 const WorkbenchAnalysisWrapper = lazy(() => import('./shared/components/WorkbenchAnalysisWrapper'));

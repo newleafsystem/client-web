@@ -3027,7 +3027,7 @@ window.publishTile = async function(payload) {
       price:            payload.spot,
 
       // P&L (dollars per contract — maxLoss stored as POSITIVE so the
-      // investor app's DiscoverPageNew filter can compute reward:risk correctly)
+      // investor app's discover filter can compute reward:risk correctly)
       maxProfit:        Math.abs(payload.metrics.maxProfit || 0),
       maxLoss:          Math.abs(payload.metrics.maxLoss   || 0),
       entryCredit:      payload.metrics.netCredit || 0,
