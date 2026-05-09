@@ -18,7 +18,7 @@ export default function PicksLayout() {
     <div style={{ minHeight: '100vh', background: '#F7F5F0' }}>
       <BrandBar
         surface="picks"
-        authState={user ? 'in' : 'out'}
+        authState={loading ? 'loading' : user ? 'in' : 'out'}
         user={user}
         access={access}
         onSignOut={signOut}

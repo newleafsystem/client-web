@@ -53,69 +53,89 @@ export const WORKBENCH_STRATEGIES = [
   { label: '\u2699 Strategy Builder \u2192', href: '/workbench/strategy-builder', accent: true },
 ];
 
+function requireAppForLinks(items, appId) {
+  return items.map((item) => (
+    item.href ? { ...item, requiredApp: item.requiredApp || appId } : item
+  ));
+}
+
+export const PICKS_ITEMS = [
+  { label: 'Picks overview', href: '/picks', public: true },
+  { label: 'Weekly recap', href: '/picks/recap', requiredApp: APP_IDS.PICKS },
+  { label: 'Monthly performance', href: '/picks/monthly', requiredApp: APP_IDS.PICKS },
+];
+
+export const WORKBENCH_ITEMS = [
+  { label: 'Workbench hub', href: '/workbench/', public: true },
+  { label: 'Stock scanner', href: '/workbench/all-stocks', requiredApp: APP_IDS.WORKBENCH },
+  { label: 'Watchlist', href: '/workbench/watchlist', requiredApp: APP_IDS.WORKBENCH },
+  { label: 'Analysis', href: '/workbench/analysis', requiredApp: APP_IDS.WORKBENCH },
+  { label: 'Projection', href: '/workbench/projection', requiredApp: APP_IDS.WORKBENCH },
+  { divider: true },
+  ...requireAppForLinks(WORKBENCH_STRATEGIES, APP_IDS.WORKBENCH),
+];
+
+export const INVEST_ITEMS = [
+  { label: 'Invest home', href: '/invest', public: true },
+  { label: 'Discover', href: '/invest/discover', requiredApp: APP_IDS.INVEST },
+  { label: 'Build trade', href: '/invest/build', requiredApp: APP_IDS.INVEST },
+  { label: 'Positions', href: '/invest/positions', requiredApp: APP_IDS.INVEST },
+  { label: 'Performance', href: '/invest/performance', requiredApp: APP_IDS.INVEST },
+  { label: 'Admin console', href: '/invest/admin', requiredApp: APP_IDS.ADMIN },
+];
+
+export const QUANT_ITEMS = [
+  { label: 'Quant overview', href: '/quant', public: true },
+  { label: 'Scoring algorithm', href: '/how-we-score', public: true },
+  { label: 'Probability engine', href: '/probability-engine', public: true },
+  { label: 'Technical analysis', href: '/technical-analysis', public: true },
+  { label: 'Gamma wall analysis', href: '/gamma-analysis', public: true },
+];
+
+export const DESK_ITEMS = [
+  { label: 'Desk overview', href: '/desk', public: true },
+  { label: 'Verification Desk', href: '/verification-desk', public: true },
+];
+
+export const MAIN_NAV_SECTIONS = [
+  { kind: 'dropdown', label: 'Picks', items: PICKS_ITEMS, dark: true, public: true, activePrefixes: ['/picks'] },
+  { kind: 'dropdown', label: 'Workbench', items: WORKBENCH_ITEMS, dark: true, public: true, activePrefixes: ['/workbench'] },
+  { kind: 'dropdown', label: 'Invest', items: INVEST_ITEMS, dark: true, public: true, activePrefixes: ['/invest', '/strategies'] },
+  { kind: 'dropdown', label: 'Quant', items: QUANT_ITEMS, dark: true, public: true, activePrefixes: ['/quant', '/how-we-score', '/probability-engine', '/technical-analysis', '/gamma-analysis'] },
+  { kind: 'dropdown', label: 'Desk', items: DESK_ITEMS, dark: true, public: true, activePrefixes: ['/desk', '/verification-desk'] },
+  { kind: 'link', label: 'Blog', href: '/blog', public: true },
+  { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true, activePrefixes: ['/how-we', '/track-record', '/ai-sentiment', '/ai-portfolio'] },
+];
+
 // ─── Surface configuration ───────────────────────────────────
 
 export const surfaceConfig = {
   root: {
     ariaLabel: 'NewLeaf System navigation',
     brandSuffix: 'System',
-    sections: [
-      { kind: 'link', label: 'Picks', href: '/picks', requiredApp: APP_IDS.PICKS },
-      { kind: 'link', label: 'Workbench', href: '/workbench/', requiredApp: APP_IDS.WORKBENCH },
-      { kind: 'link', label: 'Invest', href: '/invest', requiredApp: APP_IDS.INVEST, public: true },
-      { kind: 'link', label: 'Blog', href: '/blog', public: true },
-      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true },
-    ],
+    sections: MAIN_NAV_SECTIONS,
     showSwitcher: true,
-    builderCta: true,
   },
 
   picks: {
     ariaLabel: 'NewLeaf Picks navigation',
-    brandSuffix: 'Picks',
-    sections: [
-      { kind: 'link', label: 'Picks', href: '/picks', requiredApp: APP_IDS.PICKS },
-      { kind: 'link', label: 'Performance', href: '/picks/recap', requiredApp: APP_IDS.PICKS },
-      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true },
-    ],
+    brandSuffix: 'System',
+    sections: MAIN_NAV_SECTIONS,
     showSwitcher: true,
   },
 
   workbench: {
     ariaLabel: 'NewLeaf Workbench navigation',
-    brandSuffix: 'Workbench',
-    sections: [
-      { kind: 'link', label: 'Hub', href: '/workbench/', requiredApp: APP_IDS.WORKBENCH },
-      { kind: 'link', label: 'Scanner', href: '/workbench/all-stocks', requiredApp: APP_IDS.WORKBENCH },
-      { kind: 'dropdown', label: 'Strategies', items: WORKBENCH_STRATEGIES, dark: true, requiredApp: APP_IDS.WORKBENCH },
-      { kind: 'link', label: 'Watchlist', href: '/workbench/watchlist', requiredApp: APP_IDS.WORKBENCH },
-      { kind: 'link', label: 'Analysis', href: '/workbench/analysis', requiredApp: APP_IDS.WORKBENCH },
-      { kind: 'link', label: 'Projection', href: '/workbench/projection', requiredApp: APP_IDS.WORKBENCH },
-    ],
+    brandSuffix: 'System',
+    sections: MAIN_NAV_SECTIONS,
     showSwitcher: true,
-    statusType: 'live',
   },
 
   invest: {
     ariaLabel: 'NewLeaf Invest navigation',
-    brandSuffix: 'Invest',
-    sections: [
-      { kind: 'link', label: 'Home', href: '/invest', requiredApp: APP_IDS.INVEST },
-      { kind: 'link', label: 'Discover', href: '/invest/discover', requiredApp: APP_IDS.INVEST },
-      { kind: 'link', label: 'Build', href: '/invest/build', requiredApp: APP_IDS.INVEST },
-      { kind: 'link', label: 'Positions', href: '/invest/positions', requiredApp: APP_IDS.INVEST },
-      { kind: 'link', label: 'Performance', href: '/invest/performance', requiredApp: APP_IDS.INVEST },
-      { kind: 'link', label: 'Blog', href: '/blog', public: true },
-      { kind: 'link', label: 'Admin', href: '/invest/admin', requiredApp: APP_IDS.ADMIN },
-    ],
-    // Logged-out: cross-product links until marketing routes (Overview / Pricing) exist
-    sectionsOut: [
-      { kind: 'link', label: 'Invest', href: '/invest', requiredApp: APP_IDS.INVEST, public: true },
-      { kind: 'link', label: 'Blog', href: '/blog', public: true },
-      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true },
-    ],
+    brandSuffix: 'System',
+    sections: MAIN_NAV_SECTIONS,
     showSwitcher: true,
-    statusType: 'market',
   },
 };
 

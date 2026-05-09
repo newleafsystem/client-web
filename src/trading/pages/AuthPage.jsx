@@ -41,7 +41,7 @@ export function AuthPage({ defaultMode = 'signup' }) {
       />
       <BrandBar
         surface="root"
-        authState={user ? 'in' : 'out'}
+        authState={loading ? 'loading' : user ? 'in' : 'out'}
         user={user}
         access={access}
         onSignOut={signOut}

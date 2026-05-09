@@ -69,12 +69,12 @@ const JadeLizardSkill = lazy(() => import('./trading/pages/strategies/JadeLizard
 
 // Landing page wrapper
 function LandingWithAuth() {
-  const { user, access, signOut, signInWithGoogle, signInWithEmail, signUp, linkGoogleWithPassword } = useAuth();
+  const { user, access, loading, signOut, signInWithGoogle, signInWithEmail, signUp, linkGoogleWithPassword } = useAuth();
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
       <BrandBar
         surface="root"
-        authState={user ? 'in' : 'out'}
+        authState={loading ? 'loading' : user ? 'in' : 'out'}
         user={user}
         access={access}
         onSignOut={signOut}
@@ -95,7 +95,7 @@ function LandingWithAuth() {
 
 export default function App() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F7F5F0' }}><BrandBar surface="root" /><PageSkeleton /></div>}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F7F5F0' }}><BrandBar surface="root" authState="loading" /><PageSkeleton /></div>}>
       <Routes>
         {/* ═══ PUBLIC PAGES ═══ */}
         <Route path="/" element={<LandingWithAuth />} />

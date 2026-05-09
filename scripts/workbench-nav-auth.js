@@ -111,7 +111,17 @@ function applyRoleBasedNav(access) {
   document.querySelectorAll('[data-app-id]').forEach(function (el) {
     var appId = el.getAttribute('data-app-id');
     var hidden = !access.canAccessApp(appId);
-    var target = el.closest('li') || el;
+    var target = el;
+
+    if (
+      el.classList.contains('nl-nav-link') &&
+      el.parentElement &&
+      el.parentElement.parentElement &&
+      el.parentElement.parentElement.classList.contains('nl-nav-links')
+    ) {
+      target = el.closest('li') || el;
+    }
+
     target.hidden = hidden;
     target.setAttribute('aria-hidden', hidden ? 'true' : 'false');
   });
@@ -193,6 +203,22 @@ function getInitials(user) {
   return user.email ? user.email.charAt(0).toUpperCase() : 'U';
 }
 
+function escapeHTML(value) {
+  return String(value || '').replace(/[&<>"']/g, function (char) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char];
+  });
+}
+
+function userLabel(user) {
+  return user.email || user.displayName || 'Signed in';
+}
+
 function signedOutHTML() {
   return '<a class="nl-nav-ghost" id="navSignIn" href="' + signInUrl() + '">Sign In</a>' +
     '<a href="' + registerUrl() + '" class="nl-nav-cta">Get Started &rarr;</a>';
@@ -201,7 +227,8 @@ function signedOutHTML() {
 function signedInHTML(user) {
   var initials = getInitials(user);
   return '<div class="nl-nav-user">' +
-    '<div class="nl-nav-avatar">' + initials + '</div>' +
+    '<div class="nl-nav-avatar">' + escapeHTML(initials) + '</div>' +
+    '<span class="nl-nav-user-email">' + escapeHTML(userLabel(user)) + '</span>' +
     '<button class="nl-nav-ghost" id="navSignOut" style="height:auto;padding:0 12px">Sign Out</button>' +
     '</div>';
 }
@@ -214,7 +241,8 @@ function mobileSignedOutHTML() {
 function mobileSignedInHTML(user) {
   var initials = getInitials(user);
   return '<div class="nl-mobile-auth">' +
-    '<div class="nl-nav-avatar">' + initials + '</div>' +
+    '<div class="nl-nav-avatar">' + escapeHTML(initials) + '</div>' +
+    '<span class="nl-nav-user-email">' + escapeHTML(userLabel(user)) + '</span>' +
     '<button class="nl-nav-ghost" id="mobileSignOut">Sign Out</button>' +
     '</div>';
 }

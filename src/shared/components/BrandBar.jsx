@@ -118,17 +118,18 @@ function NavDropdown({ label, items, isActive, dark, accessProps = {} }) {
             if (item.divider) return <div key={`d${idx}`} className="nl-dd-divider" />;
             if (item.heading) return <div key={`h${idx}`} className="nl-dd-heading">{item.heading}</div>;
             return (
-              <a
+              <NavAnchor
                 key={item.href}
                 href={item.href}
                 role="menuitem"
                 tabIndex={0}
                 className={`nl-dd-item${item.accent ? ' accent' : ''}`}
+                onClick={() => setOpen(false)}
                 onKeyDown={handleItemKey}
                 {...accessAttrs(item)}
               >
                 {item.label}
-              </a>
+              </NavAnchor>
             );
           })}
         </div>
@@ -303,7 +304,7 @@ function MobileDropdown({ label, items, onNavigate, accessProps = {} }) {
             if (item.divider) return <div key={`d${idx}`} className="nl-dd-divider" />;
             if (item.heading) return <div key={`h${idx}`} className="nl-dd-heading">{item.heading}</div>;
             return (
-              <a
+              <NavAnchor
                 key={item.href}
                 href={item.href}
                 className={`nl-mobile-dd-item${item.accent ? ' accent' : ''}`}
@@ -311,7 +312,7 @@ function MobileDropdown({ label, items, onNavigate, accessProps = {} }) {
                 {...accessAttrs(item)}
               >
                 {item.label}
-              </a>
+              </NavAnchor>
             );
           })}
         </div>
@@ -342,28 +343,33 @@ export function BrandBar({
   const config = surfaceConfig[surface] || surfaceConfig.root;
   const navClassName = ['nl-nav', `nl-nav--${surface}`, className].filter(Boolean).join(' ');
   const productSuffix = brandSuffix || config.brandSuffix || 'System';
+  const isAuthLoading = authState === 'loading';
+  const isSignedIn = authState === 'in' && Boolean(user);
+  const navAuthState = isSignedIn ? 'in' : 'out';
 
-  // Each surface uses its own sections. When logged out, a surface can
-  // provide sectionsOut (e.g. invest shows cross-product links until
-  // marketing routes like Overview/Pricing exist).
-  const sectionsBase = sectionsOverride || (authState === 'out' && config.sectionsOut) || config.sections;
+  // All surfaces share the same primary nav; dropdown contents are filtered
+  // by app access so product internals do not become a second page header.
+  const sectionsBase = sectionsOverride || config.sections;
   const userAccess = access || normalizeUserAccess(null, user);
-  const effectiveSections = filterNavSections(sectionsBase, userAccess, { authState });
+  const effectiveSections = filterNavSections(sectionsBase, userAccess, { authState: navAuthState });
   const showBuilderCta = config.builderCta && userAccess.canAccessApp(APP_IDS.WORKBENCH);
   const showAuth = showAuthOverride;
 
   // Active-state helpers
-  const isActive = (href) => location.pathname === href;
-  const isOnMarketing = [
-    '/how-we',
-    '/track-record',
-    '/probability-engine',
-    '/strategy-selection',
-    '/technical-analysis',
-    '/gamma-analysis',
-    '/ai-sentiment',
-    '/ai-portfolio',
-  ].some((p) => location.pathname.startsWith(p));
+  const cleanPath = (value) => {
+    const path = String(value || '/').split(/[?#]/)[0].replace(/\/+$/, '');
+    return path || '/';
+  };
+  const currentPath = cleanPath(location.pathname);
+  const isActive = (href) => {
+    const target = cleanPath(href);
+    if (target === '/') return currentPath === '/';
+    return currentPath === target || currentPath.startsWith(`${target}/`);
+  };
+  const isDropdownActive = (item) => (
+    item.activePrefixes?.some((prefix) => location.pathname.startsWith(prefix)) ||
+    item.items?.some((child) => child.href && isActive(child.href))
+  );
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
@@ -380,7 +386,7 @@ export function BrandBar({
       : 'U';
 
   // ── Ask AI button (shared between desktop + mobile) ──
-  const askAiBtn = authState === 'in' && onOpenChat ? (
+  const askAiBtn = isSignedIn && onOpenChat ? (
     <button
       className="nl-nav-pill"
       onClick={() => { onOpenChat(); closeMobile(); }}
@@ -419,9 +425,7 @@ export function BrandBar({
                 label={item.label}
                 items={item.items}
                 dark={item.dark}
-                isActive={
-                  item.label === 'How it works' ? isOnMarketing : false
-                }
+                isActive={isDropdownActive(item)}
                 accessProps={accessAttrs(item)}
               />
             );
@@ -443,7 +447,7 @@ export function BrandBar({
 
       {/* ── Utility zone (desktop) ── */}
       <div className="nl-nav-right">
-        {surface === 'invest' && authState === 'in' && <MarketStatusPill />}
+        {config.statusType === 'market' && isSignedIn && <MarketStatusPill />}
 
         {askAiBtn}
 
@@ -454,9 +458,12 @@ export function BrandBar({
         )}
 
         {showAuth &&
-          (authState === 'in' ? (
+          (isAuthLoading ? (
+            <div className="nl-nav-auth-skeleton" aria-label="Checking account" />
+          ) : isSignedIn ? (
             <div className="nl-nav-user">
               <div className="nl-nav-avatar">{initials}</div>
+              <span className="nl-nav-user-email">{user.email || user.displayName || 'Signed in'}</span>
               <button
                 onClick={onSignOut}
                 className="nl-nav-ghost"
@@ -510,9 +517,12 @@ export function BrandBar({
         )}
 
         {showAuth &&
-          (authState === 'in' ? (
+          (isAuthLoading ? (
+            <div className="nl-nav-auth-skeleton nl-mobile-btn" aria-label="Checking account" />
+          ) : isSignedIn ? (
             <div className="nl-mobile-auth">
               <div className="nl-nav-avatar">{initials}</div>
+              <span className="nl-nav-user-email">{user.email || user.displayName || 'Signed in'}</span>
               <button
                 onClick={() => { onSignOut?.(); closeMobile(); }}
                 className="nl-nav-ghost"

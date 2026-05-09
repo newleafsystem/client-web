@@ -90,13 +90,13 @@ nav.nl-nav,
 .nl-nav-links a:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item),
 .nl-nav .nl-nav-links a:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item) {
   font-family: 'Inter', sans-serif !important;
-  font-size: 12px !important;
-  letter-spacing: .12em !important;
+  font-size: 11px !important;
+  letter-spacing: .1em !important;
   text-transform: uppercase !important;
   font-weight: 600 !important;
   color: rgba(255,255,255,.72) !important;
   text-decoration: none !important;
-  padding: 0 18px !important;
+  padding: 0 12px !important;
   height: 64px !important;
   display: flex !important;
   align-items: center !important;
@@ -109,6 +109,7 @@ nav.nl-nav,
   transition: all .18s !important;
   cursor: pointer !important;
   margin: 0 !important;
+  white-space: nowrap !important;
 }
 .nl-nav-link:hover,
 .nl-nav-link.active,
@@ -274,6 +275,8 @@ nav.nl-nav,
   margin-left: 6px;
   padding-left: 10px;
   border-left: 1px solid rgba(215,181,109,.18);
+  min-width: 0;
+  max-width: min(280px, 24vw);
 }
 .nl-nav-avatar {
   width: 32px;
@@ -288,6 +291,31 @@ nav.nl-nav,
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+.nl-nav-user-email {
+  max-width: 150px;
+  overflow: hidden;
+  color: rgba(247,244,238,.76);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nl-nav-auth-skeleton {
+  width: 174px;
+  height: 32px;
+  border: 1px solid rgba(215,181,109,.18);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.14), rgba(255,255,255,.05));
+  background-size: 200% 100%;
+  animation: nlNavSkeleton 1.2s ease-in-out infinite;
+}
+@keyframes nlNavSkeleton {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
 
 /* BrandBar modules */
@@ -325,7 +353,9 @@ nav.nl-nav,
   position: absolute;
   top: 100%;
   left: 0;
-  min-width: 220px;
+  min-width: 270px;
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
   background: #F7F4EE;
   border-radius: 0 0 10px 10px;
   border: 1px solid rgba(11,15,20,0.08);
@@ -523,9 +553,12 @@ nav.nl-nav,
   gap: 12px;
   padding: 8px 0;
 }
+.nl-mobile-auth .nl-nav-user-email {
+  max-width: min(260px, 58vw);
+}
 
 /* ═══ Mobile breakpoint (≤860px) ═══ */
-@media (max-width: 1080px) {
+@media (max-width: 1180px) {
   .nl-nav,
   nav.nl-nav,
   .landing-page nav.nl-nav {

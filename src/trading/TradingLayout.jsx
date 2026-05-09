@@ -58,7 +58,7 @@ export default function TradingLayout() {
     <div style={{ minHeight: '100vh', background: '#F7F5F0' }}>
       <BrandBar
         surface="invest"
-        authState={headerProps.authState || (user ? 'in' : 'out')}
+        authState={headerProps.authState || (authLoading ? 'loading' : user ? 'in' : 'out')}
         user={headerProps.user ?? user}
         access={headerProps.access ?? access}
         onSignOut={signOut}
@@ -72,7 +72,7 @@ export default function TradingLayout() {
   if (authLoading) {
     return renderInvestShell(
       <PageLoader label="Loading NewLeaf Invest" />,
-      { authState: 'out', user: null }
+      { authState: 'loading', user: null }
     );
   }
 

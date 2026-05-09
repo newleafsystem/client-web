@@ -10,7 +10,17 @@
   const CRITICAL_STYLE_ID = 'nl-workbench-nav-critical';
 
   function navLinks() {
-    return '';
+    return [
+      ['Picks', '/picks'],
+      ['Workbench', '/workbench/'],
+      ['Invest', '/invest'],
+      ['Quant', '/quant'],
+      ['Desk', '/desk'],
+      ['Blog', '/blog'],
+      ['How it works', '/how-we-pick'],
+    ].map(function (item) {
+      return '<li><a class="nl-nav-link" href="' + item[1] + '">' + item[0] + '</a></li>';
+    }).join('');
   }
 
   function fallbackMarkup() {
@@ -19,7 +29,7 @@
         <div class="nl-brand-zone">
           <a class="nl-nav-brand" href="/">
             <img src="/logo-icon.png" width="36" height="36" alt="NewLeaf" />
-            <span class="nl-nav-wordmark">NewLeaf <em>Workbench</em></span>
+            <span class="nl-nav-wordmark">NewLeaf <em>System</em></span>
           </a>
         </div>
         <ul class="nl-nav-links">${navLinks()}</ul>
@@ -98,7 +108,7 @@
         font: 800 12px Inter, system-ui, sans-serif;
       }
       .nl-hamburger { display: none; grid-column: 3; justify-self: end; }
-      @media (max-width: 1080px) {
+      @media (max-width: 1180px) {
         .nl-nav { height: 60px; padding: 0 1rem; }
         .nl-nav-spacer { height: 60px; }
         .nl-nav-links, .nl-nav-right { display: none; }

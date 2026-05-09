@@ -2,6 +2,18 @@
 
 This is the baseline implementation-pattern snapshot preserved before the May 2026 repo-hygiene and architecture documentation refresh. Keep this file as the prior reference when `docs/implementation-patterns.md` changes for logic or architecture updates.
 
+## 2026-05-09: Surface-Specific Product Navigation
+
+Previous guidance allowed `BrandBar` surface configs such as `root`, `picks`, `workbench`, and `invest` to define different top-level navigation links. Product pages could therefore feel like separate applications and static Workbench pages could keep their own generated header behavior.
+
+That pattern is superseded by:
+
+- One shared main header model in `src/shared/components/navConfig.js`.
+- Top-level products shown consistently across the site.
+- Product-specific links shown inside secondary flyouts.
+- Internal product links gated by `requiredApp` and `requiredRole` metadata.
+- Auth loading rendered as a stable header state instead of first showing signed-out controls.
+
 ## 2026-05-09: Native Dialogs And HTML Workbench URLs
 
 Previous guidance allowed static Workbench pages to link directly to copied `.html` files and did not define a shared notification primitive for browser messages. Some React and static pages used browser-native `alert` and `confirm` calls for errors, validation, and destructive actions.

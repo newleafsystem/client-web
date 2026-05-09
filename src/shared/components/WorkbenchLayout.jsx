@@ -21,7 +21,7 @@ export default function WorkbenchLayout() {
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
       <BrandBar
         surface="workbench"
-        authState={user ? 'in' : 'out'}
+        authState={loading ? 'loading' : user ? 'in' : 'out'}
         user={user}
         access={access}
         onSignOut={signOut}

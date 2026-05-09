@@ -3,7 +3,11 @@
  * already define a footer in the source file.
  */
 (function () {
-  if (document.querySelector('footer, .app-footer, .nl-static-footer')) return;
+  if (document.querySelector('.app-footer, .nl-static-footer')) return;
+
+  document.querySelectorAll('body > footer').forEach(function (footer) {
+    footer.remove();
+  });
 
   var style = document.createElement('style');
   style.textContent = [

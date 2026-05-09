@@ -6,13 +6,13 @@ import { SectionLoader } from '../shared/components/LeafLoader';
 import { Footer } from './components/Footer';
 
 export default function PublicLayout() {
-  const { user, access, signOut, signInWithGoogle } = useAuth();
+  const { user, access, loading, signOut, signInWithGoogle } = useAuth();
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
       <BrandBar
         surface="root"
-        authState={user ? 'in' : 'out'}
+        authState={loading ? 'loading' : user ? 'in' : 'out'}
         user={user}
         access={access}
         onSignOut={signOut}
