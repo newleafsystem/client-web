@@ -388,7 +388,9 @@ export function BrandBar({
   // provide sectionsOut (e.g. invest shows cross-product links until
   // marketing routes like Overview/Pricing exist).
   const sections = (authState === 'out' && config.sectionsOut) || config.sections;
-  const showSwitcher = true;
+  // Keep one site navigation surface: the centered header links.
+  // The product switcher duplicated those links immediately after the logo.
+  const showSwitcher = false;
   const showBuilderCta = config.builderCta;
   const showAuth = true;
 
@@ -451,6 +453,7 @@ export function BrandBar({
   ) : null;
 
   return (
+    <>
     <nav className="nl-nav">
       {/* ── Brand zone ── */}
       <div className="nl-brand-zone">
@@ -591,5 +594,7 @@ export function BrandBar({
           ))}
       </MobileMenu>
     </nav>
+    <div className="nl-nav-spacer" aria-hidden="true" />
+    </>
   );
 }

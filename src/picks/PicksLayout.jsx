@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { BrandBar } from '../shared/components/BrandBar';
 import { useAuth } from '../shared/hooks/useAuth';
+import { Footer } from '../trading/components/Footer';
 
 function ContentSkeleton() {
   return (
@@ -28,16 +29,7 @@ export default function PicksLayout() {
       <Suspense fallback={<ContentSkeleton />}>
         <Outlet />
       </Suspense>
-      <footer style={{
-        borderTop: '1px solid rgba(15,61,46,.08)',
-        padding: '24px 2rem',
-        textAlign: 'center',
-        fontSize: 12,
-        color: '#6b6b60',
-        fontFamily: "'Inter', sans-serif",
-      }}>
-        NewLeaf System &mdash; Options intelligence platform. Past performance does not guarantee future results.
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { PlantGrowthIllustration } from '../components/PlantGrowthIllustration';
 import { BrandBar } from '../../shared/components/BrandBar';
 import PageSEO from '../../shared/components/PageSEO';
 import { useAuth } from '../../shared/hooks/useAuth';
+import { Footer } from '../components/Footer';
 import '../styles/landing-v7.css';
 
 export function LandingPageV7({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) {
@@ -561,22 +562,7 @@ export function LandingPageV7({ onSignInWithGoogle, onSignInWithEmail, onSignUp 
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer>
-        <div className="wrap">
-          <div className="footer-row">
-            <div className="footer-disc">
-              <strong>Disclaimer:</strong> NewLeaf System is an educational and decision-support platform. It does not provide personalised financial advice. Options trading involves significant risk and may not be suitable for all investors. Past performance does not guarantee future results.
-            </div>
-            <div className="footer-copy">© 2026 NewLeaf System</div>
-          </div>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,.1)', marginTop: 16, paddingTop: 16, display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="/privacy-policy" style={{ color: 'rgba(255,255,255,.5)', fontSize: 12, textDecoration: 'none' }}>Privacy Policy</a>
-            <a href="/terms-and-conditions" style={{ color: 'rgba(255,255,255,.5)', fontSize: 12, textDecoration: 'none' }}>Terms &amp; Conditions</a>
-            <a href="mailto:support@newleafsystem.com" style={{ color: 'rgba(255,255,255,.5)', fontSize: 12, textDecoration: 'none' }}>Contact</a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
