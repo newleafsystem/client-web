@@ -66,6 +66,7 @@ Before changing behavior, read the nearest relevant source files and:
 - Do not commit generated output: `dist/`, `pipeline/output/`, scanner reports/logs, `.firebase/`, `.claude/`, `.DS_Store`, or backup files.
 - Firebase Hosting deploys must test `newleaf-preview` first. Production `newleafsystem` deploys are manual and explicit.
 - Financial/options content must stay educational and risk-aware. Do not imply guaranteed profit, risk-free trades, or certainty.
+- When logic, routing, build, deployment, runtime config, security posture, or architecture changes, update [docs/implementation-patterns.md](docs/implementation-patterns.md) and preserve prior guidance in [docs/implementation-patterns-prior.md](docs/implementation-patterns-prior.md) when a substantial pattern changes.
 
 ## Frontend Patterns
 
