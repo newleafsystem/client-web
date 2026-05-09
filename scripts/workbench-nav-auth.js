@@ -6,6 +6,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getFirestore, doc, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 const firebaseConfig = window.NEWLEAF_FIREBASE_CONFIG || {};
 const hasFirebaseConfig = Boolean(
@@ -16,6 +18,137 @@ const hasFirebaseConfig = Boolean(
 );
 const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
 const auth = app ? getAuth(app) : null;
+const db = app ? getFirestore(app, 'newleafdb') : null;
+
+function boolValue(value) {
+  return value === true || value === 'true' || value === 1;
+}
+
+function normalizeAccessMap(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.keys(value).reduce(function (acc, key) {
+    acc[String(key).toLowerCase()] = boolValue(value[key]);
+    return acc;
+  }, {});
+}
+
+function getAccess(profile, user) {
+  var explicit = profile && (profile.appAccess || profile.apps || profile.applications || profile.productAccess);
+  var appAccess = normalizeAccessMap(explicit);
+  var status = String((profile && profile.status) || (profile && profile.disabled ? 'disabled' : 'active')).toLowerCase();
+  var disabled = profile && (profile.disabled === true || ['disabled', 'inactive', 'revoked', 'suspended'].indexOf(status) !== -1);
+
+  if (!explicit && user) {
+    appAccess = {
+      invest: true,
+      picks: false,
+      workbench: false,
+      admin: false,
+      quant: false,
+      desk: false
+    };
+  }
+
+  if (disabled) {
+    appAccess = {};
+  }
+
+  return {
+    canAccessApp: function (appId) {
+      if (!appId || appId === 'root') return true;
+      return Boolean(appAccess[String(appId).toLowerCase()]);
+    }
+  };
+}
+
+async function loadUserProfile(user) {
+  if (!db || !user) return null;
+  try {
+    var snapshot = await getDoc(doc(db, 'users', user.uid));
+    return snapshot.exists() ? snapshot.data() : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function applyRoleBasedNav(access) {
+  document.querySelectorAll('[data-app-id]').forEach(function (el) {
+    var appId = el.getAttribute('data-app-id');
+    var hidden = !access.canAccessApp(appId);
+    var target = el.closest('li') || el;
+    target.hidden = hidden;
+    target.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+  });
+}
+
+function setWorkbenchContentHidden(hidden) {
+  Array.prototype.forEach.call(document.body.children, function (child) {
+    if (
+      child.matches('.nl-nav') ||
+      child.matches('.nl-nav-spacer') ||
+      child.matches('#nl-workbench-access-gate') ||
+      child.tagName === 'SCRIPT' ||
+      child.tagName === 'STYLE'
+    ) {
+      return;
+    }
+
+    if (hidden) {
+      child.setAttribute('data-nl-access-hidden', 'true');
+      child.hidden = true;
+    } else if (child.getAttribute('data-nl-access-hidden') === 'true') {
+      child.hidden = false;
+      child.removeAttribute('data-nl-access-hidden');
+    }
+  });
+}
+
+function applyWorkbenchPageGate(access, user) {
+  if (!location.pathname.startsWith('/workbench')) return;
+
+  var allowed = access.canAccessApp('workbench');
+  var existing = document.getElementById('nl-workbench-access-gate');
+
+  if (allowed) {
+    if (existing) existing.remove();
+    setWorkbenchContentHidden(false);
+    return;
+  }
+
+  setWorkbenchContentHidden(true);
+
+  if (!existing) {
+    existing = document.createElement('main');
+    existing.id = 'nl-workbench-access-gate';
+    var spacer = document.querySelector('.nl-nav-spacer');
+    if (spacer && spacer.parentNode) spacer.insertAdjacentElement('afterend', existing);
+    else document.body.insertBefore(existing, document.body.firstChild);
+  }
+
+  existing.innerHTML =
+    '<section style="min-height:calc(100vh - 64px);display:grid;place-items:center;padding:48px 20px;background:#F7F5F0">' +
+      '<div style="width:min(100%,520px);background:#fff;border:1px solid rgba(15,61,46,.12);border-radius:8px;padding:32px;text-align:center;box-shadow:0 18px 48px rgba(15,61,46,.08)">' +
+        '<p style="margin:0 0 10px;color:#C9A96E;font:700 11px Space Mono,monospace;letter-spacing:.12em;text-transform:uppercase">Account Access</p>' +
+        '<h1 style="margin:0;color:#0B2D23;font:500 36px Georgia,serif;line-height:1.1">NewLeaf Workbench is not enabled</h1>' +
+        '<p style="margin:16px 0 0;color:#55554f;font:14px Inter,system-ui,sans-serif;line-height:1.7">' +
+          (user ? 'Your NewLeaf account does not currently include Workbench. Access is managed from the admin-web user record.' : 'Sign in so NewLeaf can check the Workbench access assigned to your user profile.') +
+        '</p>' +
+        '<div style="margin-top:24px">' +
+          '<button id="nlWorkbenchGateAction" style="min-height:42px;padding:0 20px;border:0;border-radius:6px;background:#0B2D23;color:#fff;font:700 13px Inter,system-ui,sans-serif;cursor:pointer">' +
+            (user ? 'Sign Out' : 'Sign In') +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</section>';
+
+  var action = document.getElementById('nlWorkbenchGateAction');
+  if (action) {
+    action.addEventListener('click', function () {
+      if (user) signOut(auth);
+      else signInWithPopup(auth, new GoogleAuthProvider());
+    });
+  }
+}
 
 function getInitials(user) {
   if (user.displayName) {
@@ -61,7 +194,12 @@ function wireFallbackAuthLinks() {
 if (!auth) {
   wireFallbackAuthLinks();
 } else {
-onAuthStateChanged(auth, function (user) {
+onAuthStateChanged(auth, async function (user) {
+  var profile = await loadUserProfile(user);
+  var access = getAccess(profile, user);
+  applyRoleBasedNav(access);
+  applyWorkbenchPageGate(access, user);
+
   // Desktop auth zone
   var navRight = document.querySelector('.nl-nav-right');
   if (navRight) {

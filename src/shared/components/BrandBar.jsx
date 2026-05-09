@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { surfaceConfig } from './navConfig';
+import { APP_IDS, filterNavSections, normalizeUserAccess } from '../auth/accessControl';
 import { useMarketState } from '../../trading/hooks/useMarketState';
 
 // ═══════════════════════════════════════════════════════════════
@@ -24,11 +25,18 @@ function formatET() {
   }) + ' ET';
 }
 
+function accessAttrs(item) {
+  return {
+    ...(item.requiredApp ? { 'data-app-id': item.requiredApp } : {}),
+    ...(item.requiredRole ? { 'data-role-id': item.requiredRole } : {}),
+  };
+}
+
 // ═══════════════════════════════════════════════════════════════
 // NavDropdown — reusable for "How it works", "Strategies", etc.
 // ═══════════════════════════════════════════════════════════════
 
-function NavDropdown({ label, items, isActive, dark }) {
+function NavDropdown({ label, items, isActive, dark, accessProps = {} }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const hoverTimeout = useRef(null);
@@ -83,6 +91,7 @@ function NavDropdown({ label, items, isActive, dark }) {
       className="nl-dd-wrap"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      {...accessProps}
     >
       <button
         className={`nl-nav-link nl-dd-trigger${isActive ? ' active' : ''}`}
@@ -112,6 +121,7 @@ function NavDropdown({ label, items, isActive, dark }) {
                 tabIndex={0}
                 className={`nl-dd-item${item.accent ? ' accent' : ''}`}
                 onKeyDown={handleItemKey}
+                {...accessAttrs(item)}
               >
                 {item.label}
               </a>
@@ -241,6 +251,7 @@ function MobileMenu({ isOpen, onClose, sections, children }) {
                   label={item.label}
                   items={item.items}
                   onNavigate={onClose}
+                  accessProps={accessAttrs(item)}
                 />
               );
             }
@@ -250,6 +261,7 @@ function MobileMenu({ isOpen, onClose, sections, children }) {
                 href={item.href}
                 className="nl-mobile-link"
                 onClick={onClose}
+                {...accessAttrs(item)}
               >
                 {item.label}
               </NavAnchor>
@@ -263,11 +275,11 @@ function MobileMenu({ isOpen, onClose, sections, children }) {
   );
 }
 
-function MobileDropdown({ label, items, onNavigate }) {
+function MobileDropdown({ label, items, onNavigate, accessProps = {} }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="nl-mobile-dd">
+    <div className="nl-mobile-dd" {...accessProps}>
       <button
         className="nl-mobile-link nl-mobile-dd-trigger"
         onClick={() => setExpanded((o) => !o)}
@@ -292,6 +304,7 @@ function MobileDropdown({ label, items, onNavigate }) {
                 href={item.href}
                 className={`nl-mobile-dd-item${item.accent ? ' accent' : ''}`}
                 onClick={onNavigate}
+                {...accessAttrs(item)}
               >
                 {item.label}
               </a>
@@ -311,6 +324,7 @@ export function BrandBar({
   surface = 'root',
   authState = 'out',
   user = null,
+  access = null,
   onSignOut,
   onSignIn,
   onOpenChat,
@@ -328,23 +342,11 @@ export function BrandBar({
   // Each surface uses its own sections. When logged out, a surface can
   // provide sectionsOut (e.g. invest shows cross-product links until
   // marketing routes like Overview/Pricing exist).
-  const sections = sectionsOverride || (authState === 'out' && config.sectionsOut) || config.sections;
-  const showBuilderCta = config.builderCta;
+  const sectionsBase = sectionsOverride || (authState === 'out' && config.sectionsOut) || config.sections;
+  const userAccess = access || normalizeUserAccess(null, user);
+  const effectiveSections = filterNavSections(sectionsBase, userAccess, { authState });
+  const showBuilderCta = config.builderCta && userAccess.canAccessApp(APP_IDS.WORKBENCH);
   const showAuth = showAuthOverride;
-
-  // Admin detection (invest authenticated only)
-  const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || '')
-    .split(',')
-    .map((e) => e.trim());
-  const isAdmin =
-    surface === 'invest' &&
-    authState === 'in' &&
-    user?.email &&
-    adminEmails.some((e) => e.toLowerCase() === user.email.toLowerCase());
-
-  const effectiveSections = isAdmin
-    ? [...sections, { kind: 'link', label: 'Admin', href: '/invest/admin' }]
-    : sections;
 
   // Active-state helpers
   const isActive = (href) => location.pathname === href;
@@ -416,6 +418,7 @@ export function BrandBar({
                 isActive={
                   item.label === 'How it works' ? isOnMarketing : false
                 }
+                accessProps={accessAttrs(item)}
               />
             );
           }
@@ -425,6 +428,7 @@ export function BrandBar({
                 href={item.href}
                 className={`nl-nav-link${isActive(item.href) ? ' active' : ''}`}
                 aria-current={isActive(item.href) ? 'page' : undefined}
+                {...accessAttrs(item)}
               >
                 {item.label}
               </NavAnchor>

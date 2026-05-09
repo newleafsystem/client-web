@@ -27,7 +27,24 @@ export function AdminPage() {
   const [expandedPositions, setExpandedPositions] = useState(new Set());
   const [expandedTiles, setExpandedTiles] = useState(new Set());
 
-  useEffect(() => { loadTiles(); loadUsers(); }, [loadTiles, loadUsers]);
+  useEffect(() => {
+    if (!isAdmin) return;
+    loadTiles();
+    loadUsers();
+  }, [isAdmin, loadTiles, loadUsers]);
+
+  if (!isAdmin) {
+    return (
+      <div className="page-body adm-page">
+        <div className="adm-header">
+          <div>
+            <h1>Admin access required</h1>
+            <p>Your account is not enabled for NewLeaf Admin.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const showStatus = (msg) => { setStatusMsg(msg); setTimeout(() => setStatusMsg(''), 4000); };
 

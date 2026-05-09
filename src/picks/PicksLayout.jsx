@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { BrandBar } from '../shared/components/BrandBar';
+import { AppAccessGate } from '../shared/components/AppAccessGate';
+import { APP_IDS } from '../shared/auth/accessControl';
 import { useAuth } from '../shared/hooks/useAuth';
 import { Footer } from '../trading/components/Footer';
 
@@ -15,7 +17,7 @@ function ContentSkeleton() {
 }
 
 export default function PicksLayout() {
-  const { user, signOut, signInWithGoogle } = useAuth();
+  const { user, access, loading, signOut, signInWithGoogle } = useAuth();
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F5F0' }}>
@@ -23,12 +25,23 @@ export default function PicksLayout() {
         surface="picks"
         authState={user ? 'in' : 'out'}
         user={user}
+        access={access}
         onSignOut={signOut}
         onSignIn={signInWithGoogle}
       />
-      <Suspense fallback={<ContentSkeleton />}>
-        <Outlet />
-      </Suspense>
+      <AppAccessGate
+        appId={APP_IDS.PICKS}
+        appName="NewLeaf Picks"
+        user={user}
+        access={access}
+        loading={loading}
+        onSignIn={signInWithGoogle}
+        onSignOut={signOut}
+      >
+        <Suspense fallback={<ContentSkeleton />}>
+          <Outlet />
+        </Suspense>
+      </AppAccessGate>
       <Footer />
     </div>
   );

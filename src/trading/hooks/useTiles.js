@@ -6,12 +6,20 @@ import { db } from '../../firebase/config';
  * Real-time Firestore listener for active tiles
  * @returns {Object} { tiles, loading, error }
  */
-export function useTiles() {
+export function useTiles({ enabled = true } = {}) {
   const [tiles, setTiles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setTiles([]);
+      setLoading(false);
+      setError(null);
+      return undefined;
+    }
+
+    setLoading(true);
     try {
       // Query active tiles ordered by sortOrder
       const tilesRef = collection(db, 'tiles');
@@ -49,7 +57,7 @@ export function useTiles() {
       setError(err.message);
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   return { tiles, loading, error };
 }

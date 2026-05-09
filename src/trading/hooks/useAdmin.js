@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { collection, query, getDocs, doc, updateDoc, orderBy, where, serverTimestamp, writeBatch, addDoc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../shared/hooks/useAuth';
+import { APP_IDS } from '../../shared/auth/accessControl';
 
 /**
  * Admin hook — direct Firestore access for admin operations.
  * Requires admin email in Firestore rules.
  */
 export function useAdmin() {
-  const { user } = useAuth();
+  const { user, access } = useAuth();
   const [tiles, setTiles] = useState([]);
   const [users, setUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -17,7 +18,7 @@ export function useAdmin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const isAdmin = !!user;
+  const isAdmin = Boolean(user && access?.canAccessApp(APP_IDS.ADMIN));
 
   // Get current user ID (impersonated or actual)
   const getCurrentUserId = useCallback(() => {
@@ -816,10 +817,7 @@ export function useAdmin() {
       const usersRef = collection(db, 'users');
       const snap = await getDocs(usersRef);
 
-      console.log('loadAllUsersFromFirestore: found', snap.size, 'user documents');
-
       if (snap.size === 0) {
-        console.warn('No user documents found in Firestore. Users collection may not have profile docs.');
         // Fallback: create a profile doc for the current user if it doesn't exist
         if (user) {
           const userRef = doc(db, 'users', user.uid);
@@ -831,7 +829,6 @@ export function useAdmin() {
               createdAt: serverTimestamp(),
               lastLogin: serverTimestamp(),
             });
-            console.log('Created user profile document for', user.email);
           }
           // Reload after creating
           const newSnap = await getDocs(usersRef);
@@ -851,7 +848,6 @@ export function useAdmin() {
         ...d.data()
       }));
 
-      console.log('Loaded users:', usersList);
       setAllUsers(usersList);
       return usersList;
     } catch (err) {

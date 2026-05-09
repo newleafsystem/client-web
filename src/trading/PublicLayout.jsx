@@ -5,7 +5,7 @@ import { useAuth } from '../shared/hooks/useAuth';
 import { Footer } from './components/Footer';
 
 export default function PublicLayout() {
-  const { user, signOut, signInWithGoogle } = useAuth();
+  const { user, access, signOut, signInWithGoogle } = useAuth();
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
@@ -13,6 +13,7 @@ export default function PublicLayout() {
         surface="root"
         authState={user ? 'in' : 'out'}
         user={user}
+        access={access}
         onSignOut={signOut}
         onSignIn={signInWithGoogle}
       />

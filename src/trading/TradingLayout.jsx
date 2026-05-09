@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
-import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../shared/hooks/useAuth';
 import { useTiles } from './hooks/useTiles';
 import { PriceProvider } from './contexts/PriceContext';
 import { BrandBar } from '../shared/components/BrandBar';
+import { AppAccessDenied, AppAccessGate } from '../shared/components/AppAccessGate';
+import { APP_IDS } from '../shared/auth/accessControl';
 import { Footer } from './components/Footer';
 import { VoiceAssistant } from './components/VoiceAssistant';
 import { AIChatDrawer } from './components/AIChatDrawer';
@@ -28,8 +30,14 @@ function PositionRedirect() {
 }
 
 export default function TradingLayout() {
-  const { user, loading: authLoading, signInWithGoogle, signInWithEmail, signUp, signOut } = useAuth();
-  const { tiles, loading: tilesLoading, error } = useTiles();
+  const { user, access, loading: authLoading, signInWithGoogle, signInWithEmail, signUp, signOut } = useAuth();
+  const tilesEnabled = Boolean(
+    !authLoading &&
+    user &&
+    (access?.canAccessApp(APP_IDS.INVEST) || access?.canAccessApp(APP_IDS.ADMIN))
+  );
+  const { tiles, loading: tilesLoading, error } = useTiles({ enabled: tilesEnabled });
+  const location = useLocation();
 
   // AI Chat drawer state
   const [chatOpen, setChatOpen] = useState(false);
@@ -51,6 +59,7 @@ export default function TradingLayout() {
         surface="invest"
         authState={headerProps.authState || (user ? 'in' : 'out')}
         user={headerProps.user ?? user}
+        access={headerProps.access ?? access}
         onSignOut={signOut}
         onSignIn={signInWithGoogle}
         onOpenChat={headerProps.onOpenChat}
@@ -76,6 +85,7 @@ export default function TradingLayout() {
         <BrandBar
           surface="invest"
           authState="out"
+          access={access}
           onSignIn={signInWithGoogle}
         />
         <InvestPage
@@ -84,6 +94,17 @@ export default function TradingLayout() {
           onSignUp={signUp}
         />
       </div>
+    );
+  }
+
+  const isAdminRoute = location.pathname.startsWith('/invest/admin');
+  const canUseInvest = access?.canAccessApp(APP_IDS.INVEST);
+  const canUseAdmin = access?.canAccessApp(APP_IDS.ADMIN);
+
+  if (!canUseInvest && !(isAdminRoute && canUseAdmin)) {
+    return renderInvestShell(
+      <AppAccessDenied appName="NewLeaf Invest" onSignOut={signOut} />,
+      { authState: 'in', user, access }
     );
   }
 
@@ -126,6 +147,7 @@ export default function TradingLayout() {
           surface="invest"
           authState="in"
           user={user}
+          access={access}
           onSignOut={signOut}
           onSignIn={signInWithGoogle}
           onOpenChat={openChat}
@@ -143,7 +165,21 @@ export default function TradingLayout() {
           {/* ═══ Utility routes ═══ */}
           <Route path="/analysis/:ticker" element={<AnalysisPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route
+            path="/admin"
+            element={
+              <AppAccessGate
+                appId={APP_IDS.ADMIN}
+                appName="NewLeaf Admin"
+                user={user}
+                access={access}
+                onSignIn={signInWithGoogle}
+                onSignOut={signOut}
+              >
+                <AdminPage />
+              </AppAccessGate>
+            }
+          />
 
           {/* ═══ Legacy routes — keep working, redirect to new paths ═══ */}
           <Route path="/portfolio" element={<Navigate to="/invest/positions" replace />} />

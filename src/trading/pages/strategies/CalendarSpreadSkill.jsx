@@ -9,7 +9,7 @@ const THEME_COLOR = '#6366f1';
 
 export default function CalendarSpreadSkill() {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, access, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('learn');
   const canvasRef = useRef(null);
   const [hoverX, setHoverX] = useState(null);
@@ -141,7 +141,7 @@ export default function CalendarSpreadSkill() {
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
       {/* App Header */}
-      <BrandBar surface="invest" authState="in" user={user} onSignOut={signOut} />
+      <BrandBar surface="invest" authState="in" user={user} access={access} onSignOut={signOut} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <button onClick={() => navigate('/strategies')} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: 14, cursor: 'pointer', marginBottom: 30, display: 'flex', alignItems: 'center', gap: 6 }}>

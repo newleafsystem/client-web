@@ -7,8 +7,9 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../../firebase/config';
+import { createDefaultUserEntitlements, normalizeUserAccess } from '../auth/accessControl';
 
 /**
  * Authentication hook with Google and Email/Password support
@@ -17,6 +18,8 @@ import { auth, db } from '../../firebase/config';
  */
 export function useAuth() {
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [access, setAccess] = useState(() => normalizeUserAccess(null, null));
   const [loading, setLoading] = useState(true);
 
   // Create or update user profile document in Firestore
@@ -28,21 +31,22 @@ export function useAuth() {
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        // Create new user profile document
+        const entitlements = createDefaultUserEntitlements(currentUser);
         await setDoc(userRef, {
           email: currentUser.email,
           displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
           photoURL: currentUser.photoURL || null,
+          ...entitlements,
           createdAt: serverTimestamp(),
           lastLogin: serverTimestamp(),
         });
-        console.log('Created user profile document for', currentUser.email);
       } else {
-        // Update last login time
         await setDoc(userRef, {
+          email: currentUser.email,
+          displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+          photoURL: currentUser.photoURL || null,
           lastLogin: serverTimestamp(),
         }, { merge: true });
-        console.log('Updated last login for', currentUser.email);
       }
     } catch (error) {
       console.error('Error creating/updating user profile:', error);
@@ -50,18 +54,44 @@ export function useAuth() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
+    let unsubscribeProfile = () => {};
 
-      // Create or update user profile in Firestore
-      if (currentUser) {
-        await createOrUpdateUserProfile(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      unsubscribeProfile();
+      setUser(currentUser);
+      setProfile(null);
+      setLoading(true);
+
+      if (!currentUser) {
+        setAccess(normalizeUserAccess(null, null));
+        setLoading(false);
+        return;
       }
 
-      setLoading(false);
+      await createOrUpdateUserProfile(currentUser);
+
+      const userRef = doc(db, 'users', currentUser.uid);
+      unsubscribeProfile = onSnapshot(
+        userRef,
+        (snapshot) => {
+          const data = snapshot.exists() ? { uid: snapshot.id, ...snapshot.data() } : null;
+          setProfile(data);
+          setAccess(normalizeUserAccess(data, currentUser));
+          setLoading(false);
+        },
+        (error) => {
+          console.error('Error loading user profile:', error);
+          setProfile(null);
+          setAccess(normalizeUserAccess(null, currentUser));
+          setLoading(false);
+        }
+      );
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeProfile();
+      unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
@@ -101,5 +131,5 @@ export function useAuth() {
     }
   };
 
-  return { user, loading, signInWithGoogle, signInWithEmail, signUp, signOut };
+  return { user, profile, access, loading, signInWithGoogle, signInWithEmail, signUp, signOut };
 }

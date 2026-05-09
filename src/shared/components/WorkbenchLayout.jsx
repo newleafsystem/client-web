@@ -8,10 +8,12 @@
 import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { BrandBar } from './BrandBar';
+import { AppAccessGate } from './AppAccessGate';
+import { APP_IDS } from '../auth/accessControl';
 import { useAuth } from '../hooks/useAuth';
 
 export default function WorkbenchLayout() {
-  const { user, signOut, signInWithGoogle } = useAuth();
+  const { user, access, loading, signOut, signInWithGoogle } = useAuth();
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
@@ -19,12 +21,23 @@ export default function WorkbenchLayout() {
         surface="workbench"
         authState={user ? 'in' : 'out'}
         user={user}
+        access={access}
         onSignOut={signOut}
         onSignIn={signInWithGoogle}
       />
-      <Suspense fallback={<div style={{ minHeight: 400 }} />}>
-        <Outlet />
-      </Suspense>
+      <AppAccessGate
+        appId={APP_IDS.WORKBENCH}
+        appName="NewLeaf Workbench"
+        user={user}
+        access={access}
+        loading={loading}
+        onSignIn={signInWithGoogle}
+        onSignOut={signOut}
+      >
+        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+          <Outlet />
+        </Suspense>
+      </AppAccessGate>
     </div>
   );
 }

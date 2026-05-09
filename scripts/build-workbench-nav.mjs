@@ -47,7 +47,14 @@ async function main() {
       createElement(
         StaticRouter,
         { location: '/workbench/' },
-        createElement(BrandBar, { surface: 'workbench', authState: 'out' })
+        createElement(BrandBar, {
+          surface: 'workbench',
+          authState: 'out',
+          access: {
+            canAccessApp: (appId) => appId === 'workbench',
+            hasRole: () => false,
+          },
+        })
       )
     );
 

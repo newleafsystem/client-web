@@ -76,6 +76,8 @@ Before changing behavior, read the nearest relevant source files and:
 - Place investor app work under `src/trading`.
 - Place reusable navigation, auth, SEO, and shell components under `src/shared`.
 - Firebase web config must use `import.meta.env.VITE_FIREBASE_*`; do not hardcode Firebase API keys.
+- User management is owned by `admin-web`; client-web consumes shared Firebase Auth + `users/{uid}` Firestore profiles from `newleafdb`.
+- Product navigation and route access must use `src/shared/auth/accessControl.js`, `BrandBar` `requiredApp` metadata, and `AppAccessGate`; do not add email-only or page-local role checks.
 - The admin/investor UI should be compact, scan-friendly, and operational. Avoid marketing-style heroes inside tool surfaces.
 - Preserve existing lazy-loading and route-splitting patterns in `src/App.jsx`.
 

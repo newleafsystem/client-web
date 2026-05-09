@@ -10,13 +10,7 @@
   const CRITICAL_STYLE_ID = 'nl-workbench-nav-critical';
 
   function navLinks() {
-    return [
-      ['Hub', '/workbench/'],
-      ['Scanner', '/workbench/all-stocks.html'],
-      ['Analysis', '/workbench/analysis'],
-      ['Builder', '/workbench/strategy-builder.html'],
-      ['Projection', '/workbench/projection.html'],
-    ].map(([label, href]) => `<li><a class="nl-nav-link" href="${href}">${label}</a></li>`).join('');
+    return '';
   }
 
   function fallbackMarkup() {

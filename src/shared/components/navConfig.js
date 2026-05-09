@@ -5,8 +5,8 @@
  * nav-component.html (Workbench static pages).
  *
  * NavItem types:
- *   { kind: 'link',     label, href }
- *   { kind: 'dropdown', label, items, dark? }
+ *   { kind: 'link',     label, href, requiredApp?, requiredRole?, public? }
+ *   { kind: 'dropdown', label, items, dark?, requiredApp?, requiredRole?, public? }
  *
  * DropdownItem types:
  *   { label, href }                  — regular link
@@ -14,6 +14,8 @@
  *   { divider: true }                — horizontal rule
  *   { heading: string }              — category heading (non-clickable)
  */
+
+import { APP_IDS } from '../auth/accessControl';
 
 // ─── Shared dropdown item lists ──────────────────────────────
 
@@ -58,11 +60,11 @@ export const surfaceConfig = {
     ariaLabel: 'NewLeaf System navigation',
     brandSuffix: 'System',
     sections: [
-      { kind: 'link', label: 'Picks', href: '/picks' },
-      { kind: 'link', label: 'Workbench', href: '/workbench/' },
-      { kind: 'link', label: 'Invest', href: '/invest' },
-      { kind: 'link', label: 'Blog', href: '/blog' },
-      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true },
+      { kind: 'link', label: 'Picks', href: '/picks', requiredApp: APP_IDS.PICKS },
+      { kind: 'link', label: 'Workbench', href: '/workbench/', requiredApp: APP_IDS.WORKBENCH },
+      { kind: 'link', label: 'Invest', href: '/invest', requiredApp: APP_IDS.INVEST, public: true },
+      { kind: 'link', label: 'Blog', href: '/blog', public: true },
+      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true },
     ],
     showSwitcher: true,
     builderCta: true,
@@ -72,9 +74,9 @@ export const surfaceConfig = {
     ariaLabel: 'NewLeaf Picks navigation',
     brandSuffix: 'Picks',
     sections: [
-      { kind: 'link', label: 'Picks', href: '/picks' },
-      { kind: 'link', label: 'Performance', href: '/picks/recap' },
-      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true },
+      { kind: 'link', label: 'Picks', href: '/picks', requiredApp: APP_IDS.PICKS },
+      { kind: 'link', label: 'Performance', href: '/picks/recap', requiredApp: APP_IDS.PICKS },
+      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true },
     ],
     showSwitcher: true,
   },
@@ -83,12 +85,12 @@ export const surfaceConfig = {
     ariaLabel: 'NewLeaf Workbench navigation',
     brandSuffix: 'Workbench',
     sections: [
-      { kind: 'link', label: 'Hub', href: '/workbench/' },
-      { kind: 'link', label: 'Scanner', href: '/workbench/all-stocks.html' },
-      { kind: 'dropdown', label: 'Strategies', items: WORKBENCH_STRATEGIES, dark: true },
-      { kind: 'link', label: 'Watchlist', href: '/workbench/watchlist.html' },
-      { kind: 'link', label: 'Analysis', href: '/workbench/analysis' },
-      { kind: 'link', label: 'Projection', href: '/workbench/projection.html' },
+      { kind: 'link', label: 'Hub', href: '/workbench/', requiredApp: APP_IDS.WORKBENCH },
+      { kind: 'link', label: 'Scanner', href: '/workbench/all-stocks.html', requiredApp: APP_IDS.WORKBENCH },
+      { kind: 'dropdown', label: 'Strategies', items: WORKBENCH_STRATEGIES, dark: true, requiredApp: APP_IDS.WORKBENCH },
+      { kind: 'link', label: 'Watchlist', href: '/workbench/watchlist.html', requiredApp: APP_IDS.WORKBENCH },
+      { kind: 'link', label: 'Analysis', href: '/workbench/analysis', requiredApp: APP_IDS.WORKBENCH },
+      { kind: 'link', label: 'Projection', href: '/workbench/projection.html', requiredApp: APP_IDS.WORKBENCH },
     ],
     showSwitcher: true,
     statusType: 'live',
@@ -98,18 +100,17 @@ export const surfaceConfig = {
     ariaLabel: 'NewLeaf Invest navigation',
     brandSuffix: 'Invest',
     sections: [
-      { kind: 'link', label: 'Home', href: '/invest' },
-      { kind: 'link', label: 'Discover', href: '/invest/discover' },
-      { kind: 'link', label: 'Build', href: '/invest/build' },
-      { kind: 'link', label: 'Positions', href: '/invest/positions' },
-      { kind: 'link', label: 'Performance', href: '/invest/performance' },
+      { kind: 'link', label: 'Home', href: '/invest', requiredApp: APP_IDS.INVEST },
+      { kind: 'link', label: 'Discover', href: '/invest/discover', requiredApp: APP_IDS.INVEST },
+      { kind: 'link', label: 'Build', href: '/invest/build', requiredApp: APP_IDS.INVEST },
+      { kind: 'link', label: 'Positions', href: '/invest/positions', requiredApp: APP_IDS.INVEST },
+      { kind: 'link', label: 'Performance', href: '/invest/performance', requiredApp: APP_IDS.INVEST },
+      { kind: 'link', label: 'Admin', href: '/invest/admin', requiredApp: APP_IDS.ADMIN },
     ],
     // Logged-out: cross-product links until marketing routes (Overview / Pricing) exist
     sectionsOut: [
-      { kind: 'link', label: 'Picks', href: '/picks' },
-      { kind: 'link', label: 'Workbench', href: '/workbench/' },
-      { kind: 'link', label: 'Invest', href: '/invest' },
-      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true },
+      { kind: 'link', label: 'Invest', href: '/invest', requiredApp: APP_IDS.INVEST, public: true },
+      { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true },
     ],
     showSwitcher: true,
     statusType: 'market',
@@ -119,9 +120,9 @@ export const surfaceConfig = {
 // ─── Product switcher entries ────────────────────────────────
 
 export const switcherProducts = [
-  { key: 'picks', label: 'Picks', description: 'Weekly trade recommendations', href: '/picks' },
-  { key: 'workbench', label: 'Workbench', description: 'Strategy scanner & analysis', href: '/workbench/' },
-  { key: 'invest', label: 'Invest', description: 'Portfolio management & execution', href: '/invest' },
-  { key: 'quant', label: 'Quant', description: 'AI research & scoring engine', href: '/quant' },
-  { key: 'desk', label: 'Desk', description: 'Execution & order management', href: '/desk' },
+  { key: 'picks', label: 'Picks', description: 'Weekly trade recommendations', href: '/picks', requiredApp: APP_IDS.PICKS },
+  { key: 'workbench', label: 'Workbench', description: 'Strategy scanner & analysis', href: '/workbench/', requiredApp: APP_IDS.WORKBENCH },
+  { key: 'invest', label: 'Invest', description: 'Portfolio management & execution', href: '/invest', requiredApp: APP_IDS.INVEST },
+  { key: 'quant', label: 'Quant', description: 'AI research & scoring engine', href: '/quant', requiredApp: APP_IDS.QUANT },
+  { key: 'desk', label: 'Desk', description: 'Execution & order management', href: '/desk', requiredApp: APP_IDS.DESK },
 ];
