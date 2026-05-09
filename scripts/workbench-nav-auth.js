@@ -19,6 +19,29 @@ const hasFirebaseConfig = Boolean(
 const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
 const auth = app ? getAuth(app) : null;
 const db = app ? getFirestore(app, 'newleafdb') : null;
+const IMMUTABLE_ADMIN_EMAILS = Object.freeze([
+  'sd.nirsha@gmail.com',
+  'manish28june@gmail.com',
+]);
+
+function normalizeEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function isImmutableAdminUser(user) {
+  return IMMUTABLE_ADMIN_EMAILS.indexOf(normalizeEmail(user && user.email)) !== -1;
+}
+
+function allAppAccess() {
+  return {
+    invest: true,
+    picks: true,
+    workbench: true,
+    admin: true,
+    quant: true,
+    desk: true
+  };
+}
 
 function boolValue(value) {
   return value === true || value === 'true' || value === 1;
@@ -33,12 +56,15 @@ function normalizeAccessMap(value) {
 }
 
 function getAccess(profile, user) {
+  var immutableAdmin = isImmutableAdminUser(user);
   var explicit = profile && (profile.appAccess || profile.apps || profile.applications || profile.productAccess);
   var appAccess = normalizeAccessMap(explicit);
   var status = String((profile && profile.status) || (profile && profile.disabled ? 'disabled' : 'active')).toLowerCase();
-  var disabled = profile && (profile.disabled === true || ['disabled', 'inactive', 'revoked', 'suspended'].indexOf(status) !== -1);
+  var disabled = !immutableAdmin && profile && (profile.disabled === true || ['disabled', 'inactive', 'revoked', 'suspended'].indexOf(status) !== -1);
 
-  if (!explicit && user) {
+  if (immutableAdmin) {
+    appAccess = allAppAccess();
+  } else if (!explicit && user) {
     appAccess = {
       invest: true,
       picks: false,

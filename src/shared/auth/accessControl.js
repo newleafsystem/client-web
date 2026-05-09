@@ -26,6 +26,11 @@ export const ACCESS_APP_IDS = Object.freeze([
   APP_IDS.DESK,
 ]);
 
+export const IMMUTABLE_ADMIN_EMAILS = Object.freeze([
+  'sd.nirsha@gmail.com',
+  'manish28june@gmail.com',
+]);
+
 const DISABLED_STATUSES = new Set(['disabled', 'inactive', 'revoked', 'suspended']);
 
 function envValue(key) {
@@ -64,7 +69,13 @@ function normalizeBooleanMap(value) {
 }
 
 function bootstrapAdminEmails() {
-  return normalizeList(envValue('VITE_ADMIN_EMAILS'));
+  return [...new Set([...IMMUTABLE_ADMIN_EMAILS, ...normalizeList(envValue('VITE_ADMIN_EMAILS'))])];
+}
+
+export function isImmutableAdminUser(user) {
+  const email = normalizeKey(user?.email);
+  if (!email) return false;
+  return IMMUTABLE_ADMIN_EMAILS.includes(email);
 }
 
 export function isBootstrapAdminUser(user) {
@@ -92,11 +103,13 @@ export function defaultRolesForUser(user) {
 }
 
 export function createDefaultUserEntitlements(user) {
+  const immutableAdmin = isImmutableAdminUser(user);
   return {
     status: 'active',
     roles: defaultRolesForUser(user),
     appAccess: defaultAppAccessForUser(user),
-    accessManagedBy: isBootstrapAdminUser(user) ? 'bootstrap-env' : 'admin-web',
+    accessManagedBy: immutableAdmin ? 'immutable-admin' : isBootstrapAdminUser(user) ? 'bootstrap-env' : 'admin-web',
+    immutable: immutableAdmin,
   };
 }
 
@@ -106,8 +119,9 @@ export function normalizeUserAccess(profile, user) {
   const roleList = normalizeList(rawRoles);
   const roleMap = Object.fromEntries(roleList.map((role) => [role, true]));
   const bootstrapAdmin = isBootstrapAdminUser(user);
+  const immutableAdmin = isImmutableAdminUser(user);
 
-  if (bootstrapAdmin && roleList.length === 0) {
+  if (immutableAdmin || (bootstrapAdmin && roleList.length === 0)) {
     roleMap[ROLE_IDS.ADMIN] = true;
   }
 
@@ -120,7 +134,9 @@ export function normalizeUserAccess(profile, user) {
     (profile.appAccess || profile.apps || profile.applications || profile.productAccess);
   let appMap = normalizeBooleanMap(explicitAppAccess);
 
-  if (!explicitAppAccess) {
+  if (immutableAdmin) {
+    appMap = Object.fromEntries(ACCESS_APP_IDS.map((appId) => [appId, true]));
+  } else if (!explicitAppAccess) {
     if (bootstrapAdmin || roleMap[ROLE_IDS.ADMIN]) {
       appMap = Object.fromEntries(ACCESS_APP_IDS.map((appId) => [appId, true]));
     } else if (user) {
@@ -129,7 +145,7 @@ export function normalizeUserAccess(profile, user) {
   }
 
   const status = normalizeKey(profile?.status || (profile?.disabled ? 'disabled' : 'active'));
-  const disabled = profile?.disabled === true || DISABLED_STATUSES.has(status);
+  const disabled = !immutableAdmin && (profile?.disabled === true || DISABLED_STATUSES.has(status));
 
   if (disabled) {
     appMap = Object.fromEntries(ACCESS_APP_IDS.map((appId) => [appId, false]));
@@ -137,12 +153,13 @@ export function normalizeUserAccess(profile, user) {
 
   const access = {
     disabled,
-    status: status || 'active',
+    status: immutableAdmin ? 'active' : status || 'active',
     roles: Object.keys(roleMap),
     roleMap,
     apps: Object.keys(appMap).filter((appId) => appMap[appId]),
     appMap,
-    source: explicitAppAccess ? 'profile' : bootstrapAdmin ? 'bootstrap-env' : user ? 'client-default' : 'anonymous',
+    immutable: immutableAdmin,
+    source: immutableAdmin ? 'immutable-admin' : explicitAppAccess ? 'profile' : bootstrapAdmin ? 'bootstrap-env' : user ? 'client-default' : 'anonymous',
     hasRole(roleId) {
       return Boolean(roleMap[normalizeKey(roleId)]);
     },

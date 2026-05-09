@@ -79,7 +79,8 @@ Patterns:
 - `src/shared/hooks/useAuth.js` subscribes to `users/{uid}` and returns `user`, `profile`, `access`, and auth actions.
 - `client-web` may create a missing user profile on first sign-in, but it must not overwrite existing `roles` or `appAccess`.
 - New non-admin users default to `roles: ['investor']` and only `appAccess.invest: true`.
-- `VITE_ADMIN_EMAILS` is bootstrap fallback only. Once `admin-web` writes explicit `appAccess`, Firestore wins.
+- `sd.nirsha@gmail.com` and `manish28june@gmail.com` are immutable admins. They always receive admin role and all app access in client-web and admin-web.
+- `VITE_ADMIN_EMAILS` is bootstrap fallback only. Once `admin-web` writes explicit `appAccess`, Firestore wins for env-only bootstrap admins.
 - Disabled, inactive, revoked, or suspended profiles must not receive app access.
 - `BrandBar` filters product navigation with `requiredApp` and `requiredRole` metadata from `src/shared/components/navConfig.js`.
 - `AppAccessGate` blocks React route surfaces such as Picks, Workbench analysis, Invest, and the legacy client admin page.

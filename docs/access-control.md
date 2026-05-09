@@ -58,7 +58,9 @@ appAccess = {
 }
 ```
 
-`VITE_ADMIN_EMAILS` is a bootstrap fallback only. If a matching user profile has no explicit `appAccess`, client-web grants all apps so the first admin is not locked out. Once admin-web writes `appAccess`, the explicit Firestore value wins.
+`sd.nirsha@gmail.com` and `manish28june@gmail.com` are hardcoded immutable admins in both sites. They always receive the admin role and all app access, even if a Firestore user record is disabled or has app access turned off.
+
+`VITE_ADMIN_EMAILS` is a bootstrap fallback only. If a matching user profile has no explicit `appAccess`, client-web grants all apps so the first admin is not locked out. Once admin-web writes `appAccess`, the explicit Firestore value wins for env-only bootstrap admins.
 
 Disabled, inactive, revoked, or suspended users receive no app access in client-web.
 
