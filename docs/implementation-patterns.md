@@ -81,6 +81,10 @@ Patterns:
 
 - `src/shared/hooks/useAuth.js` subscribes to `users/{uid}` and returns `user`, `profile`, `access`, and auth actions.
 - `client-web` may create a missing user profile on first sign-in, but it must not overwrite existing `roles` or `appAccess`.
+- `/register` and `/signin` are the canonical email/password and Google account entry points. Public CTAs should link to these routes instead of launching a Google-only popup.
+- Firebase Auth must have Email/Password and Google enabled with one account per email address so a same-email Google attempt can be linked into the existing password account.
+- Email/password registration writes `communicationEmail`, `emailVerified`, `identityProviderIds`, and `authProviders` alongside the conservative default entitlements.
+- Google sign-in for an email that already has a password account must use Firebase provider linking, not a second Firestore profile. `src/shared/hooks/useAuth.js` throws `auth/google-link-password-required`; `LoginPage` asks for the existing password and then calls `linkGoogleWithPassword`.
 - New non-admin users default to `roles: ['investor']` and only `appAccess.invest: true`.
 - `sd.nirsha@gmail.com` and `manish28june@gmail.com` are immutable admins. They always receive admin role and all app access in client-web and admin-web.
 - `VITE_ADMIN_EMAILS` is bootstrap fallback only. Once `admin-web` writes explicit `appAccess`, Firestore wins for env-only bootstrap admins.

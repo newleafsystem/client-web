@@ -162,6 +162,9 @@
 }
 
 .hero-cta-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 28px;
   border-radius: var(--brand-button-radius);
   background: var(--brand-button-primary-bg);
@@ -171,6 +174,7 @@
   font-family: 'DM Sans', sans-serif;
   border: 1px solid var(--brand-button-primary-border);
   cursor: pointer;
+  text-decoration: none;
   box-shadow: var(--brand-button-shadow);
   transition: all .15s;
 }
@@ -181,6 +185,9 @@
 }
 
 .hero-cta-glass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 28px;
   border-radius: var(--brand-button-radius);
   background: var(--brand-button-secondary-bg);
@@ -190,6 +197,7 @@
   font-weight: 700;
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;
+  text-decoration: none;
   transition: all .15s;
 }
 .hero-cta-glass:hover {
@@ -798,12 +806,14 @@ h2 em { font-style:italic; color:var(--g) }
 .cta-box p { font-size:15px; color:rgba(255,255,255,.6); line-height:1.78; max-width:48ch }
 .cta-right { display:flex; gap:10px; flex-shrink:0; position:relative; z-index:1 }
 .btn-cta-gold {
+  display:inline-flex; align-items:center; justify-content:center;
   padding: 13px 24px; border-radius:var(--brand-button-radius);
   background: var(--brand-button-primary-bg); color:var(--brand-button-primary-text);
   border: 1px solid var(--brand-button-primary-border);
   font-size: 14px; font-weight:800;
   box-shadow: var(--brand-button-shadow);
   transition: all .13s;
+  text-decoration:none;
 }
 .btn-cta-gold:hover {
   background:var(--brand-button-primary-hover);
@@ -811,11 +821,13 @@ h2 em { font-style:italic; color:var(--g) }
   box-shadow: var(--brand-button-shadow-hover);
 }
 .btn-cta-ghost {
+  display:inline-flex; align-items:center; justify-content:center;
   padding: 13px 24px; border-radius:var(--brand-button-radius);
   background: var(--brand-button-secondary-bg);
   border: 1px solid var(--brand-button-secondary-border);
   font-size: 14px; font-weight:700; color:var(--brand-button-secondary-text);
   transition: all .13s;
+  text-decoration:none;
 }
 .btn-cta-ghost:hover { background:var(--brand-button-secondary-hover) }
 

@@ -314,8 +314,7 @@ function PhaseCard({ phase }) {
 // Signup band — reusable CTA section
 // ═══════════════════════════════════════════════════════════════
 
-function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
-  if (!onSignInWithGoogle) return null;
+function SignupBand({ label, headline, subhead }) {
   return (
     <section style={{
       background: 'var(--brand-gradient)',
@@ -350,14 +349,15 @@ function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
         }}>{subhead}</p>
 
         {/* Primary CTA */}
-        <button
-          onClick={onSignInWithGoogle}
+        <a
+          href="/register"
           className="invest-signup-cta"
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             padding: '16px 40px', background: 'var(--brand-button-primary-bg)', color: 'var(--brand-button-primary-text)',
             border: '1px solid var(--brand-button-primary-border)', borderRadius: 'var(--brand-button-radius)', fontSize: 16, fontWeight: 800, cursor: 'pointer',
             fontFamily: "'DM Sans', sans-serif",
+            textDecoration: 'none',
             boxShadow: '0 8px 28px rgba(200,168,90,.3)',
             transition: 'transform .15s, box-shadow .15s',
           }}
@@ -365,7 +365,7 @@ function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
           onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(200,168,90,.3)'; }}
         >
           Get started free &rarr;
-        </button>
+        </a>
 
         {/* Secondary link */}
         <p style={{
@@ -374,8 +374,8 @@ function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
           marginTop: 14, marginBottom: 0,
         }}>
           Already have an account?{' '}
-          <button
-            onClick={onSignInWithGoogle}
+          <a
+            href="/signin"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: '#C9A96E', fontSize: 13, fontWeight: 700,
@@ -384,7 +384,7 @@ function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
             }}
           >
             Sign in
-          </button>
+          </a>
         </p>
       </div>
     </section>
@@ -395,7 +395,7 @@ function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
 // Video hero component
 // ═══════════════════════════════════════════════════════════════
 
-function VideoHero({ onSignInWithGoogle }) {
+function VideoHero() {
   const [playing, setPlaying] = useState(false);
 
   const handlePlay = () => {
@@ -480,15 +480,16 @@ function VideoHero({ onSignInWithGoogle }) {
           </p>
 
           {/* Primary CTA — Get started */}
-          {onSignInWithGoogle && (
+          {(
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
-              <button
-                onClick={onSignInWithGoogle}
+              <a
+                href="/register"
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                   padding: '18px 48px', background: 'var(--brand-button-primary-bg)', color: 'var(--brand-button-primary-text)',
                   border: '1px solid var(--brand-button-primary-border)', borderRadius: 'var(--brand-button-radius)', fontSize: 18, fontWeight: 800, cursor: 'pointer',
                   fontFamily: "'DM Sans', sans-serif",
+                  textDecoration: 'none',
                   boxShadow: '0 8px 32px rgba(200,168,90,.35), 0 0 0 2px rgba(200,168,90,.15)',
                   transition: 'transform .15s, box-shadow .15s',
                 }}
@@ -496,7 +497,7 @@ function VideoHero({ onSignInWithGoogle }) {
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(200,168,90,.35), 0 0 0 2px rgba(200,168,90,.15)'; }}
               >
                 Get started free &rarr;
-              </button>
+              </a>
 
               {/* Secondary CTA — Watch video */}
               <button
@@ -530,8 +531,8 @@ function VideoHero({ onSignInWithGoogle }) {
                 marginTop: 4, marginBottom: 0,
               }}>
                 Already have an account?{' '}
-                <button
-                  onClick={onSignInWithGoogle}
+                <a
+                  href="/signin"
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
                     color: '#F7F4EE', fontSize: 13, fontWeight: 600,
@@ -540,7 +541,7 @@ function VideoHero({ onSignInWithGoogle }) {
                   }}
                 >
                   Sign in
-                </button>
+                </a>
               </p>
             </div>
           )}
@@ -639,18 +640,17 @@ function VideoHero({ onSignInWithGoogle }) {
 // Page component
 // ═══════════════════════════════════════════════════════════════
 
-export function InvestPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) {
+export function InvestPage() {
   return (
     <div style={{ background: '#F7F4EE', minHeight: '100vh', scrollPaddingTop: 64 }}>
       {/* Video hero — above the fold */}
-      <VideoHero onSignInWithGoogle={onSignInWithGoogle} />
+      <VideoHero />
 
       {/* Signup band — post-video capture */}
       <SignupBand
         label="READY TO TRY IT?"
         headline="Start managing trades like a desk."
         subhead="Free to explore. No credit card required."
-        onSignInWithGoogle={onSignInWithGoogle}
       />
 
       {/* 3A — Reframing pull-quote */}
@@ -864,7 +864,6 @@ export function InvestPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) 
         label="ONE LAST THING"
         headline="The cycle runs every day. Start yours."
         subhead="Free to get started. Upgrade when you're ready."
-        onSignInWithGoogle={onSignInWithGoogle}
       />
 
       {/* Six Phases — below the fold */}

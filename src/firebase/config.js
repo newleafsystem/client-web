@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut } from "firebase/auth";
+import { getAuth, signOut as fbSignOut } from "firebase/auth";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAI, GoogleAIBackend } from "firebase/ai";
 
@@ -40,10 +40,11 @@ export const functions = getFunctions(app);
 export const ai = typeof window !== 'undefined' ? getAI(app, { backend: new GoogleAIBackend() }) : null;
 
 
-// Auth helpers (used by WorkbenchLayout)
+// Legacy helper: route through the shared account page instead of opening a provider-only popup.
 export async function signInWithGoogle() {
-  const provider = new GoogleAuthProvider();
-  return signInWithPopup(auth, provider);
+  if (typeof window === 'undefined') return;
+  const redirect = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  window.location.href = `/signin?redirect=${encodeURIComponent(redirect)}`;
 }
 
 export async function signOut() {

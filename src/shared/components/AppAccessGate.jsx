@@ -1,5 +1,11 @@
 import { APP_IDS, normalizeUserAccess } from '../auth/accessControl';
 
+function currentSignInUrl() {
+  if (typeof window === 'undefined') return '/signin';
+  const redirect = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  return `/signin?redirect=${encodeURIComponent(redirect)}`;
+}
+
 function AccessCard({ title, message, primaryLabel, onPrimary, secondaryLabel, onSecondary }) {
   return (
     <main style={{
@@ -61,12 +67,12 @@ function AccessCard({ title, message, primaryLabel, onPrimary, secondaryLabel, o
               style={{
                 minHeight: 42,
                 padding: '0 20px',
-                border: 0,
+                border: '1px solid var(--brand-button-primary-border)',
                 borderRadius: 6,
-                background: '#0B2D23',
-                color: '#ffffff',
+                background: 'var(--brand-button-primary-bg)',
+                color: 'var(--brand-button-primary-text)',
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 800,
                 cursor: 'pointer',
               }}
             >
@@ -109,13 +115,13 @@ export function AppAccessDenied({ appName = 'this application', onSignOut }) {
   );
 }
 
-export function SignInRequired({ appName = 'this application', onSignIn }) {
+export function SignInRequired({ appName = 'this application' }) {
   return (
     <AccessCard
       title={`Sign in to open ${appName}`}
       message="This application is tied to your NewLeaf account. Sign in so we can check the application access assigned to your user profile."
-      primaryLabel="Sign In"
-      onPrimary={onSignIn}
+      primaryLabel="Sign In / Register"
+      onPrimary={() => { window.location.href = currentSignInUrl(); }}
     />
   );
 }

@@ -5,16 +5,55 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
+  sendEmailVerification,
   signOut as firebaseSignOut,
+  updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../../firebase/config';
 import { createDefaultUserEntitlements, normalizeUserAccess } from '../auth/accessControl';
 
+const GOOGLE_LINK_PASSWORD_REQUIRED = 'auth/google-link-password-required';
+
+function normalizeEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function displayNameForUser(user, fallbackName) {
+  return fallbackName || user.displayName || user.email?.split('@')[0] || 'User';
+}
+
+function providerIdsForUser(user) {
+  return [...new Set((user?.providerData || []).map((provider) => provider.providerId).filter(Boolean))];
+}
+
+function authProvidersForUser(user) {
+  return Object.fromEntries(providerIdsForUser(user).map((providerId) => [providerId, true]));
+}
+
+function logAuthError(scope, error) {
+  console.error(`${scope}:`, error?.code || error?.message || 'unknown');
+}
+
+function createGoogleLinkRequiredError(error, signInMethods = []) {
+  const email = normalizeEmail(error?.customData?.email);
+  const credential = GoogleAuthProvider.credentialFromError(error);
+  const linkError = new Error(
+    'This email already has a NewLeaf account. Sign in with your password once to link Google to the same account.'
+  );
+  linkError.code = GOOGLE_LINK_PASSWORD_REQUIRED;
+  linkError.email = email;
+  linkError.credential = credential;
+  linkError.signInMethods = signInMethods;
+  return linkError;
+}
+
 /**
  * Authentication hook with Google and Email/Password support
  * Automatically creates/updates user profile documents in Firestore
- * @returns {Object} { user, loading, signInWithGoogle, signInWithEmail, signUp, signOut }
+ * @returns {Object} auth state, access state, and auth actions
  */
 export function useAuth() {
   const [user, setUser] = useState(null);
@@ -23,33 +62,49 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   // Create or update user profile document in Firestore
-  const createOrUpdateUserProfile = async (currentUser) => {
+  const createOrUpdateUserProfile = async (currentUser, options = {}) => {
     if (!currentUser) return;
 
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       const userDoc = await getDoc(userRef);
+      const existingProfile = userDoc.exists() ? userDoc.data() : {};
+      const displayName = displayNameForUser(currentUser, options.displayName);
+      const communicationEmail = existingProfile.communicationEmail || currentUser.email || null;
+      const identityPatch = {
+        email: currentUser.email,
+        communicationEmail,
+        displayName,
+        photoURL: currentUser.photoURL || null,
+        emailVerified: currentUser.emailVerified === true,
+        identityProviderIds: providerIdsForUser(currentUser),
+        authProviders: authProvidersForUser(currentUser),
+        primaryProviderId: providerIdsForUser(currentUser)[0] || null,
+        identityUpdatedAt: serverTimestamp(),
+      };
 
       if (!userDoc.exists()) {
         const entitlements = createDefaultUserEntitlements(currentUser);
         await setDoc(userRef, {
-          email: currentUser.email,
-          displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
-          photoURL: currentUser.photoURL || null,
+          ...identityPatch,
+          registrationSource: options.registrationSource || 'firebase-auth',
           ...entitlements,
           createdAt: serverTimestamp(),
           lastLogin: serverTimestamp(),
         });
       } else {
+        const sourcePatch = (
+          options.registrationSource &&
+          (!existingProfile.registrationSource || existingProfile.registrationSource === 'firebase-auth')
+        ) ? { registrationSource: options.registrationSource } : {};
         await setDoc(userRef, {
-          email: currentUser.email,
-          displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
-          photoURL: currentUser.photoURL || null,
+          ...identityPatch,
+          ...sourcePatch,
           lastLogin: serverTimestamp(),
         }, { merge: true });
       }
     } catch (error) {
-      console.error('Error creating/updating user profile:', error);
+      logAuthError('Error creating/updating user profile', error);
     }
   };
 
@@ -97,27 +152,86 @@ export function useAuth() {
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      provider.setCustomParameters({ prompt: 'select_account' });
+      return await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error('Error signing in with Google:', error);
+      if (error?.code === 'auth/account-exists-with-different-credential') {
+        const email = normalizeEmail(error?.customData?.email);
+        const signInMethods = email ? await fetchSignInMethodsForEmail(auth, email).catch(() => []) : [];
+        throw createGoogleLinkRequiredError(error, signInMethods);
+      }
+      logAuthError('Error signing in with Google', error);
       throw error;
     }
   };
 
   const signInWithEmail = async (email, password) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      return await signInWithEmailAndPassword(auth, normalizeEmail(email), password);
     } catch (error) {
-      console.error('Error signing in with email:', error);
+      logAuthError('Error signing in with email', error);
       throw error;
     }
   };
 
-  const signUp = async (email, password) => {
+  const signUp = async (email, password, options = {}) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const result = await createUserWithEmailAndPassword(auth, normalizeEmail(email), password);
+      const displayName = String(options.displayName || '').trim();
+
+      if (displayName) {
+        await updateProfile(result.user, { displayName });
+      }
+
+      if (!result.user.emailVerified) {
+        await sendEmailVerification(result.user).catch((error) => {
+          logAuthError('Error sending verification email', error);
+        });
+      }
+
+      await createOrUpdateUserProfile(result.user, {
+        displayName,
+        registrationSource: 'email-password',
+      });
+
+      return result;
     } catch (error) {
-      console.error('Error signing up:', error);
+      logAuthError('Error signing up', error);
+      throw error;
+    }
+  };
+
+  const linkGoogleWithPassword = async (email, password, pendingCredential) => {
+    try {
+      if (!pendingCredential) {
+        const error = new Error('Missing Google credential for account linking.');
+        error.code = 'auth/missing-google-link-credential';
+        throw error;
+      }
+
+      const normalizedEmail = normalizeEmail(email);
+      const result = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+
+      if (normalizeEmail(result.user.email) !== normalizedEmail) {
+        const error = new Error('The signed-in email does not match the Google account.');
+        error.code = 'auth/email-link-mismatch';
+        throw error;
+      }
+
+      let linkedUser = result.user;
+      const linkResult = await linkWithCredential(result.user, pendingCredential).catch((error) => {
+        if (error?.code !== 'auth/provider-already-linked') throw error;
+        return null;
+      });
+      linkedUser = linkResult?.user || linkedUser;
+
+      await createOrUpdateUserProfile(linkedUser, {
+        registrationSource: 'linked-google',
+      });
+
+      return result;
+    } catch (error) {
+      logAuthError('Error linking Google identity', error);
       throw error;
     }
   };
@@ -126,10 +240,22 @@ export function useAuth() {
     try {
       await firebaseSignOut(auth);
     } catch (error) {
-      console.error('Error signing out:', error);
+      logAuthError('Error signing out', error);
       throw error;
     }
   };
 
-  return { user, profile, access, loading, signInWithGoogle, signInWithEmail, signUp, signOut };
+  return {
+    user,
+    profile,
+    access,
+    loading,
+    signInWithGoogle,
+    signInWithEmail,
+    signUp,
+    linkGoogleWithPassword,
+    signOut,
+  };
 }
+
+export { GOOGLE_LINK_PASSWORD_REQUIRED };

@@ -4,7 +4,7 @@
  * Replaces static Sign In / Get Started buttons with working Firebase auth.
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+import { getAuth, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { getFirestore, doc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
@@ -30,6 +30,16 @@ function normalizeEmail(value) {
 
 function isImmutableAdminUser(user) {
   return IMMUTABLE_ADMIN_EMAILS.indexOf(normalizeEmail(user && user.email)) !== -1;
+}
+
+function signInUrl() {
+  var redirect = location.pathname + location.search + location.hash;
+  return '/signin?redirect=' + encodeURIComponent(redirect);
+}
+
+function registerUrl() {
+  var redirect = location.pathname + location.search + location.hash;
+  return '/register?redirect=' + encodeURIComponent(redirect);
 }
 
 function allAppAccess() {
@@ -160,7 +170,7 @@ function applyWorkbenchPageGate(access, user) {
           (user ? 'Your NewLeaf account does not currently include Workbench. Access is managed from the admin-web user record.' : 'Sign in so NewLeaf can check the Workbench access assigned to your user profile.') +
         '</p>' +
         '<div style="margin-top:24px">' +
-          '<button id="nlWorkbenchGateAction" style="min-height:42px;padding:0 20px;border:0;border-radius:6px;background:#0B2D23;color:#fff;font:700 13px Inter,system-ui,sans-serif;cursor:pointer">' +
+          '<button id="nlWorkbenchGateAction" style="min-height:42px;padding:0 20px;border:1px solid var(--brand-button-primary-border,#c8a85a);border-radius:6px;background:var(--brand-button-primary-bg,#c8a85a);color:var(--brand-button-primary-text,#061c15);font:800 13px Inter,system-ui,sans-serif;cursor:pointer">' +
             (user ? 'Sign Out' : 'Sign In') +
           '</button>' +
         '</div>' +
@@ -171,7 +181,7 @@ function applyWorkbenchPageGate(access, user) {
   if (action) {
     action.addEventListener('click', function () {
       if (user) signOut(auth);
-      else signInWithPopup(auth, new GoogleAuthProvider());
+      else window.location.href = signInUrl();
     });
   }
 }
@@ -184,8 +194,8 @@ function getInitials(user) {
 }
 
 function signedOutHTML() {
-  return '<button class="nl-nav-ghost" id="navSignIn">Sign In</button>' +
-    '<a href="/invest" class="nl-nav-cta">Get Started &rarr;</a>';
+  return '<a class="nl-nav-ghost" id="navSignIn" href="' + signInUrl() + '">Sign In</a>' +
+    '<a href="' + registerUrl() + '" class="nl-nav-cta">Get Started &rarr;</a>';
 }
 
 function signedInHTML(user) {
@@ -197,8 +207,8 @@ function signedInHTML(user) {
 }
 
 function mobileSignedOutHTML() {
-  return '<button class="nl-nav-ghost nl-mobile-btn" id="mobileSignIn">Sign In</button>' +
-    '<a href="/invest" class="nl-nav-cta nl-mobile-btn">Get Started &rarr;</a>';
+  return '<a class="nl-nav-ghost nl-mobile-btn" id="mobileSignIn" href="' + signInUrl() + '">Sign In</a>' +
+    '<a href="' + registerUrl() + '" class="nl-nav-cta nl-mobile-btn">Get Started &rarr;</a>';
 }
 
 function mobileSignedInHTML(user) {
@@ -212,7 +222,7 @@ function mobileSignedInHTML(user) {
 function wireFallbackAuthLinks() {
   document.querySelectorAll('#navSignIn, #mobileSignIn, .nl-nav-right .nl-nav-ghost, .nl-mobile-utility .nl-nav-ghost').forEach(function (button) {
     button.addEventListener('click', function () {
-      window.location.href = '/invest#signin';
+      window.location.href = signInUrl();
     });
   });
 }
@@ -246,7 +256,7 @@ onAuthStateChanged(auth, async function (user) {
     // Attach event listeners
     var signInBtn = document.getElementById('navSignIn');
     var signOutBtn = document.getElementById('navSignOut');
-    if (signInBtn) signInBtn.addEventListener('click', function () { signInWithPopup(auth, new GoogleAuthProvider()); });
+    if (signInBtn) signInBtn.addEventListener('click', function () { window.location.href = signInUrl(); });
     if (signOutBtn) signOutBtn.addEventListener('click', function () { signOut(auth); });
   }
 
@@ -270,7 +280,7 @@ onAuthStateChanged(auth, async function (user) {
 
     var mobileSignInBtn = document.getElementById('mobileSignIn');
     var mobileSignOutBtn = document.getElementById('mobileSignOut');
-    if (mobileSignInBtn) mobileSignInBtn.addEventListener('click', function () { signInWithPopup(auth, new GoogleAuthProvider()); });
+    if (mobileSignInBtn) mobileSignInBtn.addEventListener('click', function () { window.location.href = signInUrl(); });
     if (mobileSignOutBtn) mobileSignOutBtn.addEventListener('click', function () { signOut(auth); });
   }
 });

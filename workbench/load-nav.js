@@ -24,7 +24,8 @@
         </div>
         <ul class="nl-nav-links">${navLinks()}</ul>
         <div class="nl-nav-right">
-          <a class="nl-nav-cta" href="/invest">Get Started &rarr;</a>
+          <a class="nl-nav-ghost" href="/signin">Sign In</a>
+          <a class="nl-nav-cta" href="/register">Get Started &rarr;</a>
         </div>
         <button class="nl-hamburger" aria-label="Open menu">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">

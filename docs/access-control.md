@@ -15,8 +15,12 @@ Required identity fields:
 ```js
 {
   email: string,
+  communicationEmail: string,
   displayName: string,
   photoURL: string | null,
+  emailVerified: boolean,
+  identityProviderIds: ['password'] | ['google.com'] | ['password', 'google.com'],
+  authProviders: { password?: boolean, 'google.com'?: boolean },
   status: 'active' | 'disabled' | 'inactive' | 'revoked' | 'suspended',
   roles: ['investor'] | ['admin'] | object,
   appAccess: {
@@ -39,8 +43,18 @@ Required identity fields:
 
 - `admin-web` is the authoritative writer for `roles`, `status`, and `appAccess`.
 - `client-web` creates a missing profile on first sign-in with conservative defaults.
-- `client-web` updates identity fields and `lastLogin`, but must not overwrite existing `roles` or `appAccess`.
+- `client-web` updates identity fields, communication email, linked provider metadata, and `lastLogin`, but must not overwrite existing `roles` or `appAccess`.
 - Both apps must use the same Firebase Auth user id and Firestore database: project `newleaf-trading`, database `newleafdb`.
+
+## Registration And Identity Linking
+
+- `/register` is the canonical public registration page for users who want email/password instead of Google sign-in.
+- `/signin` is the canonical sign-in page and supports both email/password and Google.
+- Email is required because it is the communication identity for account notifications and product access.
+- Firebase Auth must keep Email/Password and Google providers enabled with one account per email address. If the backend allows multiple Auth users for the same email, client-side provider linking cannot prevent duplicate UIDs.
+- `users/{uid}.communicationEmail` is set from the Firebase Auth email when the profile is created and preserved on later sign-ins unless an existing value is already present.
+- If a user first registers with email/password and later chooses Google with the same email, `client-web` handles Firebase's account-exists flow by asking for the existing password once, then linking the Google credential to the same Firebase Auth user. The Firestore user profile remains under the same UID and `identityProviderIds` is updated to include both providers.
+- Do not create a second Firestore profile to represent the same email. If Firebase Auth already contains separate users for the same email because provider linking was bypassed, that merge requires an admin/server-side repair; client-web cannot safely merge two Firebase UIDs by itself.
 
 ## Defaults
 

@@ -5,7 +5,7 @@ import PageSEO from '../../shared/components/PageSEO';
 import { useNotification } from '../../shared/components/NotificationProvider';
 import '../styles/landing.css';
 
-export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) {
+export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, onLinkGoogleWithPassword }) {
   const [showAuth, setShowAuth] = useState(null); // null | 'login' | 'signup'
 
   const handleGetStarted = (mode = 'signup') => setShowAuth(mode);
@@ -41,6 +41,9 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp })
         onSignInWithGoogle={onSignInWithGoogle}
         onSignInWithEmail={onSignInWithEmail}
         onSignUp={onSignUp}
+        onLinkGoogleWithPassword={onLinkGoogleWithPassword}
+        onComplete={() => setShowAuth(null)}
+        defaultMode={showAuth}
       />
     );
   }
@@ -77,7 +80,7 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp })
         <div className="hero-grad"></div>
 
         <div className="hero-ctas-tr">
-          <button className="hero-cta-gold" onClick={() => handleGetStarted('signup')}>Get Started Free →</button>
+          <a className="hero-cta-gold" href="/register">Get Started Free →</a>
           <button className="hero-cta-glass" onClick={() => document.getElementById('video')?.scrollIntoView({ behavior: 'smooth' })}>Watch Demo</button>
         </div>
 
@@ -545,8 +548,8 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp })
               <p>Start free on newleaf-invest. Explore today's curated strategy library, build your risk-budgeted portfolio, and execute with full confidence.</p>
             </div>
             <div className="cta-right">
-              <button className="btn-cta-ghost" onClick={() => handleGetStarted('signup')}>View Pricing</button>
-              <button className="btn-cta-gold" onClick={() => handleGetStarted('signup')}>Start Free →</button>
+              <a className="btn-cta-ghost" href="/register">View Pricing</a>
+              <a className="btn-cta-gold" href="/register">Start Free →</a>
             </div>
           </div>
         </div>

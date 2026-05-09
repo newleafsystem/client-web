@@ -342,7 +342,7 @@ canvas#payoff{display:block;width:100%;height:260px}
     <div class="lbottom">
       <button class="btn-p btn-publish" id="publishToFirebase" type="button" disabled>🚀 Publish to Firebase</button>
       <div class="fb-status" id="fbStatus" style="display:none"></div>
-      <div class="fb-auth" id="fbAuth">Not signed in · <a id="fbSignInLink">Sign in with Google</a></div>
+      <div class="fb-auth" id="fbAuth">Not signed in · <a id="fbSignInLink" href="/signin?redirect=/workbench/strategy-builder">Sign in or register</a></div>
       <button class="btn-p" id="sendToDesk" type="button">⚡ Send to NewLeaf Desk</button>
       <button class="btn-s" id="resetBtn" type="button">↺ Reset strikes</button>
     </div>
@@ -2866,7 +2866,7 @@ function refreshPublishButton() {
     }
   }
   btn.disabled = !(signedIn && canPublish);
-  btn.title = !signedIn ? 'Sign in with Google to publish'
+  btn.title = !signedIn ? 'Sign in to publish'
             : !canPublish ? 'Pick a valid setup first'
             : 'Publish this tile to Firestore';
 }
@@ -2897,7 +2897,7 @@ document.addEventListener('DOMContentLoaded', () => {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+import { getAuth, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 // Public Firebase web config (same as newleaf-workbench/src/firebase.js).
@@ -2915,6 +2915,10 @@ const app  = initializeApp(firebaseConfig);
 const db   = getFirestore(app, 'newleafdb');
 const auth = getAuth(app);
 
+function signInHref() {
+  return '/signin?redirect=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+}
+
 // Auth state — kept in sync with the inline script via window.firebaseUser.
 onAuthStateChanged(auth, user => {
   window.firebaseUser = user || null;
@@ -2922,7 +2926,7 @@ onAuthStateChanged(auth, user => {
   if (authEl) {
     authEl.innerHTML = user
       ? `Signed in as <strong>${user.email}</strong> · <a id="fbSignOutLink">sign out</a>`
-      : `Not signed in · <a id="fbSignInLink">Sign in with Google</a>`;
+      : `Not signed in · <a id="fbSignInLink" href="${signInHref()}">Sign in or register</a>`;
     document.getElementById('fbSignInLink')?.addEventListener('click', () => window.firebaseSignIn());
     document.getElementById('fbSignOutLink')?.addEventListener('click', () => window.firebaseSignOut());
   }
@@ -2930,16 +2934,7 @@ onAuthStateChanged(auth, user => {
 });
 
 window.firebaseSignIn = async function() {
-  try {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  } catch (e) {
-    console.error('sign-in failed:', e);
-    await window.NewLeafModal?.showError({
-      title: 'Sign-in failed',
-      message: e.message || String(e)
-    });
-  }
+  window.location.href = signInHref();
 };
 
 window.firebaseSignOut = async function() {
@@ -2973,7 +2968,7 @@ function stripUndefined(value) {
 // newleaf-workbench's analystApi.buildTile produces.
 window.publishTile = async function(payload) {
   if (!auth.currentUser) {
-    return { success: false, error: 'Not signed in — click "Sign in with Google" first' };
+    return { success: false, error: 'Not signed in — sign in or register first' };
   }
   try {
     // Aggregate Greeks across legs (sell legs negate)

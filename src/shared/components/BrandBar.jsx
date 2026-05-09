@@ -467,10 +467,10 @@ export function BrandBar({
             </div>
           ) : (
             <>
-              <button className="nl-nav-ghost" onClick={onSignIn}>
+              <Link to="/signin" className="nl-nav-ghost">
                 Sign In
-              </button>
-              <Link to="/invest" className="nl-nav-cta">
+              </Link>
+              <Link to="/register" className="nl-nav-cta">
                 Get Started &rarr;
               </Link>
             </>
@@ -522,14 +522,15 @@ export function BrandBar({
             </div>
           ) : (
             <>
-              <button
+              <Link
+                to="/signin"
                 className="nl-nav-ghost nl-mobile-btn"
-                onClick={() => { onSignIn?.(); closeMobile(); }}
+                onClick={closeMobile}
               >
                 Sign In
-              </button>
+              </Link>
               <Link
-                to="/invest"
+                to="/register"
                 className="nl-nav-cta nl-mobile-btn"
                 onClick={closeMobile}
               >

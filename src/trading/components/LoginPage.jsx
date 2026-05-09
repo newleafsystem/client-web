@@ -1,23 +1,64 @@
 import { useState, useEffect } from 'react';
+import { GOOGLE_LINK_PASSWORD_REQUIRED } from '../../shared/hooks/useAuth';
 
-export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isModal = false, defaultMode = 'login' }) {
+function authMessage(error, isSignUp) {
+  switch (error?.code) {
+    case GOOGLE_LINK_PASSWORD_REQUIRED:
+      return 'This email already has a NewLeaf account. Enter your existing password once to link Google to the same account.';
+    case 'auth/email-already-in-use':
+      return 'That email is already registered. Sign in, or use Google after signing in to link it.';
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+      return 'The email or password is incorrect.';
+    case 'auth/weak-password':
+      return 'Use a stronger password with at least 8 characters.';
+    case 'auth/operation-not-allowed':
+      return 'Email/password registration is not enabled for this Firebase project yet.';
+    case 'auth/popup-closed-by-user':
+      return 'Google sign-in was closed before it finished.';
+    default:
+      return isSignUp ? 'Registration failed. Check the details and try again.' : 'Sign-in failed. Check the details and try again.';
+  }
+}
+
+export function LoginPage({
+  onSignInWithGoogle,
+  onSignInWithEmail,
+  onSignUp,
+  onLinkGoogleWithPassword,
+  onComplete,
+  isModal = false,
+  defaultMode = 'login',
+  mode,
+}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(defaultMode === 'signup');
+  const [displayName, setDisplayName] = useState('');
+  const initialMode = mode || defaultMode;
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
+  const [pendingGoogleLink, setPendingGoogleLink] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setIsSignUp(defaultMode === 'signup');
-  }, [defaultMode]);
+    setIsSignUp((mode || defaultMode) === 'signup');
+  }, [defaultMode, mode]);
 
   const handleGoogleSignIn = async () => {
     try {
       setError('');
       setLoading(true);
+      setPendingGoogleLink(null);
       await onSignInWithGoogle();
+      onComplete?.();
     } catch (err) {
-      setError(err.message || 'Failed to sign in with Google');
+      if (err?.code === GOOGLE_LINK_PASSWORD_REQUIRED) {
+        setEmail(err.email || '');
+        setPassword('');
+        setIsSignUp(false);
+        setPendingGoogleLink({ email: err.email, credential: err.credential });
+      }
+      setError(authMessage(err, isSignUp));
     } finally {
       setLoading(false);
     }
@@ -31,17 +72,30 @@ export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isM
       return;
     }
 
+    if (isSignUp && !displayName.trim()) {
+      setError('Please enter your name so we can identify your account.');
+      return;
+    }
+
+    if ((isSignUp || pendingGoogleLink) && password.length < 8) {
+      setError('Use a password with at least 8 characters.');
+      return;
+    }
+
     try {
       setError('');
       setLoading(true);
 
-      if (isSignUp) {
-        await onSignUp(email, password);
+      if (pendingGoogleLink) {
+        await onLinkGoogleWithPassword(email, password, pendingGoogleLink.credential);
+      } else if (isSignUp) {
+        await onSignUp(email, password, { displayName });
       } else {
         await onSignInWithEmail(email, password);
       }
+      onComplete?.();
     } catch (err) {
-      setError(err.message || 'Authentication failed');
+      setError(authMessage(err, isSignUp));
     } finally {
       setLoading(false);
     }
@@ -60,8 +114,16 @@ export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isM
             <circle cx="20" cy="12" r="3.5" fill="#0B2D23"/>
             <path d="M6 28 C6 28 12 18 20 18 C28 18 34 28 34 28" stroke="#C9A96E" strokeWidth="3" fill="none" strokeLinecap="round"/>
           </svg>
-          <h1 style={styles.title}>{isSignUp ? 'Create Your Account' : 'Welcome Back'}</h1>
-          <p style={styles.tagline}>{isSignUp ? 'Start building structured strategies' : 'Sign in to NewLeaf System'}</p>
+          <h1 style={styles.title}>
+            {pendingGoogleLink ? 'Link Your Google Account' : isSignUp ? 'Create Your Account' : 'Welcome Back'}
+          </h1>
+          <p style={styles.tagline}>
+            {pendingGoogleLink
+              ? 'Enter your existing password once. NewLeaf will keep one account for both sign-in methods.'
+              : isSignUp
+                ? 'Use any email address. Gmail is optional.'
+                : 'Sign in to NewLeaf System'}
+          </p>
         </div>
 
         {/* Error message */}
@@ -74,7 +136,7 @@ export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isM
         {/* Google Sign-In Button */}
         <button
           onClick={handleGoogleSignIn}
-          disabled={loading}
+          disabled={loading || pendingGoogleLink}
           style={styles.googleButton}
         >
           <svg style={styles.googleIcon} viewBox="0 0 24 24">
@@ -83,7 +145,7 @@ export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isM
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          {loading ? 'Signing in...' : `Sign ${isSignUp ? 'up' : 'in'} with Google`}
+          {loading ? 'Signing in...' : `Continue ${isSignUp ? 'registration' : 'sign in'} with Google`}
         </button>
 
         {/* Divider */}
@@ -95,21 +157,34 @@ export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isM
 
         {/* Email/Password Form */}
         <form onSubmit={handleEmailAuth} style={styles.form}>
+          {isSignUp && !pendingGoogleLink && (
+            <input
+              type="text"
+              placeholder="Full name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              disabled={loading}
+              style={styles.input}
+              autoComplete="name"
+            />
+          )}
           <input
             type="email"
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
+            disabled={loading || Boolean(pendingGoogleLink)}
             style={styles.input}
+            autoComplete="email"
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder={pendingGoogleLink ? 'Existing NewLeaf password' : 'Password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
             style={styles.input}
+            autoComplete={isSignUp ? 'new-password' : 'current-password'}
           />
 
           <button
@@ -117,12 +192,27 @@ export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isM
             disabled={loading}
             style={styles.submitButton}
           >
-            {loading ? 'Please wait...' : (isSignUp ? 'Create Account' : 'Sign In')}
+            {loading ? 'Please wait...' : pendingGoogleLink ? 'Link Google Account' : (isSignUp ? 'Create Account' : 'Sign In')}
           </button>
         </form>
 
+        {pendingGoogleLink && (
+          <button
+            type="button"
+            onClick={() => {
+              setPendingGoogleLink(null);
+              setPassword('');
+              setError('');
+            }}
+            disabled={loading}
+            style={styles.cancelLinkButton}
+          >
+            Use a different sign-in method
+          </button>
+        )}
+
         {/* Toggle between sign-in and sign-up */}
-        <div style={styles.toggle}>
+        {!pendingGoogleLink && <div style={styles.toggle}>
           <span style={styles.toggleText}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}
           </span>
@@ -136,7 +226,7 @@ export function LoginPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, isM
           >
             {isSignUp ? 'Sign In' : 'Sign Up'}
           </button>
-        </div>
+        </div>}
 
         {/* Footer */}
         <div style={styles.footer}>
@@ -267,16 +357,28 @@ const styles = {
   submitButton: {
     width: '100%',
     padding: '0.875rem',
-    background: '#0B2D23',
-    color: '#FFFFFF',
-    border: 'none',
+    background: 'var(--brand-button-primary-bg, #c8a85a)',
+    color: 'var(--brand-button-primary-text, #061c15)',
+    border: '1px solid var(--brand-button-primary-border, #c8a85a)',
     borderRadius: '8px',
     fontSize: '1rem',
-    fontWeight: '600',
+    fontWeight: '800',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     fontFamily: "'Instrument Sans', sans-serif",
     marginTop: '0.5rem',
+  },
+  cancelLinkButton: {
+    display: 'block',
+    margin: '1rem auto 0',
+    background: 'none',
+    border: 'none',
+    color: '#0B2D23',
+    fontSize: '0.875rem',
+    fontWeight: '700',
+    cursor: 'pointer',
+    padding: 0,
+    fontFamily: "'Instrument Sans', sans-serif",
   },
   toggle: {
     marginTop: '1.5rem',

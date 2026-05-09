@@ -30,6 +30,7 @@ const LandingPage = lazy(() => import('./trading/pages/LandingPage').then(m => (
 const LearnPage = lazy(() => import('./trading/pages/LearnPage').then(m => ({ default: m.LearnPage })));
 const TradingLayout = lazy(() => import('./trading/TradingLayout'));
 const WorkbenchAnalysisWrapper = lazy(() => import('./shared/components/WorkbenchAnalysisWrapper'));
+const AuthPage = lazy(() => import('./trading/pages/AuthPage').then(m => ({ default: m.AuthPage })));
 
 // Marketing pages — lazy
 const HowWePickPage = lazy(() => import('./marketing/how-we-pick/HowWePickPage').then(m => ({ default: m.HowWePickPage })));
@@ -78,7 +79,7 @@ const JadeLizardSkill = lazy(() => import('./trading/pages/strategies/JadeLizard
 
 // Landing page wrapper
 function LandingWithAuth() {
-  const { user, access, signOut, signInWithGoogle, signInWithEmail, signUp } = useAuth();
+  const { user, access, signOut, signInWithGoogle, signInWithEmail, signUp, linkGoogleWithPassword } = useAuth();
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
       <BrandBar
@@ -94,6 +95,7 @@ function LandingWithAuth() {
           onSignInWithGoogle={signInWithGoogle}
           onSignInWithEmail={signInWithEmail}
           onSignUp={signUp}
+          onLinkGoogleWithPassword={linkGoogleWithPassword}
         />
       </Suspense>
       <Footer />
@@ -107,6 +109,8 @@ export default function App() {
       <Routes>
         {/* ═══ PUBLIC PAGES ═══ */}
         <Route path="/" element={<LandingWithAuth />} />
+        <Route path="/register" element={<AuthPage defaultMode="signup" />} />
+        <Route path="/signin" element={<AuthPage defaultMode="login" />} />
         <Route element={<PublicLayout />}>
           <Route path="/learn" element={<LearnPage />} />
         </Route>
