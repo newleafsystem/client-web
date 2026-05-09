@@ -1,0 +1,57 @@
+{
+  "alpaca": {
+    "apiKey": "ALPACA_API_KEY",
+    "secretKey": "ALPACA_SECRET_KEY"
+  },
+  "r2": {
+    "accountId": "R2_ACCOUNT_ID",
+    "bucket": "R2_BUCKET",
+    "accessKeyId": "R2_ACCESS_KEY_ID",
+    "secretAccessKey": "R2_SECRET_ACCESS_KEY",
+    "endpoint": "R2_ENDPOINT",
+    "publicBaseUrl": "R2_PUBLIC_BASE_URL"
+  },
+  "yahoosvc": {
+    "url": "YAHOO_SVC_URL"
+  },
+  "pipeline": {
+    "dteMin": "PIPELINE_DTE_MIN",
+    "dteMax": "PIPELINE_DTE_MAX",
+    "concurrency": "PIPELINE_CONCURRENCY"
+  },
+  "email": {
+    "smtp": {
+      "host": "SMTP_HOST",
+      "port": "SMTP_PORT",
+      "user": "SMTP_USER",
+      "pass": "SMTP_PASS"
+    },
+    "from": "EMAIL_FROM",
+    "recipients": ["EMAIL_RECIPIENTS"]
+  },
+  "watchlist": ["WATCHLIST"],
+  "sentiment": {
+    "enabled": "SENTIMENT_ENABLED",
+    "cacheMaxAgeMinutes": "SENTIMENT_CACHE_MAX_AGE_MINUTES",
+    "engines": {
+      "claude": {
+        "enabled": "CLAUDE_SENTIMENT_ENABLED",
+        "weight": "CLAUDE_SENTIMENT_WEIGHT"
+      },
+      "grok": {
+        "enabled": "GROK_SENTIMENT_ENABLED",
+        "weight": "GROK_SENTIMENT_WEIGHT",
+        "apiKey": "XAI_API_KEY"
+      },
+      "gemini": {
+        "enabled": "GEMINI_SENTIMENT_ENABLED",
+        "weight": "GEMINI_SENTIMENT_WEIGHT",
+        "apiKey": "GEMINI_API_KEY"
+      },
+      "reddit": {
+        "enabled": "REDDIT_SENTIMENT_ENABLED",
+        "weight": "REDDIT_SENTIMENT_WEIGHT"
+      }
+    }
+  }
+}
