@@ -58,7 +58,7 @@ export default function TradingLayout() {
     <div style={{ minHeight: '100vh', background: '#F7F5F0' }}>
       <BrandBar
         surface="invest"
-        authState={headerProps.authState || (authLoading ? 'loading' : user ? 'in' : 'out')}
+        authState={headerProps.authState || (user ? 'in' : authLoading ? 'loading' : 'out')}
         user={headerProps.user ?? user}
         access={headerProps.access ?? access}
         onSignOut={signOut}

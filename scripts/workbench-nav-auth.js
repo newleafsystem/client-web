@@ -4,7 +4,7 @@
  * Replaces static Sign In / Get Started buttons with working Firebase auth.
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged }
+import { getAuth, signOut, signInWithCustomToken, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { getFirestore, doc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
@@ -19,6 +19,7 @@ const hasFirebaseConfig = Boolean(
 const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
 const auth = app ? getAuth(app) : null;
 const db = app ? getFirestore(app, 'newleafdb') : null;
+const AUTH_SESSION_API_BASE = String(window.NEWLEAF_AUTH_SESSION_API_BASE_URL || '').replace(/\/+$/, '');
 const IMMUTABLE_ADMIN_EMAILS = Object.freeze([
   'sd.nirsha@gmail.com',
   'manish28june@gmail.com',
@@ -40,6 +41,75 @@ function signInUrl() {
 function registerUrl() {
   var redirect = location.pathname + location.search + location.hash;
   return '/register?redirect=' + encodeURIComponent(redirect);
+}
+
+function sessionUrl(path) {
+  return AUTH_SESSION_API_BASE + path;
+}
+
+async function readJsonResponse(response) {
+  var contentType = response.headers.get('content-type') || '';
+  if (contentType.indexOf('application/json') === -1) return null;
+  return response.json();
+}
+
+async function fetchCookieSession() {
+  try {
+    var response = await fetch(sessionUrl('/api/auth/session'), {
+      method: 'GET',
+      credentials: 'include',
+      headers: { Accept: 'application/json' }
+    });
+    var data = await readJsonResponse(response);
+    return response.ok && data && data.authenticated ? data : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function createCookieSession(user) {
+  if (!user || typeof user.getIdToken !== 'function') return null;
+  try {
+    var idToken = await user.getIdToken();
+    var response = await fetch(sessionUrl('/api/auth/session'), {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ idToken: idToken })
+    });
+    var data = await readJsonResponse(response);
+    return response.ok && data && data.authenticated ? data : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function fetchCustomTokenFromCookie() {
+  try {
+    var response = await fetch(sessionUrl('/api/auth/custom-token'), {
+      method: 'POST',
+      credentials: 'include',
+      headers: { Accept: 'application/json' }
+    });
+    var data = await readJsonResponse(response);
+    return response.ok && data && data.customToken ? data.customToken : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function clearCookieSession() {
+  try {
+    await fetch(sessionUrl('/api/auth/logout'), {
+      method: 'POST',
+      credentials: 'include',
+      headers: { Accept: 'application/json' }
+    });
+  } catch (error) {
+  }
 }
 
 function allAppAccess() {
@@ -190,7 +260,7 @@ function applyWorkbenchPageGate(access, user) {
   var action = document.getElementById('nlWorkbenchGateAction');
   if (action) {
     action.addEventListener('click', function () {
-      if (user) signOut(auth);
+      if (user) performSignOut().catch(function () {});
       else window.location.href = signInUrl();
     });
   }
@@ -255,24 +325,35 @@ function wireFallbackAuthLinks() {
   });
 }
 
-if (!auth) {
-  wireFallbackAuthLinks();
-} else {
-onAuthStateChanged(auth, async function (user) {
-  var profile = await loadUserProfile(user);
-  var access = getAccess(profile, user);
+async function performSignOut() {
+  await clearCookieSession();
+  if (auth) {
+    await signOut(auth);
+  }
+}
+
+function accessFromSession(session) {
+  if (session && session.access && session.access.appMap) {
+    return {
+      canAccessApp: function (appId) {
+        if (!appId || appId === 'root') return true;
+        return Boolean(session.access.appMap[String(appId).toLowerCase()]);
+      }
+    };
+  }
+  return getAccess(session && session.profile, session && session.user);
+}
+
+function renderAuthState(user, profile, access) {
   applyRoleBasedNav(access);
   applyWorkbenchPageGate(access, user);
 
-  // Desktop auth zone
   var navRight = document.querySelector('.nl-nav-right');
   if (navRight) {
-    // Find or create auth container
     var authEl = navRight.querySelector('.nl-nav-auth');
     if (!authEl) {
       authEl = document.createElement('div');
       authEl.className = 'nl-nav-auth';
-      // Remove static auth buttons rendered by SSR
       var ghost = navRight.querySelector('.nl-nav-ghost');
       var cta = navRight.querySelector('.nl-nav-cta');
       if (ghost) ghost.remove();
@@ -281,23 +362,19 @@ onAuthStateChanged(auth, async function (user) {
     }
     authEl.innerHTML = user ? signedInHTML(user) : signedOutHTML();
 
-    // Attach event listeners
     var signInBtn = document.getElementById('navSignIn');
     var signOutBtn = document.getElementById('navSignOut');
     if (signInBtn) signInBtn.addEventListener('click', function () { window.location.href = signInUrl(); });
-    if (signOutBtn) signOutBtn.addEventListener('click', function () { signOut(auth); });
+    if (signOutBtn) signOutBtn.addEventListener('click', function () { performSignOut().catch(function () {}); });
   }
 
-  // Mobile auth zone
   var mobileUtility = document.querySelector('.nl-mobile-utility');
   if (mobileUtility) {
-    // Remove static mobile auth buttons
     var mobileGhost = mobileUtility.querySelector('.nl-nav-ghost');
     var mobileCta = mobileUtility.querySelector('.nl-nav-cta');
     if (mobileGhost) mobileGhost.remove();
     if (mobileCta) mobileCta.remove();
 
-    // Find or create mobile auth container
     var mobileAuthEl = mobileUtility.querySelector('.nl-mobile-auth-zone');
     if (!mobileAuthEl) {
       mobileAuthEl = document.createElement('div');
@@ -309,7 +386,37 @@ onAuthStateChanged(auth, async function (user) {
     var mobileSignInBtn = document.getElementById('mobileSignIn');
     var mobileSignOutBtn = document.getElementById('mobileSignOut');
     if (mobileSignInBtn) mobileSignInBtn.addEventListener('click', function () { window.location.href = signInUrl(); });
-    if (mobileSignOutBtn) mobileSignOutBtn.addEventListener('click', function () { signOut(auth); });
+    if (mobileSignOutBtn) mobileSignOutBtn.addEventListener('click', function () { performSignOut().catch(function () {}); });
   }
-});
+}
+
+async function renderCookieSessionIfPresent() {
+  var session = await fetchCookieSession();
+  if (!session || !session.user) return false;
+  renderAuthState(session.user, session.profile, accessFromSession(session));
+  return true;
+}
+
+if (!auth) {
+  renderCookieSessionIfPresent().then(function (rendered) {
+    if (!rendered) wireFallbackAuthLinks();
+  });
+} else {
+  renderCookieSessionIfPresent();
+  onAuthStateChanged(auth, async function (user) {
+    if (!user) {
+      var restoredToken = await fetchCustomTokenFromCookie();
+      if (restoredToken) {
+        await signInWithCustomToken(auth, restoredToken).catch(function () {});
+        return;
+      }
+      renderAuthState(null, null, getAccess(null, null));
+      return;
+    }
+
+    var session = await createCookieSession(user);
+    var profile = session && session.profile ? session.profile : await loadUserProfile(user);
+    var access = session ? accessFromSession(session) : getAccess(profile, user);
+    renderAuthState(user, profile, access);
+  });
 }

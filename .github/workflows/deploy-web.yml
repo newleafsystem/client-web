@@ -92,6 +92,8 @@ jobs:
           VITE_ADMIN_EMAILS: ${{ vars.VITE_ADMIN_EMAILS }}
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
           VITE_SCHEDULER_API: ${{ vars.VITE_SCHEDULER_API }}
+          VITE_AUTH_STATE_CACHE_TTL_HOURS: ${{ vars.VITE_AUTH_STATE_CACHE_TTL_HOURS }}
+          VITE_AUTH_SESSION_API_BASE_URL: ${{ vars.VITE_AUTH_SESSION_API_BASE_URL }}
         run: npm run build
 
       - name: Upload dist artifact
@@ -266,6 +268,15 @@ jobs:
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
       GCP_SERVICE_ACCOUNT_KEY_BASE64: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+      FIRESTORE_DATABASE_ID: ${{ vars.FIRESTORE_DATABASE_ID }}
+      AUTH_SESSION_COOKIE_NAME: ${{ vars.AUTH_SESSION_COOKIE_NAME }}
+      AUTH_SESSION_MAX_AGE_HOURS: ${{ vars.AUTH_SESSION_MAX_AGE_HOURS }}
+      AUTH_SESSION_SECURE: ${{ vars.AUTH_SESSION_SECURE }}
+      AUTH_SESSION_SAME_SITE: ${{ vars.AUTH_SESSION_SAME_SITE }}
+      AUTH_SESSION_ALLOWED_ORIGINS: ${{ vars.AUTH_SESSION_ALLOWED_ORIGINS }}
+      VITE_ADMIN_EMAILS: ${{ vars.VITE_ADMIN_EMAILS }}
+      R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
 
     steps:
       - name: Check out repo
@@ -314,9 +325,24 @@ jobs:
             allow_flag=(--allow-unauthenticated)
           fi
 
+          env_vars=(
+            "FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-$project}"
+            "FIRESTORE_DATABASE_ID=${FIRESTORE_DATABASE_ID:-newleafdb}"
+            "FIREBASE_USE_APPLICATION_DEFAULT=true"
+            "AUTH_SESSION_COOKIE_NAME=${AUTH_SESSION_COOKIE_NAME:-__Host-newleaf_session}"
+            "AUTH_SESSION_MAX_AGE_HOURS=${AUTH_SESSION_MAX_AGE_HOURS:-24}"
+            "AUTH_SESSION_SECURE=${AUTH_SESSION_SECURE:-true}"
+            "AUTH_SESSION_SAME_SITE=${AUTH_SESSION_SAME_SITE:-Lax}"
+            "AUTH_SESSION_ALLOWED_ORIGINS=${AUTH_SESSION_ALLOWED_ORIGINS:-}"
+            "VITE_ADMIN_EMAILS=${VITE_ADMIN_EMAILS:-}"
+            "R2_PUBLIC_BASE_URL=${R2_PUBLIC_BASE_URL:-}"
+          )
+          env_arg="^|^$(IFS='|'; echo "${env_vars[*]}")"
+
           gcloud run deploy "$service" \
             --source "$source_dir" \
             --project "$project" \
             --region "$region" \
+            --set-env-vars "$env_arg" \
             "${allow_flag[@]}" \
             --quiet

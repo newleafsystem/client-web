@@ -74,7 +74,7 @@ function LandingWithAuth() {
     <div style={{ minHeight: '100vh', background: '#ffffff' }}>
       <BrandBar
         surface="root"
-        authState={loading ? 'loading' : user ? 'in' : 'out'}
+        authState={user ? 'in' : loading ? 'loading' : 'out'}
         user={user}
         access={access}
         onSignOut={signOut}

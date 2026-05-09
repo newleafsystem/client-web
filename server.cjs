@@ -20,14 +20,25 @@ const http = require('http');
 const fs   = require('fs');
 const path = require('path');
 
-const { getFirestoreDb } = require('./lib/firebase-admin.cjs');
+const { getFirebaseAdmin, getFirestoreDb } = require('./lib/firebase-admin.cjs');
 const { loadRuntimeConfig } = require('./lib/runtime-config.cjs');
+const {
+  createSessionClearCookie,
+  createSessionPayload,
+  createSessionSetCookie,
+  loadSessionProfile,
+  readJsonBody,
+  readSessionCookie,
+  sessionMaxAgeMs,
+} = require('./lib/auth-session.cjs');
 
 const runtimeConfig = loadRuntimeConfig();
 const R2_BASE = runtimeConfig.r2.publicBaseUrl;
+const authSessionConfig = runtimeConfig.authSession;
 const PORT    = parseInt(process.argv.find(a => a.startsWith('--port='))?.split('=')[1] || process.env.PORT || '3000', 10);
 
 // ── Firebase init ──────────────────────────────────────────────────
+const admin = getFirebaseAdmin();
 const db = getFirestoreDb();
 
 const MIME = {
@@ -48,8 +59,125 @@ const c = {
   bold:   s => `\x1b[1m${s}\x1b[0m`,
 };
 
+function authCorsAllowed(origin) {
+  if (!origin) return false;
+  return (authSessionConfig.allowedOrigins || []).includes(origin);
+}
+
+function applyAuthCors(req, res) {
+  const origin = req.headers.origin;
+  if (!authCorsAllowed(origin)) return;
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Vary', 'Origin');
+}
+
+function sendJson(req, res, status, payload, extraHeaders = {}) {
+  applyAuthCors(req, res);
+  res.writeHead(status, {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
+    ...extraHeaders,
+  });
+  res.end(JSON.stringify(payload));
+}
+
+async function verifiedSessionPayload(req) {
+  const sessionCookie = readSessionCookie(req, authSessionConfig);
+  if (!sessionCookie) return null;
+  const decoded = await admin.auth().verifySessionCookie(sessionCookie, true);
+  const profile = await loadSessionProfile(db, decoded.uid);
+  return createSessionPayload(decoded, profile);
+}
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
+
+  if (url.pathname.startsWith('/api/auth/') && req.method === 'OPTIONS') {
+    applyAuthCors(req, res);
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/auth/session') {
+    try {
+      const body = await readJsonBody(req);
+      const idToken = String(body.idToken || '');
+      if (!idToken) {
+        sendJson(req, res, 400, { authenticated: false, error: 'Missing idToken.' });
+        return;
+      }
+
+      const decoded = await admin.auth().verifyIdToken(idToken);
+      const sessionCookie = await admin.auth().createSessionCookie(idToken, {
+        expiresIn: sessionMaxAgeMs(authSessionConfig),
+      });
+      const profile = await loadSessionProfile(db, decoded.uid);
+
+      sendJson(
+        req,
+        res,
+        200,
+        createSessionPayload(decoded, profile),
+        { 'Set-Cookie': createSessionSetCookie(encodeURIComponent(sessionCookie), authSessionConfig) }
+      );
+    } catch {
+      sendJson(req, res, 401, { authenticated: false, error: 'Invalid authentication session.' });
+    }
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/auth/session') {
+    try {
+      const payload = await verifiedSessionPayload(req);
+      if (!payload) {
+        sendJson(req, res, 401, { authenticated: false });
+        return;
+      }
+      sendJson(req, res, 200, payload);
+    } catch {
+      sendJson(
+        req,
+        res,
+        401,
+        { authenticated: false },
+        { 'Set-Cookie': createSessionClearCookie(authSessionConfig) }
+      );
+    }
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/auth/custom-token') {
+    try {
+      const payload = await verifiedSessionPayload(req);
+      if (!payload || !payload.user) {
+        sendJson(req, res, 401, { authenticated: false });
+        return;
+      }
+      const customToken = await admin.auth().createCustomToken(payload.user.uid);
+      sendJson(req, res, 200, { authenticated: true, customToken });
+    } catch {
+      sendJson(req, res, 401, { authenticated: false });
+    }
+    return;
+  }
+
+  if (
+    (req.method === 'POST' || req.method === 'DELETE') &&
+    (url.pathname === '/api/auth/logout' || url.pathname === '/api/auth/session')
+  ) {
+    sendJson(
+      req,
+      res,
+      200,
+      { authenticated: false },
+      { 'Set-Cookie': createSessionClearCookie(authSessionConfig) }
+    );
+    return;
+  }
 
   // ── POST /api/save-watchlist-snapshot ────────────────────────
   if (req.method === 'POST' && url.pathname === '/api/save-watchlist-snapshot') {

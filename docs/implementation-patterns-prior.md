@@ -2,6 +2,17 @@
 
 This is the baseline implementation-pattern snapshot preserved before the May 2026 repo-hygiene and architecture documentation refresh. Keep this file as the prior reference when `docs/implementation-patterns.md` changes for logic or architecture updates.
 
+## 2026-05-09: Per-Hook Firebase Auth Listeners
+
+Previous guidance allowed every component calling `useAuth()` to create its own Firebase Auth observer and Firestore profile read/listener. Returning users waited for those checks before the header could show a user identity.
+
+That pattern is superseded by:
+
+- One shared auth store in `src/shared/hooks/useAuth.js`.
+- A server-set Firebase Admin session cookie for authoritative HTTP-only sessions.
+- A sanitized UI cache cookie for first-paint identity only.
+- Configurable 24-hour default session expiry through `AUTH_SESSION_MAX_AGE_HOURS` and `VITE_AUTH_STATE_CACHE_TTL_HOURS`.
+
 ## 2026-05-09: Surface-Specific Product Navigation
 
 Previous guidance allowed `BrandBar` surface configs such as `root`, `picks`, `workbench`, and `invest` to define different top-level navigation links. Product pages could therefore feel like separate applications and static Workbench pages could keep their own generated header behavior.
