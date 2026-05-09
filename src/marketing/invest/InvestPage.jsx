@@ -315,14 +315,25 @@ function PhaseCard({ phase }) {
 // Signup band — reusable CTA section
 // ═══════════════════════════════════════════════════════════════
 
-function SignupBand({ label, headline, subhead }) {
+function SignupBand({ label, headline, subhead, surface = 'brand' }) {
+  const embedded = surface === 'embedded';
+
   return (
     <section style={{
-      background: 'var(--brand-gradient)',
-      padding: '64px 0',
+      background: embedded ? 'transparent' : 'var(--brand-gradient)',
+      padding: embedded ? '40px 0 76px' : '64px 0',
       textAlign: 'center',
+      position: 'relative',
+      zIndex: 1,
     }}>
-      <div style={{ width: 'min(600px, calc(100% - 40px))', margin: '0 auto' }}>
+      <div style={{
+        width: 'min(600px, calc(100% - 40px))',
+        margin: '0 auto',
+        ...(embedded ? {
+          borderTop: '1px solid rgba(255,255,255,.08)',
+          paddingTop: 44,
+        } : {}),
+      }}>
         {/* Label */}
         <p style={{
           fontFamily: "'Space Mono', monospace",
@@ -681,9 +692,8 @@ export function InvestPage() {
       </section>
 
       {/* 3B — The NewLeaf system — three product cards */}
-      <section style={{
+      <div className="invest-joined-brand-surface" style={{
         background: 'var(--brand-gradient)',
-        padding: '72px 0 80px',
         position: 'relative',
         overflow: 'hidden',
       }}>
@@ -692,6 +702,21 @@ export function InvestPage() {
           backgroundImage: 'linear-gradient(rgba(201,169,110,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,.035) 1px, transparent 1px)',
           backgroundSize: '56px 56px',
           pointerEvents: 'none',
+        }}/>
+
+      <section style={{
+        background: 'transparent',
+        padding: '76px 0 44px',
+        position: 'relative',
+        overflow: 'hidden',
+        zIndex: 1,
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: 'linear-gradient(rgba(201,169,110,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,.035) 1px, transparent 1px)',
+          backgroundSize: '56px 56px',
+          pointerEvents: 'none',
+          display: 'none',
         }}/>
 
         <div style={{
@@ -827,11 +852,19 @@ export function InvestPage() {
 
       {/* 3C — "Who this is for" band */}
       <section style={{
-        background: 'var(--brand-gradient)',
-        padding: '56px 0',
+        background: 'transparent',
+        padding: '10px 0 36px',
         textAlign: 'center',
+        position: 'relative',
+        zIndex: 1,
       }}>
-        <div style={{ width: 'min(780px, calc(100% - 40px))', margin: '0 auto' }}>
+        <div style={{
+          width: 'min(840px, calc(100% - 40px))',
+          margin: '0 auto',
+          borderTop: '1px solid rgba(255,255,255,.08)',
+          borderBottom: '1px solid rgba(255,255,255,.08)',
+          padding: '42px 30px',
+        }}>
           <p style={{
             fontFamily: "'Playfair Display', Georgia, serif",
             fontSize: 'clamp(17px, 1.9vw, 21px)',
@@ -853,14 +886,16 @@ export function InvestPage() {
         label="ONE LAST THING"
         headline="The cycle runs every day. Start yours."
         subhead="Free to get started. Upgrade when you're ready."
+        surface="embedded"
       />
 
       {/* Six Phases — below the fold */}
       <section style={{
-        background: 'var(--brand-gradient)',
-        padding: '72px 0 80px',
+        background: 'transparent',
+        padding: '70px 0 84px',
         position: 'relative',
         overflow: 'hidden',
+        zIndex: 1,
       }}>
         {/* Grid overlay */}
         <div style={{
@@ -868,6 +903,7 @@ export function InvestPage() {
           backgroundImage: 'linear-gradient(rgba(201,169,110,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,.035) 1px, transparent 1px)',
           backgroundSize: '56px 56px',
           pointerEvents: 'none',
+          display: 'none',
         }}/>
 
         <div className="invest-hero-grid" style={{
@@ -931,6 +967,7 @@ export function InvestPage() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* Phase cards section */}
       <section style={{ padding: '80px 0' }}>

@@ -132,4 +132,4 @@ Run the strongest cheap checks available for the change:
 - Secret safety: `node scripts/scan-sensitive-candidates.cjs --all`
 - GitHub workflow changes: parse YAML locally if PyYAML is available, then validate with a GitHub Actions run after commit.
 
-Report what changed, what was verified, and any remaining manual steps. Do not commit unless explicitly asked.
+After completing and verifying requested changes, commit and push the agent's own changes with a clear title and description unless the user explicitly says not to commit or push. Stage only files or hunks that belong to the current task. Do not include unrelated dirty-worktree changes, generated output, secrets, or user-local files. Report what changed, what was committed and pushed, what was verified, and any remaining manual steps.
