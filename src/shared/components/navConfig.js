@@ -105,11 +105,13 @@ export const surfaceConfig = {
       { kind: 'link', label: 'Build', href: '/invest/build', requiredApp: APP_IDS.INVEST },
       { kind: 'link', label: 'Positions', href: '/invest/positions', requiredApp: APP_IDS.INVEST },
       { kind: 'link', label: 'Performance', href: '/invest/performance', requiredApp: APP_IDS.INVEST },
+      { kind: 'link', label: 'Blog', href: '/blog', public: true },
       { kind: 'link', label: 'Admin', href: '/invest/admin', requiredApp: APP_IDS.ADMIN },
     ],
     // Logged-out: cross-product links until marketing routes (Overview / Pricing) exist
     sectionsOut: [
       { kind: 'link', label: 'Invest', href: '/invest', requiredApp: APP_IDS.INVEST, public: true },
+      { kind: 'link', label: 'Blog', href: '/blog', public: true },
       { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true },
     ],
     showSwitcher: true,

@@ -6,6 +6,7 @@ import { PriceProvider } from './contexts/PriceContext';
 import { BrandBar } from '../shared/components/BrandBar';
 import { AppAccessDenied, AppAccessGate } from '../shared/components/AppAccessGate';
 import { APP_IDS } from '../shared/auth/accessControl';
+import { PageLoader } from '../shared/components/LeafLoader';
 import { Footer } from './components/Footer';
 import { VoiceAssistant } from './components/VoiceAssistant';
 import { AIChatDrawer } from './components/AIChatDrawer';
@@ -70,10 +71,7 @@ export default function TradingLayout() {
 
   if (authLoading) {
     return renderInvestShell(
-      <div className="loading-container">
-        <div className="loading-spinner">&#127811;</div>
-        <p className="loading-text">Loading NewLeaf System...</p>
-      </div>,
+      <PageLoader label="Loading NewLeaf Invest" />,
       { authState: 'out', user: null }
     );
   }
@@ -93,6 +91,7 @@ export default function TradingLayout() {
           onSignInWithEmail={signInWithEmail}
           onSignUp={signUp}
         />
+        <Footer />
       </div>
     );
   }
@@ -110,10 +109,7 @@ export default function TradingLayout() {
 
   if (tilesLoading) {
     return renderInvestShell(
-      <div className="loading-container">
-        <div className="loading-spinner">&#127811;</div>
-        <p className="loading-text">Loading opportunities...</p>
-      </div>,
+      <PageLoader label="Loading opportunities" />,
       { authState: 'in', user, onOpenChat: openChat }
     );
   }

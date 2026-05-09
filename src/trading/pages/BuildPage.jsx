@@ -14,6 +14,7 @@ import { SummaryCards } from '../components/build/SummaryCards';
 import { FundAllocationTab } from '../components/build/FundAllocationTab';
 import { PortfolioMixTab } from '../components/build/PortfolioMixTab';
 import { RiskSummaryTab } from '../components/build/RiskSummaryTab';
+import { SectionLoader } from '../../shared/components/LeafLoader';
 import '../styles/newleaf-system.css';
 
 const fmt = (v) => {
@@ -283,7 +284,7 @@ export function BuildPage({ tiles }) {
 
       {/* ─── Empty state ─── */}
       {loading ? (
-        <div style={{ padding: 40, textAlign: 'center', color: '#9ca3af' }}>Loading...</div>
+        <SectionLoader label="Loading builder" minHeight={260} />
       ) : shortlistedTiles.length === 0 && totalCapital > 0 ? (
         <div style={{ padding: '40px 20px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>&#127793;</div>

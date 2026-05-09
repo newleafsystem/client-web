@@ -33,10 +33,6 @@ function authProvidersForUser(user) {
   return Object.fromEntries(providerIdsForUser(user).map((providerId) => [providerId, true]));
 }
 
-function logAuthError(scope, error) {
-  console.error(`${scope}:`, error?.code || error?.message || 'unknown');
-}
-
 function createGoogleLinkRequiredError(error, signInMethods = []) {
   const email = normalizeEmail(error?.customData?.email);
   const credential = GoogleAuthProvider.credentialFromError(error);
@@ -103,8 +99,7 @@ export function useAuth() {
           lastLogin: serverTimestamp(),
         }, { merge: true });
       }
-    } catch (error) {
-      logAuthError('Error creating/updating user profile', error);
+    } catch {
     }
   };
 
@@ -134,8 +129,7 @@ export function useAuth() {
           setAccess(normalizeUserAccess(data, currentUser));
           setLoading(false);
         },
-        (error) => {
-          console.error('Error loading user profile:', error);
+        () => {
           setProfile(null);
           setAccess(normalizeUserAccess(null, currentUser));
           setLoading(false);
@@ -160,7 +154,6 @@ export function useAuth() {
         const signInMethods = email ? await fetchSignInMethodsForEmail(auth, email).catch(() => []) : [];
         throw createGoogleLinkRequiredError(error, signInMethods);
       }
-      logAuthError('Error signing in with Google', error);
       throw error;
     }
   };
@@ -169,7 +162,6 @@ export function useAuth() {
     try {
       return await signInWithEmailAndPassword(auth, normalizeEmail(email), password);
     } catch (error) {
-      logAuthError('Error signing in with email', error);
       throw error;
     }
   };
@@ -184,9 +176,7 @@ export function useAuth() {
       }
 
       if (!result.user.emailVerified) {
-        await sendEmailVerification(result.user).catch((error) => {
-          logAuthError('Error sending verification email', error);
-        });
+        await sendEmailVerification(result.user).catch(() => {});
       }
 
       await createOrUpdateUserProfile(result.user, {
@@ -196,7 +186,6 @@ export function useAuth() {
 
       return result;
     } catch (error) {
-      logAuthError('Error signing up', error);
       throw error;
     }
   };
@@ -231,7 +220,6 @@ export function useAuth() {
 
       return result;
     } catch (error) {
-      logAuthError('Error linking Google identity', error);
       throw error;
     }
   };
@@ -240,7 +228,6 @@ export function useAuth() {
     try {
       await firebaseSignOut(auth);
     } catch (error) {
-      logAuthError('Error signing out', error);
       throw error;
     }
   };

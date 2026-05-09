@@ -5,6 +5,7 @@ import { usePositionLiveData } from '../hooks/usePositionLiveData';
 import { formatStrategy, formatCurrency } from '../utils/formatters';
 import { PhaseHeader } from '../components/PhaseHeader';
 import { SentimentBadge } from '../components/SentimentBadge';
+import { SectionLoader } from '../../shared/components/LeafLoader';
 
 /**
  * /trading/positions — Defend phase. Active positions with verdicts.
@@ -109,7 +110,7 @@ export function PositionsPage({ tiles }) {
       />
 
       {loading ? (
-        <div style={{ padding: 40, textAlign: 'center', color: '#9ca3af' }}>Loading positions...</div>
+        <SectionLoader label="Loading positions" minHeight={260} />
       ) : activePositions.length === 0 ? (
         <div style={{ padding: '60px 20px', textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>&#128203;</div>

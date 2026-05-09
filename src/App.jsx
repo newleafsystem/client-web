@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './shared/hooks/useAuth';
 import { BrandBar } from './shared/components/BrandBar';
+import { SectionLoader } from './shared/components/LeafLoader';
 
 // Lightweight layout shells — loaded eagerly (tiny)
 import PublicLayout from './trading/PublicLayout';
@@ -11,18 +12,7 @@ import { Footer } from './trading/components/Footer';
 
 // Loading skeleton — shows nav immediately, content fades in
 function PageSkeleton() {
-  return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 2rem' }}>
-      <div style={{ height: 12, width: 120, background: 'rgba(15,61,46,.06)', borderRadius: 4, marginBottom: 16 }} />
-      <div style={{ height: 28, width: 320, background: 'rgba(15,61,46,.08)', borderRadius: 6, marginBottom: 12 }} />
-      <div style={{ height: 14, width: 240, background: 'rgba(15,61,46,.05)', borderRadius: 4, marginBottom: 32 }} />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-        {[1,2,3,4].map(i => (
-          <div key={i} style={{ height: 80, background: 'rgba(15,61,46,.04)', borderRadius: 12, border: '1px solid rgba(15,61,46,.06)' }} />
-        ))}
-      </div>
-    </div>
-  );
+  return <SectionLoader label="Loading NewLeaf" minHeight={420} />;
 }
 
 // Lazy-loaded route components

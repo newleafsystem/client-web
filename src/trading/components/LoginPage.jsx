@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { GOOGLE_LINK_PASSWORD_REQUIRED } from '../../shared/hooks/useAuth';
+import { useNotification } from '../../shared/components/NotificationProvider';
 
 function authMessage(error, isSignUp) {
   switch (error?.code) {
@@ -14,8 +15,24 @@ function authMessage(error, isSignUp) {
       return 'Use a stronger password with at least 8 characters.';
     case 'auth/operation-not-allowed':
       return 'Email/password registration is not enabled for this Firebase project yet.';
+    case 'auth/unauthorized-domain':
+      return 'This domain is not authorized for Firebase sign-in yet. Add the current domain in Firebase Authentication settings and try again.';
+    case 'auth/popup-blocked':
+      return 'Your browser blocked the Google sign-in window. Allow popups for NewLeaf and try again.';
     case 'auth/popup-closed-by-user':
       return 'Google sign-in was closed before it finished.';
+    case 'auth/network-request-failed':
+      return 'The sign-in request could not reach Firebase. Check your connection and try again.';
+    case 'auth/too-many-requests':
+      return 'Too many sign-in attempts were made. Wait a few minutes and try again.';
+    case 'auth/user-disabled':
+      return 'This account is disabled. Contact NewLeaf support to restore access.';
+    case 'auth/user-not-found':
+      return 'No NewLeaf account exists for this email. Create an account first, or continue with Google.';
+    case 'auth/missing-google-link-credential':
+      return 'The Google linking session expired. Start Google sign-in again.';
+    case 'auth/email-link-mismatch':
+      return 'The email entered does not match the Google account being linked.';
     default:
       return isSignUp ? 'Registration failed. Check the details and try again.' : 'Sign-in failed. Check the details and try again.';
   }
@@ -31,6 +48,7 @@ export function LoginPage({
   defaultMode = 'login',
   mode,
 }) {
+  const notification = useNotification();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -58,7 +76,12 @@ export function LoginPage({
         setIsSignUp(false);
         setPendingGoogleLink({ email: err.email, credential: err.credential });
       }
-      setError(authMessage(err, isSignUp));
+      const message = authMessage(err, isSignUp);
+      setError(message);
+      await notification.showError({
+        title: 'Sign-in did not complete',
+        message,
+      });
     } finally {
       setLoading(false);
     }
@@ -95,7 +118,12 @@ export function LoginPage({
       }
       onComplete?.();
     } catch (err) {
-      setError(authMessage(err, isSignUp));
+      const message = authMessage(err, isSignUp);
+      setError(message);
+      await notification.showError({
+        title: pendingGoogleLink ? 'Could not link Google' : isSignUp ? 'Registration did not complete' : 'Sign-in did not complete',
+        message,
+      });
     } finally {
       setLoading(false);
     }

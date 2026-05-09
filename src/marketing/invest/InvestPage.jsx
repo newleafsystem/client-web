@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { InvestProductEyebrow } from './components/InvestProductEyebrow';
 
 const PHASES = [
   {
@@ -732,11 +733,7 @@ export function InvestPage() {
               border: '1px solid rgba(255,255,255,.08)',
               textAlign: 'left',
             }}>
-              <p style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: 10, letterSpacing: '.15em', textTransform: 'uppercase',
-                color: 'rgba(255,255,255,.35)', marginBottom: 10,
-              }}>APP 01</p>
+              <InvestProductEyebrow>Trade Ideas</InvestProductEyebrow>
               <h3 style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: 22, fontWeight: 900, color: '#fff',
@@ -760,11 +757,7 @@ export function InvestPage() {
               border: '1px solid rgba(255,255,255,.08)',
               textAlign: 'left',
             }}>
-              <p style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: 10, letterSpacing: '.15em', textTransform: 'uppercase',
-                color: 'rgba(255,255,255,.35)', marginBottom: 10,
-              }}>APP 02</p>
+              <InvestProductEyebrow>Research Workspace</InvestProductEyebrow>
               <h3 style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: 22, fontWeight: 900, color: '#fff',
@@ -796,11 +789,7 @@ export function InvestPage() {
                 background: '#C9A96E', borderRadius: '16px 16px 0 0',
               }}/>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <p style={{
-                  fontFamily: "'Space Mono', monospace",
-                  fontSize: 10, letterSpacing: '.15em', textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,.35)', margin: 0,
-                }}>APP 03</p>
+                <InvestProductEyebrow style={{ margin: 0 }}>Portfolio Lifecycle</InvestProductEyebrow>
                 <span style={{
                   fontFamily: "'Space Mono', monospace",
                   fontSize: 9, letterSpacing: '.08em',

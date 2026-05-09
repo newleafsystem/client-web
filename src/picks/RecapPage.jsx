@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import PageSEO from '../shared/components/PageSEO';
+import { SectionLoader } from '../shared/components/LeafLoader';
 
 export default function RecapPage() {
   const [weeks, setWeeks] = useState([]);
@@ -52,8 +53,7 @@ export default function RecapPage() {
         });
 
         setWeeks(weeksArr);
-      } catch (err) {
-        console.error('Error loading recap:', err);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -61,11 +61,7 @@ export default function RecapPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 2rem', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: '#6b6b60', fontFamily: "'Space Mono', monospace" }}>Loading recap...</div>
-      </div>
-    );
+    return <SectionLoader label="Loading recap" minHeight={420} />;
   }
 
   return (

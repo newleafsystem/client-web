@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { SectionLoader } from '../shared/components/LeafLoader';
 
 export default function WeekViewerPage() {
   const { weekId } = useParams();
@@ -16,8 +17,7 @@ export default function WeekViewerPage() {
           query(collection(db, 'pick_outcomes'), where('weekId', '==', weekId))
         );
         setPicks(snap.docs.map(d => d.data()));
-      } catch (err) {
-        console.error('Error loading week:', err);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -25,11 +25,7 @@ export default function WeekViewerPage() {
   }, [weekId]);
 
   if (loading) {
-    return (
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 2rem', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: '#6b6b60', fontFamily: "'Space Mono', monospace" }}>Loading week {weekId}...</div>
-      </div>
-    );
+    return <SectionLoader label={`Loading week ${weekId}`} minHeight={420} />;
   }
 
   const wins = picks.filter(p => p.outcome === 'WIN').length;

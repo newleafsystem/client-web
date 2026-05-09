@@ -57,6 +57,7 @@ UI patterns:
 - Reuse existing layouts before adding new shells.
 - Use `BrandBar` plus `src/shared/components/navConfig.js` as the central navigation model.
 - Use `Footer` in every route surface. Layout shells should own footer placement when the page belongs to a route family.
+- Use `src/shared/components/LeafLoader.jsx` for route, auth, and API loading states. Do not add one-off loading text, emoji spinners, or blank suspense fallbacks.
 - Use `src/trading/styles/brand.css` for canonical brand tokens. The official large-surface gradient is `--brand-gradient`; shared primary and secondary buttons use `--brand-button-*` variables or the `.nl-btn-primary` and `.nl-btn-secondary` helpers.
 - Do not introduce one-off dark green gradients for large branded areas. Reuse `--brand-gradient` for header/footer-adjacent surfaces, hero bands, CTA bands, and product story sections.
 - Do not use green or gradient-filled primary buttons. Primary actions use the solid muted-gold brand button token; secondary actions use the warm-ivory token with a muted-gold border.
@@ -65,6 +66,7 @@ UI patterns:
 - Do not use browser-native `alert`, `confirm`, or `prompt`. React pages must use `src/shared/components/NotificationProvider.jsx`; static Workbench pages must use `window.NewLeafModal` from `scripts/workbench-modal-runtime.js`.
 - Keep public pages educational and risk-aware. Do not imply guaranteed profit, risk-free trades, or certainty.
 - Firebase web config must come from `import.meta.env.VITE_FIREBASE_*`; do not hardcode Firebase API keys.
+- Marketing/product pages should be composed from reusable components under a local `components/` folder when a section has repeated cards, labels, or interaction patterns. Avoid adding new page-scale JSX blocks that cannot be reused elsewhere.
 
 ## Auth, Roles, And Product Access
 
@@ -83,6 +85,7 @@ Patterns:
 - `client-web` may create a missing user profile on first sign-in, but it must not overwrite existing `roles` or `appAccess`.
 - `/register` and `/signin` are the canonical email/password and Google account entry points. Public CTAs should link to these routes instead of launching a Google-only popup.
 - Firebase Auth must have Email/Password and Google enabled with one account per email address so a same-email Google attempt can be linked into the existing password account.
+- Auth errors must be shown through `NotificationProvider` or inline form state with sanitized text. Do not rely on raw Firebase messages or console logging for user-visible auth failures.
 - Email/password registration writes `communicationEmail`, `emailVerified`, `identityProviderIds`, and `authProviders` alongside the conservative default entitlements.
 - Google sign-in for an email that already has a password account must use Firebase provider linking, not a second Firestore profile. `src/shared/hooks/useAuth.js` throws `auth/google-link-password-required`; `LoginPage` asks for the existing password and then calls `linkGoogleWithPassword`.
 - New non-admin users default to `roles: ['investor']` and only `appAccess.invest: true`.

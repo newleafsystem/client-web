@@ -4,16 +4,11 @@ import { BrandBar } from '../shared/components/BrandBar';
 import { AppAccessGate } from '../shared/components/AppAccessGate';
 import { APP_IDS } from '../shared/auth/accessControl';
 import { useAuth } from '../shared/hooks/useAuth';
+import { SectionLoader } from '../shared/components/LeafLoader';
 import { Footer } from '../trading/components/Footer';
 
 function ContentSkeleton() {
-  return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 2rem' }}>
-      <div style={{ height: 12, width: 120, background: 'rgba(15,61,46,.06)', borderRadius: 4, marginBottom: 16 }} />
-      <div style={{ height: 28, width: 320, background: 'rgba(15,61,46,.08)', borderRadius: 6, marginBottom: 12 }} />
-      <div style={{ height: 14, width: 240, background: 'rgba(15,61,46,.05)', borderRadius: 4 }} />
-    </div>
-  );
+  return <SectionLoader label="Loading Picks" minHeight={420} />;
 }
 
 export default function PicksLayout() {

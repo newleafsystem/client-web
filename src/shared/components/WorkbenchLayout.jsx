@@ -9,6 +9,7 @@ import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { BrandBar } from './BrandBar';
 import { AppAccessGate } from './AppAccessGate';
+import { SectionLoader } from './LeafLoader';
 import { APP_IDS } from '../auth/accessControl';
 import { useAuth } from '../hooks/useAuth';
 import { Footer } from '../../trading/components/Footer';
@@ -35,7 +36,7 @@ export default function WorkbenchLayout() {
         onSignIn={signInWithGoogle}
         onSignOut={signOut}
       >
-        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+        <Suspense fallback={<SectionLoader label="Loading Workbench" minHeight={400} />}>
           <Outlet />
         </Suspense>
       </AppAccessGate>

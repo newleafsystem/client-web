@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import PageSEO from '../shared/components/PageSEO';
+import { SectionLoader } from '../shared/components/LeafLoader';
 
 export default function PicksPage() {
   const [week, setWeek] = useState(null);
@@ -46,8 +47,7 @@ export default function PicksPage() {
             bestWeekRate: Math.round(bestRate * 100),
           });
         }
-      } catch (err) {
-        console.error('Error loading picks:', err);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -78,11 +78,7 @@ export default function PicksPage() {
   const picks = enrichedPicks.length > 0 ? enrichedPicks : (week?.picks || []);
 
   if (loading) {
-    return (
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 2rem', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: '#6b6b60', fontFamily: "'Space Mono', monospace" }}>Loading picks...</div>
-      </div>
-    );
+    return <SectionLoader label="Loading picks" minHeight={420} />;
   }
 
   if (!week) {

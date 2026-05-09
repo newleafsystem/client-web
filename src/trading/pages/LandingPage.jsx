@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { LoginPage } from '../components/LoginPage';
 import { PlantGrowthIllustration } from '../components/PlantGrowthIllustration';
 import PageSEO from '../../shared/components/PageSEO';
-import { useNotification } from '../../shared/components/NotificationProvider';
 import '../styles/landing.css';
 
 export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, onLinkGoogleWithPassword }) {

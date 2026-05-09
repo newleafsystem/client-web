@@ -16,6 +16,7 @@ import { PayoffChart } from '../components/PayoffChart';
 import { PhaseHeader } from '../components/PhaseHeader';
 import LiveLegsTable from '../components/analysis/LiveLegsTable';
 import { AdjustTab } from '../components/AdjustTab';
+import { SectionLoader } from '../../shared/components/LeafLoader';
 import '../styles/newleaf-system.css';
 
 const COMPANY_NAMES = {
@@ -813,7 +814,7 @@ function SetupTab({ tile, legs, netCredit, isCredit, metrics, spotPrice }) {
 }
 
 function ThesisTab({ analysis, analysisLoading, strategy }) {
-  if (analysisLoading) return <div style={placeholder}>Loading analysis...</div>;
+  if (analysisLoading) return <SectionLoader label="Loading analysis" minHeight={220} />;
   if (!analysis?.strategyRationale) return <div style={placeholder}>Deep analysis not yet available for this strategy. Analysis is generated during market scans.</div>;
 
   const { whyThisStrategy, whyTheseStrikes, whyThisExpiry, alternativesConsidered } = analysis.strategyRationale;
@@ -926,7 +927,7 @@ function ChartTab({ tile, spotPrice, maxProfit, maxLoss, metrics, strategy }) {
 }
 
 function RisksTab({ analysis, analysisLoading, tile }) {
-  if (analysisLoading) return <div style={placeholder}>Loading risk analysis...</div>;
+  if (analysisLoading) return <SectionLoader label="Loading risk analysis" minHeight={220} />;
 
   const risk = analysis?.riskAnalysis;
   const hasRisk = risk && (risk.maxPainScenario || risk.earningsRisk || risk.eventRisk || risk.managementPlan);

@@ -21,6 +21,7 @@ import TrendEngineCard from '../components/analysis/TrendEngineCard';
 import VolatilityEngineCard from '../components/analysis/VolatilityEngineCard';
 import LevelEngineCard from '../components/analysis/LevelEngineCard';
 import TechnicalRecommendation from '../components/analysis/TechnicalRecommendation';
+import { SectionLoader } from '../../shared/components/LeafLoader';
 
 export function AnalysisPage() {
   const { ticker: urlTicker } = useParams();
@@ -378,9 +379,7 @@ export function AnalysisPage() {
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--nl-muted-text)' }}>
-                <div style={{ fontSize: '16px', fontWeight: '600' }}>Loading technical analysis...</div>
-              </div>
+              <SectionLoader label="Loading technical analysis" minHeight={260} />
             )}
           </>
         )}

@@ -4,6 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import PageSEO from '../shared/components/PageSEO';
+import { SectionLoader } from '../shared/components/LeafLoader';
 
 const MONTH_NAMES = { '01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec' };
 
@@ -106,8 +107,7 @@ export default function MonthlyPage() {
         }
 
         setData({ chartPoints, totalPnl: cumPnl, mtdPnl, bestMonth, topStrat, heatMonths, curMonth });
-      } catch (err) {
-        console.error('Error loading monthly:', err);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -115,11 +115,7 @@ export default function MonthlyPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 2rem', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: '#6b6b60', fontFamily: "'Space Mono', monospace" }}>Loading monthly view...</div>
-      </div>
-    );
+    return <SectionLoader label="Loading monthly view" minHeight={420} />;
   }
 
   if (!data) return null;

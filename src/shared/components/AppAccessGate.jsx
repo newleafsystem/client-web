@@ -1,4 +1,5 @@
 import { APP_IDS, normalizeUserAccess } from '../auth/accessControl';
+import { SectionLoader } from './LeafLoader';
 
 function currentSignInUrl() {
   if (typeof window === 'undefined') return '/signin';
@@ -143,21 +144,7 @@ export function AppAccessGate({
     (allowAdmin && userAccess.canAccessApp(APP_IDS.ADMIN));
 
   if (loading) {
-    return (
-      <main style={{
-        minHeight: 360,
-        display: 'grid',
-        placeItems: 'center',
-        color: '#0B2D23',
-        background: '#F7F5F0',
-        fontFamily: "'Space Mono', monospace",
-        fontSize: 12,
-        letterSpacing: '.08em',
-        textTransform: 'uppercase',
-      }}>
-        Checking access...
-      </main>
-    );
+    return <SectionLoader label="Checking access" minHeight={360} />;
   }
 
   if (!user) {

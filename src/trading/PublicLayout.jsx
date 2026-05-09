@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { BrandBar } from '../shared/components/BrandBar';
 import { useAuth } from '../shared/hooks/useAuth';
+import { SectionLoader } from '../shared/components/LeafLoader';
 import { Footer } from './components/Footer';
 
 export default function PublicLayout() {
@@ -17,7 +18,7 @@ export default function PublicLayout() {
         onSignOut={signOut}
         onSignIn={signInWithGoogle}
       />
-      <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+      <Suspense fallback={<SectionLoader label="Loading page" minHeight={400} />}>
         <Outlet />
       </Suspense>
       <Footer />

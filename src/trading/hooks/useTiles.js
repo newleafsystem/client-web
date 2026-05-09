@@ -43,8 +43,7 @@ export function useTiles({ enabled = true } = {}) {
           setError(null);
         },
         (err) => {
-          console.error('Error fetching tiles:', err);
-          setError(err.message);
+          setError(err?.message || 'Unable to load opportunities.');
           setLoading(false);
         }
       );
@@ -53,8 +52,7 @@ export function useTiles({ enabled = true } = {}) {
       return () => unsubscribe();
 
     } catch (err) {
-      console.error('Error setting up tiles listener:', err);
-      setError(err.message);
+      setError(err?.message || 'Unable to load opportunities.');
       setLoading(false);
     }
   }, [enabled]);

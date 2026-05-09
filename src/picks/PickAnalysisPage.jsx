@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { collection, query, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { SectionLoader } from '../shared/components/LeafLoader';
 
 const R2_BASE = 'https://pub-04bbb919022645b3a3f318b2ebdf48c0.r2.dev';
 const mono = "'Space Mono', monospace";
@@ -41,8 +42,7 @@ export default function PickAnalysisPage() {
           if (analysisDoc.exists()) setAnalysis(analysisDoc.data());
           if (tileDoc.exists()) setTile(tileDoc.data());
         }
-      } catch (err) {
-        console.error('Error loading analysis:', err);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -77,11 +77,7 @@ export default function PickAnalysisPage() {
   }, [tile, pick]);
 
   if (loading) {
-    return (
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 2rem', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: muted, fontFamily: mono }}>Loading analysis...</div>
-      </div>
-    );
+    return <SectionLoader label="Loading analysis" minHeight={420} />;
   }
 
   if (!pick) {

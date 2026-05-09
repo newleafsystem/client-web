@@ -89,6 +89,261 @@
   border-color: rgba(184, 134, 45, 0.62);
 }
 
+.nl-page-loader {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 48px 20px;
+  background: var(--brand-cream);
+}
+
+.nl-section-loader {
+  display: grid;
+  place-items: center;
+  padding: 36px 20px;
+  background: transparent;
+}
+
+.leaf-loader {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  color: var(--brand-evergreen);
+  text-align: center;
+}
+
+.leaf-loader-compact {
+  display: inline-flex;
+  align-items: center;
+  justify-items: start;
+  gap: 8px;
+  text-align: left;
+}
+
+.leaf-loader-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+}
+
+.leaf-loader-compact .leaf-loader-mark {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+}
+
+.leaf-loader-ground,
+.leaf-loader-stem,
+.leaf-loader-sprout,
+.leaf-loader-canopy {
+  position: absolute;
+  display: block;
+}
+
+.leaf-loader-ground {
+  left: 15px;
+  right: 15px;
+  bottom: 10px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--brand-gold);
+  animation: loader-ground 2.4s ease-in-out infinite;
+}
+
+.leaf-loader-stem {
+  left: 50%;
+  bottom: 13px;
+  width: 7px;
+  height: 50px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #5e8c52, #27745c);
+  transform: translateX(-50%) scaleY(0.12);
+  transform-origin: 50% 100%;
+  animation: loader-stem-grow 2.4s ease-in-out infinite;
+}
+
+.leaf-loader-sprout,
+.leaf-loader-canopy {
+  border-radius: 72% 0 72% 0;
+  background: linear-gradient(145deg, #cfeedd, #27745c);
+  box-shadow: 0 8px 20px rgba(39, 116, 92, 0.24);
+  transform-origin: 50% 88%;
+}
+
+.leaf-loader-sprout {
+  bottom: 26px;
+  width: 18px;
+  height: 24px;
+  opacity: 0;
+  animation: loader-sprout-grow 2.4s ease-in-out infinite;
+}
+
+.leaf-loader-sprout-left {
+  --leaf-rotate: -54deg;
+  --loader-x: 0;
+  left: 28px;
+}
+
+.leaf-loader-sprout-right {
+  --leaf-rotate: 36deg;
+  --loader-x: 0;
+  right: 28px;
+  animation-delay: 90ms;
+}
+
+.leaf-loader-canopy {
+  width: 29px;
+  height: 40px;
+  opacity: 0;
+  animation: loader-canopy-grow 2.4s ease-in-out infinite;
+}
+
+.leaf-loader-canopy-left {
+  --canopy-rotate: -42deg;
+  --loader-x: 0;
+  left: 25px;
+  bottom: 36px;
+}
+
+.leaf-loader-canopy-top {
+  --canopy-rotate: 0deg;
+  --loader-x: -50%;
+  left: 50%;
+  bottom: 44px;
+  animation-delay: 120ms;
+}
+
+.leaf-loader-canopy-right {
+  --canopy-rotate: 42deg;
+  --loader-x: 0;
+  right: 25px;
+  bottom: 36px;
+  animation-delay: 240ms;
+}
+
+.leaf-loader-compact .leaf-loader-ground {
+  left: 5px;
+  right: 5px;
+  bottom: 4px;
+  height: 2px;
+}
+
+.leaf-loader-compact .leaf-loader-stem {
+  bottom: 6px;
+  width: 3px;
+  height: 18px;
+}
+
+.leaf-loader-compact .leaf-loader-sprout {
+  bottom: 11px;
+  width: 7px;
+  height: 10px;
+}
+
+.leaf-loader-compact .leaf-loader-sprout-left {
+  left: 8px;
+}
+
+.leaf-loader-compact .leaf-loader-sprout-right {
+  right: 8px;
+}
+
+.leaf-loader-compact .leaf-loader-canopy {
+  width: 10px;
+  height: 14px;
+  box-shadow: none;
+}
+
+.leaf-loader-compact .leaf-loader-canopy-left {
+  left: 8px;
+  bottom: 14px;
+}
+
+.leaf-loader-compact .leaf-loader-canopy-top {
+  bottom: 17px;
+}
+
+.leaf-loader-compact .leaf-loader-canopy-right {
+  right: 8px;
+  bottom: 14px;
+}
+
+.leaf-loader-label {
+  color: #53685e;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.leaf-loader-compact .leaf-loader-label {
+  color: inherit;
+  font-size: inherit;
+}
+
+@keyframes loader-ground {
+  0%,
+  100% {
+    transform: scaleX(0.36);
+    opacity: 0.46;
+  }
+  46%,
+  72% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes loader-stem-grow {
+  0% {
+    transform: translateX(-50%) scaleY(0.12);
+    opacity: 0.38;
+  }
+  32%,
+  72% {
+    transform: translateX(-50%) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scaleY(0.18);
+    opacity: 0.5;
+  }
+}
+
+@keyframes loader-sprout-grow {
+  0%,
+  20% {
+    opacity: 0;
+    transform: translateX(var(--loader-x)) rotate(var(--leaf-rotate)) scale(0);
+  }
+  44%,
+  76% {
+    opacity: 1;
+    transform: translateX(var(--loader-x)) rotate(var(--leaf-rotate)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--loader-x)) rotate(var(--leaf-rotate)) scale(0.22);
+  }
+}
+
+@keyframes loader-canopy-grow {
+  0%,
+  28% {
+    opacity: 0;
+    transform: translateX(var(--loader-x)) rotate(var(--canopy-rotate)) scale(0.15);
+  }
+  54%,
+  80% {
+    opacity: 1;
+    transform: translateX(var(--loader-x)) rotate(var(--canopy-rotate)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--loader-x)) rotate(var(--canopy-rotate)) scale(0.35);
+  }
+}
+
 
 /* ════════════════════════════════════════════════════════════════════════════
    NewLeaf Nav — exact mirror of newleaf-alpaca-r2 nav-component.html
