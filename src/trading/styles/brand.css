@@ -1,0 +1,86 @@
+/*
+ * NewLeaf brand tokens.
+ *
+ * Keep these variables as the canonical source for the shared navigation,
+ * footer, large brand surfaces, and primary/secondary button treatments.
+ */
+:root {
+  --brand-forest-dark: #061c15;
+  --brand-forest: #0b2d23;
+  --brand-evergreen: #155a42;
+  --brand-gold: #d7b56d;
+  --brand-gold-muted: #c8a85a;
+  --brand-gold-strong: #b8862d;
+  --brand-cream: #f7f5ef;
+  --brand-ivory: #fbf7ed;
+
+  --brand-gradient: linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%);
+  --brand-gradient-deep: linear-gradient(180deg, #061c15 0%, #0b2d23 58%, #13251f 100%);
+  --brand-gradient-soft: linear-gradient(135deg, rgba(11, 45, 35, 0.06), rgba(215, 181, 109, 0.08));
+
+  --brand-button-radius: 10px;
+  --brand-button-primary-bg: #c8a85a;
+  --brand-button-primary-hover: #d8bb79;
+  --brand-button-primary-text: #061c15;
+  --brand-button-primary-border: #c8a85a;
+  --brand-button-secondary-bg: #f7f5ef;
+  --brand-button-secondary-hover: #ede4d1;
+  --brand-button-secondary-text: #0b2d23;
+  --brand-button-secondary-border: rgba(215, 181, 109, 0.55);
+  --brand-button-shadow: 0 8px 22px rgba(157, 123, 54, 0.22);
+  --brand-button-shadow-hover: 0 12px 30px rgba(157, 123, 54, 0.28);
+}
+
+.nl-brand-gradient-surface {
+  background: var(--brand-gradient);
+  color: var(--brand-cream);
+}
+
+.nl-brand-gradient-soft {
+  background: var(--brand-gradient-soft);
+}
+
+.nl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border-radius: var(--brand-button-radius);
+  padding: 0 18px;
+  border: 1px solid transparent;
+  font-family: var(--sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.nl-btn-primary {
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border-color: var(--brand-button-primary-border);
+  box-shadow: var(--brand-button-shadow);
+}
+
+.nl-btn-primary:hover {
+  background: var(--brand-button-primary-hover);
+  border-color: var(--brand-button-primary-hover);
+  color: var(--brand-button-primary-text);
+  transform: translateY(-1px);
+  box-shadow: var(--brand-button-shadow-hover);
+}
+
+.nl-btn-secondary {
+  background: var(--brand-button-secondary-bg);
+  color: var(--brand-button-secondary-text);
+  border-color: var(--brand-button-secondary-border);
+}
+
+.nl-btn-secondary:hover {
+  background: var(--brand-button-secondary-hover);
+  color: var(--brand-button-secondary-text);
+  border-color: rgba(184, 134, 45, 0.62);
+}

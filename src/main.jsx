@@ -6,6 +6,7 @@ import App from './App';
 import { NotificationProvider } from './shared/components/NotificationProvider';
 
 // Trading styles (includes Tailwind)
+import './trading/styles/brand.css';
 import './trading/styles/app.css';
 import './trading/styles/redesign.css';
 import './trading/styles/nl-nav.css';

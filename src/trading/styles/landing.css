@@ -163,30 +163,29 @@
 
 .hero-cta-gold {
   padding: 12px 28px;
-  border-radius: 10px;
-  background: #C8A85A;
-  color: #0F3D2E;
+  border-radius: var(--brand-button-radius);
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
   font-size: 16px;
   font-weight: 800;
   font-family: 'DM Sans', sans-serif;
-  border: none;
+  border: 1px solid var(--brand-button-primary-border);
   cursor: pointer;
-  box-shadow: 0 8px 28px rgba(200,168,90,0.3);
+  box-shadow: var(--brand-button-shadow);
   transition: all .15s;
 }
 .hero-cta-gold:hover {
-  background: #d4b468;
-  box-shadow: 0 12px 36px rgba(200,168,90,0.4);
+  background: var(--brand-button-primary-hover);
+  border-color: var(--brand-button-primary-hover);
+  box-shadow: var(--brand-button-shadow-hover);
 }
 
 .hero-cta-glass {
   padding: 12px 28px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.9);
+  border-radius: var(--brand-button-radius);
+  background: var(--brand-button-secondary-bg);
+  border: 1px solid var(--brand-button-secondary-border);
+  color: var(--brand-button-secondary-text);
   font-size: 16px;
   font-weight: 700;
   font-family: 'DM Sans', sans-serif;
@@ -194,8 +193,8 @@
   transition: all .15s;
 }
 .hero-cta-glass:hover {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.3);
+  background: var(--brand-button-secondary-hover);
+  border-color: rgba(184, 134, 45, 0.62);
 }
 
 .hero-stats-pill {
@@ -560,7 +559,7 @@ h2 em { font-style:italic; color:var(--g) }
    BRAND STORY — SEED TO LEAF
 ══════════════════════════════════ */
 .brand-story-sec {
-  background: linear-gradient(180deg, #020d08 0%, #051510 60%, #071a12 100%);
+  background: var(--brand-gradient);
   position: relative;
   overflow: hidden;
   padding-bottom: 72px;
@@ -775,7 +774,7 @@ h2 em { font-style:italic; color:var(--g) }
 ══════════════════════════════════ */
 #cta { padding:80px 0 }
 .cta-box {
-  background: linear-gradient(135deg, #04120c 0%, var(--g) 55%, #1a5940 100%);
+  background: var(--brand-gradient);
   border-radius: var(--r4); padding:58px 52px;
   display: flex; justify-content:space-between;
   align-items: center; gap:32px;
@@ -799,27 +798,32 @@ h2 em { font-style:italic; color:var(--g) }
 .cta-box p { font-size:15px; color:rgba(255,255,255,.6); line-height:1.78; max-width:48ch }
 .cta-right { display:flex; gap:10px; flex-shrink:0; position:relative; z-index:1 }
 .btn-cta-gold {
-  padding: 13px 24px; border-radius:12px;
-  background: var(--gold); color:var(--g3);
+  padding: 13px 24px; border-radius:var(--brand-button-radius);
+  background: var(--brand-button-primary-bg); color:var(--brand-button-primary-text);
+  border: 1px solid var(--brand-button-primary-border);
   font-size: 14px; font-weight:800;
-  box-shadow: 0 8px 22px rgba(201, 169, 110,.32);
+  box-shadow: var(--brand-button-shadow);
   transition: all .13s;
 }
-.btn-cta-gold:hover { background:#d4b468 }
+.btn-cta-gold:hover {
+  background:var(--brand-button-primary-hover);
+  border-color:var(--brand-button-primary-hover);
+  box-shadow: var(--brand-button-shadow-hover);
+}
 .btn-cta-ghost {
-  padding: 13px 24px; border-radius:12px;
-  background: rgba(255,255,255,.09);
-  border: 1px solid rgba(255,255,255,.18);
-  font-size: 14px; font-weight:700; color:#fff;
+  padding: 13px 24px; border-radius:var(--brand-button-radius);
+  background: var(--brand-button-secondary-bg);
+  border: 1px solid var(--brand-button-secondary-border);
+  font-size: 14px; font-weight:700; color:var(--brand-button-secondary-text);
   transition: all .13s;
 }
-.btn-cta-ghost:hover { background:rgba(255,255,255,.15) }
+.btn-cta-ghost:hover { background:var(--brand-button-secondary-hover) }
 
 /* ══════════════════════════════════
    FOOTER
 ══════════════════════════════════ */
 footer {
-  background: var(--g3); color:rgba(255,255,255,.48);
+  background: var(--brand-gradient); color:rgba(255,255,255,.48);
   padding: 28px 0;
 }
 .footer-row { display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap }

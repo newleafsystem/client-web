@@ -318,7 +318,7 @@ function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
   if (!onSignInWithGoogle) return null;
   return (
     <section style={{
-      background: 'linear-gradient(180deg, #0e3325 0%, #0B2D23 100%)',
+      background: 'var(--brand-gradient)',
       padding: '64px 0',
       textAlign: 'center',
     }}>
@@ -355,8 +355,8 @@ function SignupBand({ label, headline, subhead, onSignInWithGoogle }) {
           className="invest-signup-cta"
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            padding: '16px 40px', background: '#C8A85A', color: '#0B2D23',
-            border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: 'pointer',
+            padding: '16px 40px', background: 'var(--brand-button-primary-bg)', color: 'var(--brand-button-primary-text)',
+            border: '1px solid var(--brand-button-primary-border)', borderRadius: 'var(--brand-button-radius)', fontSize: 16, fontWeight: 800, cursor: 'pointer',
             fontFamily: "'DM Sans', sans-serif",
             boxShadow: '0 8px 28px rgba(200,168,90,.3)',
             transition: 'transform .15s, box-shadow .15s',
@@ -404,7 +404,7 @@ function VideoHero({ onSignInWithGoogle }) {
 
   return (
     <section style={{
-      background: 'linear-gradient(145deg, #04120c 0%, #081a10 30%, #0c2318 60%, #0b2d23 100%)',
+      background: 'var(--brand-gradient)',
       padding: '56px 0 64px',
       position: 'relative',
       overflow: 'hidden',
@@ -486,8 +486,8 @@ function VideoHero({ onSignInWithGoogle }) {
                 onClick={onSignInWithGoogle}
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                  padding: '18px 48px', background: '#C8A85A', color: '#0B2D23',
-                  border: 'none', borderRadius: 12, fontSize: 18, fontWeight: 800, cursor: 'pointer',
+                  padding: '18px 48px', background: 'var(--brand-button-primary-bg)', color: 'var(--brand-button-primary-text)',
+                  border: '1px solid var(--brand-button-primary-border)', borderRadius: 'var(--brand-button-radius)', fontSize: 18, fontWeight: 800, cursor: 'pointer',
                   fontFamily: "'DM Sans', sans-serif",
                   boxShadow: '0 8px 32px rgba(200,168,90,.35), 0 0 0 2px rgba(200,168,90,.15)',
                   transition: 'transform .15s, box-shadow .15s',
@@ -504,14 +504,14 @@ function VideoHero({ onSignInWithGoogle }) {
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   padding: '12px 24px',
-                  background: 'transparent', color: '#C9A96E',
-                  border: '1px solid rgba(201,169,110,.4)',
-                  borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                  background: 'var(--brand-button-secondary-bg)', color: 'var(--brand-button-secondary-text)',
+                  border: '1px solid var(--brand-button-secondary-border)',
+                  borderRadius: 'var(--brand-button-radius)', fontSize: 14, fontWeight: 700, cursor: 'pointer',
                   fontFamily: "'DM Sans', sans-serif",
                   transition: 'border-color .18s, background .18s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,169,110,.7)'; e.currentTarget.style.background = 'rgba(201,169,110,.06)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(201,169,110,.4)'; e.currentTarget.style.background = 'transparent'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(184,134,45,.62)'; e.currentTarget.style.background = 'var(--brand-button-secondary-hover)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--brand-button-secondary-border)'; e.currentTarget.style.background = 'var(--brand-button-secondary-bg)'; }}
               >
                 &#9654;&ensp;Watch the 3-minute overview
               </button>
@@ -681,7 +681,7 @@ export function InvestPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) 
 
       {/* 3B — The NewLeaf system — three product cards */}
       <section style={{
-        background: 'linear-gradient(145deg, #04120c 0%, #081a10 30%, #0c2318 60%, #0b2d23 100%)',
+        background: 'var(--brand-gradient)',
         padding: '72px 0 80px',
         position: 'relative',
         overflow: 'hidden',
@@ -838,7 +838,7 @@ export function InvestPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) 
 
       {/* 3C — "Who this is for" band */}
       <section style={{
-        background: '#0B2D23',
+        background: 'var(--brand-gradient)',
         padding: '56px 0',
         textAlign: 'center',
       }}>
@@ -869,7 +869,7 @@ export function InvestPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) 
 
       {/* Six Phases — below the fold */}
       <section style={{
-        background: 'linear-gradient(145deg, #04120c 0%, #081a10 30%, #0c2318 60%, #0b2d23 100%)',
+        background: 'var(--brand-gradient)',
         padding: '72px 0 80px',
         position: 'relative',
         overflow: 'hidden',

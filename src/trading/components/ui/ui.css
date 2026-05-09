@@ -265,8 +265,7 @@
    Strategy Hero Component
    =============================== */
 .nl-strategy-hero {
-  background: linear-gradient(135deg, rgba(11, 45, 35, 0.95), rgba(11, 45, 35, 0.88)),
-              radial-gradient(circle at 80% 20%, rgba(201, 169, 110, 0.18), transparent 50%);
+  background: var(--brand-gradient, var(--nl-brand-gradient, linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%)));
   border-radius: var(--nl-radius-xl, 22px);
   padding: 24px;
   margin-bottom: 24px;
@@ -443,13 +442,15 @@
 }
 
 .nl-add-btn.primary {
-  background: var(--nl-primary-green, #0B2D23);
-  color: #fff;
-  box-shadow: 0 14px 26px rgba(11, 45, 35, 0.14);
+  background: var(--brand-button-primary-bg, var(--nl-button-primary-bg, #C8A85A));
+  color: var(--brand-button-primary-text, var(--nl-button-primary-text, #061C15));
+  border-color: var(--brand-button-primary-border, var(--brand-button-primary-bg, #C8A85A));
+  box-shadow: var(--brand-button-shadow, 0 14px 26px rgba(157, 123, 54, 0.16));
 }
 
 .nl-add-btn.primary:hover {
-  background: #0a2b1f;
+  background: var(--brand-button-primary-hover, var(--nl-button-primary-hover, #D8BB79));
+  border-color: var(--brand-button-primary-hover, var(--nl-button-primary-hover, #D8BB79));
   transform: translateY(-1px);
 }
 
@@ -531,8 +532,7 @@
   padding: 16px;
   border-radius: var(--nl-radius-xl, 22px);
   border: 1px solid rgba(11, 45, 35, 0.18);
-  background: radial-gradient(900px 360px at 20% 0%, rgba(201, 169, 110, 0.20), transparent 60%),
-              linear-gradient(90deg, rgba(11, 45, 35, 0.95), rgba(11, 45, 35, 0.80));
+  background: var(--brand-gradient, var(--nl-brand-gradient, linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%)));
   color: #fff;
   box-shadow: var(--nl-shadow-lg, 0 18px 44px rgba(17, 24, 39, 0.10));
   display: flex;
@@ -587,7 +587,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 14px;
+  border-radius: var(--brand-button-radius, 10px);
   font-weight: 800;
   cursor: pointer;
   user-select: none;
@@ -616,22 +616,23 @@
 }
 
 .nl-btn-primary {
-  background: var(--nl-primary-green, #0B2D23);
-  color: #fff;
-  border-color: rgba(11, 45, 35, 0.22);
-  box-shadow: 0 14px 26px rgba(11, 45, 35, 0.14);
+  background: var(--brand-button-primary-bg, var(--nl-button-primary-bg, #C8A85A));
+  color: var(--brand-button-primary-text, var(--nl-button-primary-text, #061C15));
+  border-color: var(--brand-button-primary-border, var(--brand-button-primary-bg, #C8A85A));
+  box-shadow: var(--brand-button-shadow, 0 14px 26px rgba(157, 123, 54, 0.16));
 }
 
 .nl-btn-primary:hover {
-  background: #0a2b1f;
+  background: var(--brand-button-primary-hover, var(--nl-button-primary-hover, #D8BB79));
+  border-color: var(--brand-button-primary-hover, var(--nl-button-primary-hover, #D8BB79));
 }
 
 .nl-btn-ghost {
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid var(--nl-border, rgba(17, 24, 39, 0.10));
-  color: rgba(17, 24, 39, 0.84);
+  background: var(--brand-button-secondary-bg, var(--nl-button-secondary-bg, #F7F5EF));
+  border: 1px solid var(--brand-button-secondary-border, rgba(215, 181, 109, 0.55));
+  color: var(--brand-button-secondary-text, var(--nl-button-secondary-text, #0B2D23));
 }
 
 .nl-btn-ghost:hover {
-  background: #fff;
+  background: var(--brand-button-secondary-hover, var(--nl-button-secondary-hover, #EDE4D1));
 }

@@ -2,6 +2,94 @@
 <nav class="nl-nav nl-nav--workbench" aria-label="NewLeaf Workbench navigation"><div class="nl-brand-zone"><a class="nl-nav-brand" href="/"><img src="/logo-icon.png" width="36" height="36" alt="NewLeaf"/><span class="nl-nav-wordmark">NewLeaf <em>Workbench</em></span></a></div><ul class="nl-nav-links"><li><a href="/workbench/" class="nl-nav-link active" aria-current="page" data-app-id="workbench">Hub</a></li><li><a href="/workbench/all-stocks" class="nl-nav-link" data-app-id="workbench">Scanner</a></li><li class="nl-dd-wrap" data-app-id="workbench"><button class="nl-nav-link nl-dd-trigger" aria-expanded="false" aria-haspopup="true">Strategies<span class="nl-dd-arrow" style="transform:none">▾</span></button><div class="nl-dd-panel nl-dd-dark" role="menu" hidden=""><div class="nl-dd-heading">Income Strategies</div><a href="/workbench/sell-puts" role="menuitem" tabindex="0" class="nl-dd-item">Cash-Secured Puts</a><a href="/workbench/wheel" role="menuitem" tabindex="0" class="nl-dd-item">The Wheel</a><a href="/workbench/condor-scanner" role="menuitem" tabindex="0" class="nl-dd-item">Iron Condor</a><a href="/workbench/broken-wing" role="menuitem" tabindex="0" class="nl-dd-item">Broken Wing Butterfly</a><div class="nl-dd-heading">Spread Strategies</div><a href="/workbench/bull-put" role="menuitem" tabindex="0" class="nl-dd-item">Bull Put Spread</a><a href="/workbench/bear-call" role="menuitem" tabindex="0" class="nl-dd-item">Bear Call Spread</a><a href="/workbench/bull-call" role="menuitem" tabindex="0" class="nl-dd-item">Bull Call Spread</a><a href="/workbench/bear-put" role="menuitem" tabindex="0" class="nl-dd-item">Bear Put Spread</a><a href="/workbench/calendar" role="menuitem" tabindex="0" class="nl-dd-item">Calendar Spread</a><div class="nl-dd-divider"></div><a href="/workbench/strategy-builder" role="menuitem" tabindex="0" class="nl-dd-item accent">⚙ Strategy Builder →</a></div></li><li><a href="/workbench/watchlist" class="nl-nav-link" data-app-id="workbench">Watchlist</a></li><li><a class="nl-nav-link" data-app-id="workbench" href="/workbench/analysis">Analysis</a></li><li><a href="/workbench/projection" class="nl-nav-link" data-app-id="workbench">Projection</a></li></ul><div class="nl-nav-right"><button class="nl-nav-ghost">Sign In</button><a class="nl-nav-cta" href="/invest">Get Started →</a></div><button class="nl-hamburger" aria-label="Open menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button><div class="nl-mobile-overlay" aria-hidden="true" hidden=""></div><div class="nl-mobile-panel" role="dialog" aria-label="Navigation menu" hidden=""><button class="nl-mobile-close" aria-label="Close menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button><div class="nl-mobile-sections"><a href="/workbench/" class="nl-mobile-link" data-app-id="workbench">Hub</a><a href="/workbench/all-stocks" class="nl-mobile-link" data-app-id="workbench">Scanner</a><div class="nl-mobile-dd" data-app-id="workbench"><button class="nl-mobile-link nl-mobile-dd-trigger" aria-expanded="false">Strategies<span class="nl-dd-arrow" style="transform:none">▾</span></button></div><a href="/workbench/watchlist" class="nl-mobile-link" data-app-id="workbench">Watchlist</a><a class="nl-mobile-link" data-app-id="workbench" href="/workbench/analysis">Analysis</a><a href="/workbench/projection" class="nl-mobile-link" data-app-id="workbench">Projection</a></div><div class="nl-mobile-utility"><button class="nl-nav-ghost nl-mobile-btn">Sign In</button><a class="nl-nav-cta nl-mobile-btn" href="/invest">Get Started →</a></div></div></nav><div class="nl-nav-spacer" aria-hidden="true"></div>
 
 <style>
+/*
+ * NewLeaf brand tokens.
+ *
+ * Keep these variables as the canonical source for the shared navigation,
+ * footer, large brand surfaces, and primary/secondary button treatments.
+ */
+:root {
+  --brand-forest-dark: #061c15;
+  --brand-forest: #0b2d23;
+  --brand-evergreen: #155a42;
+  --brand-gold: #d7b56d;
+  --brand-gold-muted: #c8a85a;
+  --brand-gold-strong: #b8862d;
+  --brand-cream: #f7f5ef;
+  --brand-ivory: #fbf7ed;
+
+  --brand-gradient: linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%);
+  --brand-gradient-deep: linear-gradient(180deg, #061c15 0%, #0b2d23 58%, #13251f 100%);
+  --brand-gradient-soft: linear-gradient(135deg, rgba(11, 45, 35, 0.06), rgba(215, 181, 109, 0.08));
+
+  --brand-button-radius: 10px;
+  --brand-button-primary-bg: #c8a85a;
+  --brand-button-primary-hover: #d8bb79;
+  --brand-button-primary-text: #061c15;
+  --brand-button-primary-border: #c8a85a;
+  --brand-button-secondary-bg: #f7f5ef;
+  --brand-button-secondary-hover: #ede4d1;
+  --brand-button-secondary-text: #0b2d23;
+  --brand-button-secondary-border: rgba(215, 181, 109, 0.55);
+  --brand-button-shadow: 0 8px 22px rgba(157, 123, 54, 0.22);
+  --brand-button-shadow-hover: 0 12px 30px rgba(157, 123, 54, 0.28);
+}
+
+.nl-brand-gradient-surface {
+  background: var(--brand-gradient);
+  color: var(--brand-cream);
+}
+
+.nl-brand-gradient-soft {
+  background: var(--brand-gradient-soft);
+}
+
+.nl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border-radius: var(--brand-button-radius);
+  padding: 0 18px;
+  border: 1px solid transparent;
+  font-family: var(--sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.nl-btn-primary {
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border-color: var(--brand-button-primary-border);
+  box-shadow: var(--brand-button-shadow);
+}
+
+.nl-btn-primary:hover {
+  background: var(--brand-button-primary-hover);
+  border-color: var(--brand-button-primary-hover);
+  color: var(--brand-button-primary-text);
+  transform: translateY(-1px);
+  box-shadow: var(--brand-button-shadow-hover);
+}
+
+.nl-btn-secondary {
+  background: var(--brand-button-secondary-bg);
+  color: var(--brand-button-secondary-text);
+  border-color: var(--brand-button-secondary-border);
+}
+
+.nl-btn-secondary:hover {
+  background: var(--brand-button-secondary-hover);
+  color: var(--brand-button-secondary-text);
+  border-color: rgba(184, 134, 45, 0.62);
+}
+
+
 /* ════════════════════════════════════════════════════════════════════════════
    NewLeaf Nav — exact mirror of newleaf-alpaca-r2 nav-component.html
    Used by both the landing site (LandingPage) and the authenticated app
@@ -174,9 +262,9 @@ nav.nl-nav,
 /* Get Started CTA (filled gold — punched up for visibility) */
 .nl-nav-cta,
 .nl-nav .nl-nav-cta {
-  background: var(--brand-gold, #d7b56d) !important;
-  color: var(--brand-forest, #0b2d23) !important;
-  border: 1px solid var(--brand-gold, #d7b56d) !important;
+  background: var(--brand-button-primary-bg, #c8a85a) !important;
+  color: var(--brand-button-primary-text, #061c15) !important;
+  border: 1px solid var(--brand-button-primary-border, #c8a85a) !important;
   border-radius: 6px !important;
   padding: 0 24px !important;
   height: 38px !important;
@@ -191,14 +279,14 @@ nav.nl-nav,
   align-items: center !important;
   transition: all .18s !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 8px rgba(200,168,90,.3) !important;
+  box-shadow: var(--brand-button-shadow, 0 2px 8px rgba(200,168,90,.3)) !important;
 }
 .nl-nav-cta:hover,
 .nl-nav .nl-nav-cta:hover {
-  background: #e1c57f !important;
-  border-color: #e1c57f !important;
+  background: var(--brand-button-primary-hover, #d8bb79) !important;
+  border-color: var(--brand-button-primary-hover, #d8bb79) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 16px rgba(200,168,90,.4) !important;
+  box-shadow: var(--brand-button-shadow-hover, 0 6px 16px rgba(200,168,90,.4)) !important;
 }
 
 /* Sign In / ghost button */

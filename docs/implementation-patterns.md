@@ -57,6 +57,9 @@ UI patterns:
 - Reuse existing layouts before adding new shells.
 - Use `BrandBar` plus `src/shared/components/navConfig.js` as the central navigation model.
 - Use `Footer` in every route surface. Layout shells should own footer placement when the page belongs to a route family.
+- Use `src/trading/styles/brand.css` for canonical brand tokens. The official large-surface gradient is `--brand-gradient`; shared primary and secondary buttons use `--brand-button-*` variables or the `.nl-btn-primary` and `.nl-btn-secondary` helpers.
+- Do not introduce one-off dark green gradients for large branded areas. Reuse `--brand-gradient` for header/footer-adjacent surfaces, hero bands, CTA bands, and product story sections.
+- Do not use green or gradient-filled primary buttons. Primary actions use the solid muted-gold brand button token; secondary actions use the warm-ivory token with a muted-gold border.
 - Use `src/shared/auth/accessControl.js` for product app ids, role ids, app-access normalization, and navigation filtering.
 - Do not hand-maintain duplicate product navs inside page bodies.
 - Do not use browser-native `alert`, `confirm`, or `prompt`. React pages must use `src/shared/components/NotificationProvider.jsx`; static Workbench pages must use `window.NewLeafModal` from `scripts/workbench-modal-runtime.js`.

@@ -59,10 +59,15 @@ async function main() {
     );
 
     // Read CSS, runtime JS, and Firebase auth module
-    const css = fs.readFileSync(
+    const brandCss = fs.readFileSync(
+      path.join(ROOT, 'src/trading/styles/brand.css'),
+      'utf-8'
+    );
+    const navCss = fs.readFileSync(
       path.join(ROOT, 'src/trading/styles/nl-nav.css'),
       'utf-8'
     );
+    const css = `${brandCss}\n\n${navCss}`;
     const modalRuntime = fs.readFileSync(
       path.join(ROOT, 'scripts/workbench-modal-runtime.js'),
       'utf-8'

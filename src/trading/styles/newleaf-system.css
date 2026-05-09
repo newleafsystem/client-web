@@ -8,8 +8,15 @@
    =============================== */
 :root {
   /* Colors */
-  --nl-primary-green: #0B2D23;
-  --nl-soft-gold: #C9A96E;
+  --nl-primary-green: var(--brand-forest, #0B2D23);
+  --nl-soft-gold: var(--brand-gold, #C9A96E);
+  --nl-brand-gradient: var(--brand-gradient, linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%));
+  --nl-button-primary-bg: var(--brand-button-primary-bg, #C8A85A);
+  --nl-button-primary-hover: var(--brand-button-primary-hover, #D8BB79);
+  --nl-button-primary-text: var(--brand-button-primary-text, #061C15);
+  --nl-button-secondary-bg: var(--brand-button-secondary-bg, #F7F5EF);
+  --nl-button-secondary-hover: var(--brand-button-secondary-hover, #EDE4D1);
+  --nl-button-secondary-text: var(--brand-button-secondary-text, #0B2D23);
   --nl-bg: #F7F8FA;
   --nl-text: #111827;
   --nl-muted-text: rgba(17, 24, 39, 0.68);

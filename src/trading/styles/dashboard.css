@@ -28,7 +28,7 @@
 
 /* ====== VOICE HERO CARD ====== */
 .voice-hero {
-  background: linear-gradient(135deg, var(--g900) 0%, #1a2e1a 60%, #14352a 100%);
+  background: var(--brand-gradient);
   border-radius: 16px;
   padding: 28px 32px;
   margin-bottom: 24px;

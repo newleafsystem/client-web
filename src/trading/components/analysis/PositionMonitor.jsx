@@ -34,7 +34,7 @@ export default function PositionMonitor({ liveData, symbol }) {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #0B2D23, #1a5c44)',
+      background: 'var(--brand-gradient)',
       borderRadius: 12, overflow: 'hidden', marginBottom: 20,
     }}>
       {/* Header row */}

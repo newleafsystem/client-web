@@ -628,9 +628,9 @@ body {
 }
 
 .filter-chip.active {
-  background: var(--leaf-700);
-  color: var(--white);
-  border-color: var(--leaf-700);
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border-color: var(--brand-button-primary-border);
 }
 
 /* AI INSIGHT BAR */
@@ -1013,16 +1013,17 @@ body {
   padding: 16px 24px;
   font-family: var(--sans);
   font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--white);
-  background: var(--leaf-600);
-  border: none;
+  font-weight: 800;
+  color: var(--brand-button-primary-text);
+  background: var(--brand-button-primary-bg);
+  border: 1px solid var(--brand-button-primary-border);
   cursor: pointer;
-  transition: filter 0.2s, gap 0.2s;
+  transition: background 0.2s, border-color 0.2s, gap 0.2s;
 }
 
 .cc-cta:hover {
-  filter: brightness(1.1);
+  background: var(--brand-button-primary-hover);
+  border-color: var(--brand-button-primary-hover);
   gap: 12px;
 }
 
@@ -1633,9 +1634,9 @@ body {
 }
 
 .filter-pill.active {
-  background: var(--leaf-700);
-  color: var(--white);
-  border-color: var(--leaf-700);
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border-color: var(--brand-button-primary-border);
 }
 
 .filter-results {
@@ -1690,18 +1691,22 @@ body {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: var(--leaf-700);
-  color: var(--white);
-  border: none;
-  border-radius: 0.5rem;
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border: 1px solid var(--brand-button-primary-border);
+  border-radius: var(--brand-button-radius);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  transition: background 0.2s ease;
+  box-shadow: var(--brand-button-shadow);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: var(--leaf-800);
+  background: var(--brand-button-primary-hover);
+  border-color: var(--brand-button-primary-hover);
+  box-shadow: var(--brand-button-shadow-hover);
+  transform: translateY(-1px);
 }
 
 .detail-header {
@@ -2077,13 +2082,14 @@ body {
 }
 
 .action-btn.active {
-  background: var(--leaf-700);
-  color: var(--white);
-  border-color: var(--leaf-700);
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border-color: var(--brand-button-primary-border);
 }
 
 .action-btn.active:hover {
-  background: var(--leaf-800);
+  background: var(--brand-button-primary-hover);
+  border-color: var(--brand-button-primary-hover);
 }
 
 /* PORTFOLIO PAGE */
@@ -2435,18 +2441,18 @@ body {
 .pf-view-btn {
   flex: 1;
   padding: 0.625rem 1rem;
-  background: var(--leaf-700);
-  color: var(--white);
-  border: none;
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border: 1px solid var(--brand-button-primary-border);
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .pf-view-btn:hover {
-  background: var(--leaf-800);
+  background: var(--brand-button-primary-hover);
 }
 
 .pf-remove-btn {
@@ -3231,21 +3237,22 @@ body {
 
 .build-portfolio-btn {
   padding: 1rem 3rem;
-  background: var(--leaf-600);
-  color: white;
-  border: none;
-  border-radius: 10px;
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border: 1px solid var(--brand-button-primary-border);
+  border-radius: var(--brand-button-radius);
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  box-shadow: var(--brand-button-shadow);
 }
 
 .build-portfolio-btn:hover:not(:disabled) {
-  background: var(--leaf-700);
+  background: var(--brand-button-primary-hover);
+  border-color: var(--brand-button-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+  box-shadow: var(--brand-button-shadow-hover);
 }
 
 .build-portfolio-btn:disabled {
@@ -4291,9 +4298,9 @@ body {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--leaf-600), var(--leaf-700));
-  color: #fff;
-  border: none;
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border: 1px solid var(--brand-button-primary-border);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -4487,10 +4494,11 @@ body {
   transition: background 0.15s, transform 0.1s;
 }
 .voice-start-btn {
-  background: linear-gradient(135deg, var(--leaf-600), var(--leaf-700));
-  color: #fff;
+  background: var(--brand-button-primary-bg);
+  color: var(--brand-button-primary-text);
+  border: 1px solid var(--brand-button-primary-border);
 }
-.voice-start-btn:hover { background: var(--leaf-700); }
+.voice-start-btn:hover { background: var(--brand-button-primary-hover); border-color: var(--brand-button-primary-hover); }
 .voice-start-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -4704,9 +4712,9 @@ body {
   border-radius: 14px;
   font-weight: 750;
   font-size: 13px;
-  border: 1px solid rgba(17, 24, 39, 0.10);
-  background: rgba(255, 255, 255, 0.72);
-  color: rgba(17, 24, 39, 0.84);
+  border: 1px solid var(--brand-button-secondary-border);
+  background: var(--brand-button-secondary-bg);
+  color: var(--brand-button-secondary-text);
   cursor: pointer;
   user-select: none;
   transition: all 0.12s ease;
@@ -4714,8 +4722,8 @@ body {
 }
 
 .app-ask-ai-btn:hover {
-  background: #ffffff;
-  border-color: rgba(17, 24, 39, 0.14);
+  background: var(--brand-button-secondary-hover);
+  border-color: rgba(184, 134, 45, 0.62);
 }
 
 .app-ask-ai-btn:active {
@@ -4749,17 +4757,17 @@ body {
   border-radius: 14px;
   font-weight: 750;
   font-size: 13px;
-  border: 1px solid rgba(17, 24, 39, 0.10);
-  background: rgba(255, 255, 255, 0.72);
-  color: rgba(17, 24, 39, 0.84);
+  border: 1px solid var(--brand-button-secondary-border);
+  background: var(--brand-button-secondary-bg);
+  color: var(--brand-button-secondary-text);
   cursor: pointer;
   transition: all 0.12s ease;
   white-space: nowrap;
 }
 
 .app-signout-btn:hover {
-  background: #ffffff;
-  border-color: rgba(17, 24, 39, 0.14);
+  background: var(--brand-button-secondary-hover);
+  border-color: rgba(184, 134, 45, 0.62);
 }
 
 .app-signout-btn:active {

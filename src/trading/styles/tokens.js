@@ -8,6 +8,13 @@ export const tokens = {
   colors: {
     primaryGreen: '#0B2D23',
     softGold: '#C9A96E',
+    brandGradient: 'linear-gradient(135deg, #061c15 0%, #0b2d23 42%, #155a42 78%, #7e682b 100%)',
+    buttonPrimaryBg: '#C8A85A',
+    buttonPrimaryHover: '#D8BB79',
+    buttonPrimaryText: '#061C15',
+    buttonSecondaryBg: '#F7F5EF',
+    buttonSecondaryHover: '#EDE4D1',
+    buttonSecondaryText: '#0B2D23',
     background: '#F7F8FA',
     text: '#111827',
     mutedText: 'rgba(17, 24, 39, 0.68)',
@@ -113,6 +120,13 @@ export const generateCSSVariables = () => {
       /* Colors */
       --nl-primary-green: ${tokens.colors.primaryGreen};
       --nl-soft-gold: ${tokens.colors.softGold};
+      --nl-brand-gradient: ${tokens.colors.brandGradient};
+      --nl-button-primary-bg: ${tokens.colors.buttonPrimaryBg};
+      --nl-button-primary-hover: ${tokens.colors.buttonPrimaryHover};
+      --nl-button-primary-text: ${tokens.colors.buttonPrimaryText};
+      --nl-button-secondary-bg: ${tokens.colors.buttonSecondaryBg};
+      --nl-button-secondary-hover: ${tokens.colors.buttonSecondaryHover};
+      --nl-button-secondary-text: ${tokens.colors.buttonSecondaryText};
       --nl-bg: ${tokens.colors.background};
       --nl-text: ${tokens.colors.text};
       --nl-muted-text: ${tokens.colors.mutedText};

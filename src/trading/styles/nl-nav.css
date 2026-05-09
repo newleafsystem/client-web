@@ -170,9 +170,9 @@ nav.nl-nav,
 /* Get Started CTA (filled gold — punched up for visibility) */
 .nl-nav-cta,
 .nl-nav .nl-nav-cta {
-  background: var(--brand-gold, #d7b56d) !important;
-  color: var(--brand-forest, #0b2d23) !important;
-  border: 1px solid var(--brand-gold, #d7b56d) !important;
+  background: var(--brand-button-primary-bg, #c8a85a) !important;
+  color: var(--brand-button-primary-text, #061c15) !important;
+  border: 1px solid var(--brand-button-primary-border, #c8a85a) !important;
   border-radius: 6px !important;
   padding: 0 24px !important;
   height: 38px !important;
@@ -187,14 +187,14 @@ nav.nl-nav,
   align-items: center !important;
   transition: all .18s !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 8px rgba(200,168,90,.3) !important;
+  box-shadow: var(--brand-button-shadow, 0 2px 8px rgba(200,168,90,.3)) !important;
 }
 .nl-nav-cta:hover,
 .nl-nav .nl-nav-cta:hover {
-  background: #e1c57f !important;
-  border-color: #e1c57f !important;
+  background: var(--brand-button-primary-hover, #d8bb79) !important;
+  border-color: var(--brand-button-primary-hover, #d8bb79) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 16px rgba(200,168,90,.4) !important;
+  box-shadow: var(--brand-button-shadow-hover, 0 6px 16px rgba(200,168,90,.4)) !important;
 }
 
 /* Sign In / ghost button */

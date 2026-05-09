@@ -199,11 +199,11 @@
   cursor: pointer; font-family: var(--sans); transition: all 0.2s;
 }
 .filter-btn:hover { border-color: var(--gold-400, #C9A96E); }
-.filter-btn.active { background: var(--leaf-600); border-color: var(--leaf-600); color: white; }
+.filter-btn.active { background: var(--brand-button-primary-bg); border-color: var(--brand-button-primary-border); color: var(--brand-button-primary-text); }
 
 /* Market Pulse Bar */
 .discover-pulse {
-  background: linear-gradient(135deg, var(--gray-900), #1a2e1a);
+  background: var(--brand-gradient);
   border-radius: 14px; padding: 18px 24px; margin-bottom: 20px;
   display: flex; align-items: center; gap: 16px; color: white;
 }
@@ -212,7 +212,7 @@
 .dp-text strong { font-size: 13px; display: block; margin-bottom: 2px; }
 .dp-text span { font-size: 12px; color: var(--gray-400); }
 .dp-badge {
-  background: var(--leaf-600); padding: 5px 14px;
+  background: var(--brand-button-primary-bg); color: var(--brand-button-primary-text); padding: 5px 14px;
   border-radius: 20px; font-size: 11px; font-weight: 700;
   white-space: nowrap;
 }
@@ -284,7 +284,7 @@
   cursor: pointer; font-family: var(--sans); transition: all 0.2s;
   white-space: nowrap;
 }
-.sc-add-btn:hover { background: var(--leaf-600); color: white; border-color: var(--leaf-600); }
+.sc-add-btn:hover { background: var(--brand-button-primary-bg); color: var(--brand-button-primary-text); border-color: var(--brand-button-primary-border); }
 .sc-add-btn.added {
   background: var(--leaf-50); color: var(--leaf-600);
   border-color: var(--leaf-200); pointer-events: none;
@@ -433,12 +433,12 @@
 
 .build-cta { margin-top: 16px; text-align: center; }
 .activate-btn {
-  padding: 12px 40px; border-radius: 10px; border: none;
-  background: var(--leaf-600); color: white; font-size: 14px; font-weight: 700;
+  padding: 12px 40px; border-radius: var(--brand-button-radius); border: 1px solid var(--brand-button-primary-border);
+  background: var(--brand-button-primary-bg); color: var(--brand-button-primary-text); font-size: 14px; font-weight: 800;
   cursor: pointer; font-family: var(--sans); transition: all 0.2s;
-  box-shadow: 0 4px 14px rgba(11, 45, 35,0.3);
+  box-shadow: var(--brand-button-shadow);
 }
-.activate-btn:hover { background: var(--leaf-700); transform: translateY(-1px); }
+.activate-btn:hover { background: var(--brand-button-primary-hover); border-color: var(--brand-button-primary-hover); transform: translateY(-1px); box-shadow: var(--brand-button-shadow-hover); }
 
 
 /* ====== PORTFOLIO MANAGE MODE ====== */
@@ -597,7 +597,7 @@
 
 /* ====== LEARN PLACEHOLDER ====== */
 .learn-featured {
-  background: linear-gradient(135deg, var(--gray-900), #1a2e1a);
+  background: var(--brand-gradient);
   border-radius: 16px; padding: 32px; margin-bottom: 24px;
   display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
   align-items: center; color: white;
@@ -610,12 +610,12 @@
 .lf-title { font-family: var(--serif); font-size: 24px; font-weight: 600; margin-bottom: 8px; }
 .lf-desc { font-size: 13px; color: var(--gray-400); line-height: 1.6; margin-bottom: 16px; }
 .lf-btn {
-  padding: 10px 24px; border-radius: 8px; border: none;
-  background: var(--leaf-600); color: white; font-size: 13px;
-  font-weight: 700; cursor: pointer; font-family: var(--sans);
+  padding: 10px 24px; border-radius: var(--brand-button-radius); border: 1px solid var(--brand-button-primary-border);
+  background: var(--brand-button-primary-bg); color: var(--brand-button-primary-text); font-size: 13px;
+  font-weight: 800; cursor: pointer; font-family: var(--sans);
   transition: all 0.2s;
 }
-.lf-btn:hover { background: var(--leaf-500); }
+.lf-btn:hover { background: var(--brand-button-primary-hover); border-color: var(--brand-button-primary-hover); }
 .lf-visual {
   display: flex; align-items: center; justify-content: center;
   font-size: 72px; opacity: 0.6;
@@ -664,7 +664,7 @@
 
 /* Ask NewLeaf Hero */
 .ask-hero {
-  background: linear-gradient(135deg, var(--gray-900) 0%, #1a2e1a 60%, #14352a 100%);
+  background: var(--brand-gradient);
   border-radius: 16px; padding: 28px 32px; margin-bottom: 24px;
   display: grid; grid-template-columns: 1fr auto; gap: 24px;
   align-items: center; color: white; position: relative; overflow: hidden;
@@ -878,8 +878,8 @@
 .adm-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
 .adm-btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.15s; }
 .adm-btn:hover { border-color: var(--gray-300); background: var(--gray-50); }
-.adm-btn.primary { background: var(--leaf-600); color: white; border-color: var(--leaf-600); }
-.adm-btn.primary:hover { background: var(--leaf-700); }
+.adm-btn.primary { background: var(--brand-button-primary-bg); color: var(--brand-button-primary-text); border-color: var(--brand-button-primary-border); font-weight: 800; }
+.adm-btn.primary:hover { background: var(--brand-button-primary-hover); border-color: var(--brand-button-primary-hover); }
 .adm-btn.warn { background: #f59e0b; color: white; border-color: #f59e0b; }
 .adm-btn.warn:hover { background: #d97706; }
 .adm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -1131,7 +1131,7 @@
   font-size: 11px; font-weight: 600; color: var(--leaf-700);
   cursor: pointer; font-family: var(--sans); transition: all 0.15s;
 }
-.chat-action-btn:hover { background: var(--leaf-600); color: white; border-color: var(--leaf-600); }
+.chat-action-btn:hover { background: var(--brand-button-primary-bg); color: var(--brand-button-primary-text); border-color: var(--brand-button-primary-border); }
 
 /* Typing indicator */
 .chat-typing { display: flex; gap: 4px; padding: 4px 2px; }
@@ -1172,9 +1172,9 @@
   transition: all 0.2s; flex-shrink: 0;
 }
 .chat-send-btn.active {
-  background: var(--leaf-600); color: white; cursor: pointer;
+  background: var(--brand-button-primary-bg); color: var(--brand-button-primary-text); cursor: pointer;
 }
-.chat-send-btn.active:hover { background: var(--leaf-700); }
+.chat-send-btn.active:hover { background: var(--brand-button-primary-hover); }
 .chat-input-hint {
   font-size: 10px; color: var(--gray-400); text-align: center;
   margin-top: 6px;
