@@ -419,7 +419,10 @@ async function loadAllSymbolsFromR2() {
 
   } catch (err) {
     console.error('[R2] Failed to load snapshots:', err);
-    alert('Failed to load data from R2.\\n\\nRun pipeline to generate snapshots:\\ncd pipeline\\nnode save-watchlist-snapshot.js weekly');
+    await window.NewLeafModal?.showError({
+      title: 'Watchlist data unavailable',
+      message: 'Failed to load data from R2.\n\nRun pipeline to generate snapshots:\ncd pipeline\nnode save-watchlist-snapshot.js weekly'
+    });
     throw err;
   }
 }
@@ -443,7 +446,10 @@ function updateExpiryDisplay() {
 async function changeExpiryType() {
   const newType = G('expiryTypeSelect').value;
   if (newType === 'custom') {
-    alert('Custom expiry not supported.\\n\\nWatchlist uses pre-generated snapshots (weekly/monthly).');
+    await window.NewLeafModal?.showMessage({
+      title: 'Custom expiry unavailable',
+      message: 'Watchlist uses pre-generated snapshots (weekly/monthly).'
+    });
     G('expiryTypeSelect').value = expiryType;
     return;
   }
@@ -498,7 +504,15 @@ function listLocalSnapDates() {
 
 async function saveSnapshot(auto = false) {
   const ready = watchlist.filter(s => data[s] && data[s].status === 'ok');
-  if (!ready.length) { if (!auto) alert('No data yet. Refresh first.'); return; }
+  if (!ready.length) {
+    if (!auto) {
+      await window.NewLeafModal?.showMessage({
+        title: 'No data yet',
+        message: 'Refresh first, then save the snapshot.'
+      });
+    }
+    return;
+  }
   const tickers = {};
   for (const sym of ready) {
     const d = data[sym];

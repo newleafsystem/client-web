@@ -4,8 +4,10 @@ import { formatStrategy, formatCurrency } from '../utils/formatters';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine } from 'recharts';
 import { AlertConfigPanel } from '../components/admin/AlertConfigPanel';
 import { ApiDiagnostics } from '../components/admin/ApiDiagnostics';
+import { useNotification } from '../../shared/components/NotificationProvider';
 
 export function AdminPage() {
+  const notifications = useNotification();
   const {
     isAdmin, tiles, users, allUsers, impersonatedUserId, pnlHistory, loading, error,
     loadTiles, loadUsers, updateTile, updateTileLeg, updatePortfolioItem,
@@ -381,7 +383,14 @@ export function AdminPage() {
                 </button>
                 <button className="adm-btn danger" style={{ fontSize: 11, marginLeft: 8 }}
                   onClick={async () => {
-                    if (!window.confirm(`⚠️ WARNING: This will permanently delete ALL portfolio positions and P&L history for ${users[0].displayName || users[0].email}.\n\nAre you absolutely sure?`)) return;
+                    const shouldDelete = await notifications.requestConfirmation({
+                      title: 'Clear portfolio history?',
+                      message: `This will permanently delete all portfolio positions and P&L history for ${users[0].displayName || users[0].email}.\n\nThis action cannot be undone.`,
+                      primaryLabel: 'Clear history',
+                      secondaryLabel: 'Cancel',
+                      tone: 'danger',
+                    });
+                    if (!shouldDelete) return;
                     const result = await clearAllPortfolioHistory();
                     showStatus(`Deleted ${result.portfolio} positions and ${result.history} history records`);
                   }}>
@@ -742,8 +751,22 @@ export function AdminPage() {
               <h3>🗑 Delete All Strategies</h3>
               <p>Permanently delete ALL tiles/strategies from the database. This action cannot be undone!</p>
               <button className="adm-btn danger" onClick={async () => {
-                if (!window.confirm(`⚠️ DANGER: This will permanently delete ALL ${tiles.length} strategy tiles from the database.\n\nThis action CANNOT be undone!\n\nAre you absolutely sure?`)) return;
-                if (!window.confirm(`🚨 FINAL WARNING: Deleting ${tiles.length} tiles. Type "DELETE" to confirm.`)) return;
+                const firstApproval = await notifications.requestConfirmation({
+                  title: 'Delete all strategies?',
+                  message: `This will permanently delete all ${tiles.length} strategy tiles from the database.\n\nThis action cannot be undone.`,
+                  primaryLabel: 'Continue',
+                  secondaryLabel: 'Cancel',
+                  tone: 'danger',
+                });
+                if (!firstApproval) return;
+                const finalApproval = await notifications.requestConfirmation({
+                  title: 'Final deletion check',
+                  message: `Deleting ${tiles.length} strategy tiles will remove the active strategy library data. Continue only if this is intentional.`,
+                  primaryLabel: 'Delete strategies',
+                  secondaryLabel: 'Cancel',
+                  tone: 'danger',
+                });
+                if (!finalApproval) return;
                 const count = await deleteAllStrategies();
                 showStatus(`Deleted ${count} strategy tiles`);
               }} disabled={loading || tiles.length === 0}>

@@ -426,9 +426,9 @@ function updateIvEnvironment(avgIV) {
 
 // Map a strategy id to its scanner page (mirrors tiles[].link)
 const STRATEGY_LINKS = {
-  CSP: 'sell-puts.html', WHEEL: 'wheel.html', IRON_CONDOR: 'condor-scanner.html',
-  BROKEN_WING: 'broken-wing.html', BULL_PUT: 'bull-put.html', BEAR_CALL: 'bear-call.html',
-  BULL_CALL: 'bull-call.html', BEAR_PUT: 'bear-put.html', CALENDAR: 'calendar.html'
+  CSP: 'sell-puts', WHEEL: 'wheel', IRON_CONDOR: 'condor-scanner',
+  BROKEN_WING: 'broken-wing', BULL_PUT: 'bull-put', BEAR_CALL: 'bear-call',
+  BULL_CALL: 'bull-call', BEAR_PUT: 'bear-put', CALENDAR: 'calendar'
 };
 const STRATEGY_NAMES = {
   CSP: 'Cash-Secured Puts', WHEEL: 'The Wheel', IRON_CONDOR: 'Iron Condor',
@@ -526,7 +526,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       badgeClass: 'b-new',
       wide: false,
       desc: 'Sell puts to collect premium. Profits if stock stays flat or rises. Best for bullish/neutral stocks with high IV.',
-      link: 'sell-puts.html',
+      link: 'sell-puts',
       criteria: ['IV > 30%', 'Bullish/Neutral', 'Liquid options'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -549,7 +549,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       badgeClass: 'b-pop',
       wide: false,
       desc: 'CSP → Assignment → Covered Call. Systematic income on quality stocks you want to own.',
-      link: 'wheel.html',
+      link: 'wheel',
       stats: (opps) => {
         if (opps.length === 0) return [];
         const quality = opps.filter(o => ['mega', 'large'].includes(o.tier)).length;
@@ -570,7 +570,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       badgeClass: 'b-neu',
       wide: false,
       desc: 'Sell OTM put spread + call spread. Profit in range. Gamma wall protected.',
-      link: 'condor-scanner.html',
+      link: 'condor-scanner',
       criteria: ['Range-bound', 'Gamma wall present'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -592,7 +592,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       badgeClass: 'b-neu',
       wide: false,
       desc: 'Asymmetric butterfly at gamma wall. Credit entry with zero risk on one side. Best for wider bands where condors don\'t fit.',
-      link: 'broken-wing.html',
+      link: 'broken-wing',
       criteria: ['Band > 10%', 'Gamma wall present', 'IV > 25%'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -613,7 +613,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       ivBoost: true,
       wide: false,
       desc: 'Sell front month, buy back month. Profit from IV term structure and time decay.',
-      link: 'calendar.html',
+      link: 'calendar',
       criteria: ['IV slope+', 'Low realised vol'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -632,7 +632,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       ivBoost: true,
       wide: false,
       desc: 'Sell put spread below price. Defined risk, bullish bias required.',
-      link: 'bull-put.html',
+      link: 'bull-put',
       criteria: ['Bullish bias', 'Defined risk'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -651,7 +651,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       ivBoost: true,
       wide: false,
       desc: 'Sell call spread above price. Defined risk, bearish bias required.',
-      link: 'bear-call.html',
+      link: 'bear-call',
       criteria: ['Bearish bias', 'Defined risk'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -669,7 +669,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       category: 'directional',
       wide: false,
       desc: 'Buy call spread. Defined risk debit spread for strong bullish moves.',
-      link: 'bull-call.html',
+      link: 'bull-call',
       criteria: ['Strong bull', 'Debit entry'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -687,7 +687,7 @@ function renderTiles(byStrategy, total, bySymbol) {
       category: 'directional',
       wide: false,
       desc: 'Buy put spread. Defined risk debit spread for strong bearish moves.',
-      link: 'bear-put.html',
+      link: 'bear-put',
       criteria: ['Strong bear', 'Debit entry'],
       stats: (opps) => {
         if (opps.length === 0) return [];
@@ -710,7 +710,7 @@ function renderTiles(byStrategy, total, bySymbol) {
     badge: 'Full View',
     badgeClass: 'b-new',
     desc: 'View complete watchlist with all stocks, prices, IV data, and multi-strategy analysis. Your main options dashboard.',
-    link: 'all-stocks.html',
+    link: 'all-stocks',
     stats: () => {
       const totalStocks = bySymbol ? Object.keys(bySymbol).length : 0;
       return [
@@ -764,7 +764,7 @@ function renderTiles(byStrategy, total, bySymbol) {
     // an <a> element and HTML5 parsers auto-close it when they encounter a
     // nested <a>, splitting the tile into pieces and breaking the grid layout.
     const buildLinkHtml = (!noEntry && builderKey)
-      ? `<span class="build-link" role="button" tabindex="0" data-href="strategy-builder.html?strategy=${builderKey}" onclick="event.stopPropagation();event.preventDefault();location.href=this.dataset.href;return false;">Build →</span>`
+      ? `<span class="build-link" role="button" tabindex="0" data-href="/workbench/strategy-builder?strategy=${builderKey}" onclick="event.stopPropagation();event.preventDefault();location.href=this.dataset.href;return false;">Build →</span>`
       : '';
 
     const stratLabel = tile.wide

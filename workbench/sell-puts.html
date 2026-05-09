@@ -196,7 +196,7 @@ td.sym{font-size:13px;font-weight:700;color:var(--ink);font-family:'Inter', sans
           <th>Symbol</th>
           <th>Tier</th>
           <th>Price</th>
-          <th>Score <a href="strategy-logic.html?s=CSP&tab=logic" class="score-help" onclick="event.stopPropagation()">?</a></th>
+          <th>Score <a href="/workbench/strategy-logic?s=CSP&tab=logic" class="score-help" onclick="event.stopPropagation()">?</a></th>
           <th>Reason</th>
           <th>Setup</th>
         </tr>
@@ -259,7 +259,7 @@ async function loadData() {
     opps.forEach(opp => {
       const tr = document.createElement('tr');
       const tierClass = opp.tier === 'mega' ? 'b-mega' : opp.tier === 'large' ? 'b-large' : 'b-mid';
-      const stockUrl = `stock.html?symbol=${opp.symbol}&strategy=csp`;
+      const stockUrl = `/workbench/stock?symbol=${opp.symbol}&strategy=csp`;
       tr.innerHTML = `
         <td class="sym"><a href="${stockUrl}" style="color:inherit;text-decoration:none">${opp.symbol}</a></td>
         <td><span class="badge ${tierClass}">${opp.tier}</span></td>

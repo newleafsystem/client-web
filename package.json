@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start": "node server.cjs",
-    "build": "node scripts/clean-spa.js && node scripts/build-workbench-nav.mjs && vite build && node scripts/prerender.js",
+    "build": "node scripts/clean-spa.js && node scripts/build-workbench-nav.mjs && vite build && node scripts/build-extensionless-static.mjs && node scripts/prerender.js",
     "preview": "vite preview",
     "publish": "node pipeline/publish-pick.cjs",
     "picks:close": "node pipeline/close-week.js",

@@ -719,7 +719,7 @@
   let atmContracts = null;
   let requestedStrategy = null; // normalized strategy code from ?strategy= URL param
 
-  // Map any external strategy code (engine bucket / scanner shorthand) to a stock.html
+  // Map any external strategy code (engine bucket / scanner shorthand) to a stock
   // strategy code (must match the codes in generateAlternativeStrategies + builder presets).
   // calendar_spread / cash_secured_put / wheel don't have inline 4-leg renderers
   // here — they hit the fallback hero (line ~1062) which routes to strategy-builder.
@@ -746,7 +746,7 @@
       broken_wing_butterfly: 'broken_wing_put', bwb: 'broken_wing_put',
       bwb_put: 'broken_wing_put', bwb_call: 'broken_wing_call',
       // Real codes for csp/wheel/calendar — previously stubbed to spreads,
-      // which made stock.html render the wrong strategy in the hero panel.
+      // which made stock render the wrong strategy in the hero panel.
       csp: 'cash_secured_put',
       cash_secured_puts: 'cash_secured_put',
       sell_put: 'cash_secured_put', sell_puts: 'cash_secured_put',
@@ -855,7 +855,10 @@
       render(report);
     } catch (err) {
       G('loadingOverlay').style.display = 'none';
-      alert('Error loading report: ' + err.message);
+      await window.NewLeafModal?.showError({
+        title: 'Report unavailable',
+        message: 'Error loading report: ' + err.message
+      });
     }
   }
 
@@ -971,7 +974,7 @@
                strategyCode === 'broken_wing_put' || strategyCode === 'broken_wing_call') {
       // Debit verticals + BWB: the iron-condor credit/maxLoss math at the bottom of
       // this function doesn't fit. Skip leg-level preview here — the simple hero +
-      // strategy-builder.html will render the proper P/L curve.
+      // strategy-builder will render the proper P/L curve.
       return null;
     } else {
       longPutIndex = Math.max(0, atmIndex - 5);
@@ -1090,7 +1093,7 @@
               </p>
             </div>
             <div class="hero-actions">
-              <a href="strategy-builder.html?symbol=${meta.symbol}&strategy=${heroStrategyCode}" class="btn btn-primary">
+              <a href="/workbench/strategy-builder?symbol=${meta.symbol}&strategy=${heroStrategyCode}" class="btn btn-primary">
                 🚀 Build this strategy
               </a>
               <button class="btn btn-secondary" onclick="document.querySelector('[data-tab=tab-strategies]')?.click(); document.getElementById('tab-strategies')?.scrollIntoView({behavior:'smooth'});">Compare alternatives</button>
@@ -1174,7 +1177,7 @@
           </div>
           
           <div class="hero-actions">
-            <a href="strategy-builder.html?symbol=${meta.symbol}&strategy=${heroStrategyCode}" class="btn btn-primary">
+            <a href="/workbench/strategy-builder?symbol=${meta.symbol}&strategy=${heroStrategyCode}" class="btn btn-primary">
               🚀 Build this strategy
             </a>
             <button class="btn btn-secondary" onclick="document.querySelector('[data-tab=tab-strategies]')?.click(); document.getElementById('tab-strategies')?.scrollIntoView({behavior:'smooth'});">Compare alternatives</button>
@@ -1440,7 +1443,7 @@
           <strong>Why consider this:</strong> ${strat.reason}
         </div>
         
-        <a href="strategy-builder.html?symbol=${meta.symbol}&strategy=${strat.code}" class="btn btn-primary" style="width: 100%;">
+        <a href="/workbench/strategy-builder?symbol=${meta.symbol}&strategy=${strat.code}" class="btn btn-primary" style="width: 100%;">
           Build ${strat.name}
         </a>
       </div>

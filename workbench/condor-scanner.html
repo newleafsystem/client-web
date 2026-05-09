@@ -461,7 +461,7 @@ function renderTable(condors) {
 }
 
 function openStrategyBuilder(symbol, expiry, putStrike, callStrike) {
-  const url = `/strategy-builder.html?symbol=${symbol}&expiry=${expiry}&putStrike=${putStrike}&callStrike=${callStrike}&strategy=iron_condor`;
+  const url = `/workbench/strategy-builder?symbol=${symbol}&expiry=${expiry}&putStrike=${putStrike}&callStrike=${callStrike}&strategy=iron_condor`;
   window.open(url, '_blank');
 }
 

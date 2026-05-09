@@ -2,6 +2,17 @@
 
 This is the baseline implementation-pattern snapshot preserved before the May 2026 repo-hygiene and architecture documentation refresh. Keep this file as the prior reference when `docs/implementation-patterns.md` changes for logic or architecture updates.
 
+## 2026-05-09: Native Dialogs And HTML Workbench URLs
+
+Previous guidance allowed static Workbench pages to link directly to copied `.html` files and did not define a shared notification primitive for browser messages. Some React and static pages used browser-native `alert` and `confirm` calls for errors, validation, and destructive actions.
+
+That pattern is superseded by:
+
+- React notifications through `src/shared/components/NotificationProvider.jsx`.
+- Static Workbench notifications through `window.NewLeafModal`.
+- Extensionless Workbench links such as `/workbench/strategy-builder`.
+- Firebase Hosting `cleanUrls: true` plus `scripts/build-extensionless-static.mjs` for non-Firebase/static-preview compatibility.
+
 ## Architecture
 
 `client-web` combines:

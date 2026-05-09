@@ -63,8 +63,20 @@ async function main() {
       path.join(ROOT, 'src/trading/styles/nl-nav.css'),
       'utf-8'
     );
+    const modalRuntime = fs.readFileSync(
+      path.join(ROOT, 'scripts/workbench-modal-runtime.js'),
+      'utf-8'
+    );
+    const urlRuntime = fs.readFileSync(
+      path.join(ROOT, 'scripts/workbench-url-runtime.js'),
+      'utf-8'
+    );
     const runtime = fs.readFileSync(
       path.join(ROOT, 'scripts/workbench-nav-runtime.js'),
+      'utf-8'
+    );
+    const footerRuntime = fs.readFileSync(
+      path.join(ROOT, 'scripts/workbench-footer-runtime.js'),
       'utf-8'
     );
     const authModule = fs.readFileSync(
@@ -82,7 +94,19 @@ async function main() {
       '</style>',
       '',
       '<script>',
+      modalRuntime,
+      '</script>',
+      '',
+      '<script>',
+      urlRuntime,
+      '</script>',
+      '',
+      '<script>',
       runtime,
+      '</script>',
+      '',
+      '<script>',
+      footerRuntime,
       '</script>',
       '',
       '<script type="module">',

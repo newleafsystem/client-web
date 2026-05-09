@@ -11,6 +11,7 @@ import { BrandBar } from './BrandBar';
 import { AppAccessGate } from './AppAccessGate';
 import { APP_IDS } from '../auth/accessControl';
 import { useAuth } from '../hooks/useAuth';
+import { Footer } from '../../trading/components/Footer';
 
 export default function WorkbenchLayout() {
   const { user, access, loading, signOut, signInWithGoogle } = useAuth();
@@ -38,6 +39,7 @@ export default function WorkbenchLayout() {
           <Outlet />
         </Suspense>
       </AppAccessGate>
+      <Footer />
     </div>
   );
 }

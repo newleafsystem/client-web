@@ -3,6 +3,7 @@
     {
       "target": "newleaf-preview",
       "public": "dist",
+      "cleanUrls": true,
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         { "source": "/how-we-pick", "destination": "/index.html" },
@@ -60,6 +61,7 @@
     {
       "target": "newleafsystem",
       "public": "dist",
+      "cleanUrls": true,
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         { "source": "/how-we-pick", "destination": "/index.html" },

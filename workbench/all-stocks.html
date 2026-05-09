@@ -2002,11 +2002,11 @@
         </div>
 
         <div class="card-actions">
-          <a href="strategy-builder.html?symbol=${r.symbol}${r.strategy ? `&strategy=${encodeURIComponent(r.strategy)}` : ''}" class="btn-primary">
+          <a href="/workbench/strategy-builder?symbol=${r.symbol}${r.strategy ? `&strategy=${encodeURIComponent(r.strategy)}` : ''}" class="btn-primary">
             <span>⚙️</span>
             <span>Build Strategy</span>
           </a>
-          <a href="stock.html?symbol=${r.symbol}${r.strategy ? `&strategy=${encodeURIComponent(r.strategy)}` : ''}" class="btn-secondary">
+          <a href="/workbench/stock?symbol=${r.symbol}${r.strategy ? `&strategy=${encodeURIComponent(r.strategy)}` : ''}" class="btn-secondary">
             👁️
           </a>
         </div>
@@ -2058,7 +2058,7 @@
         <td class="td-metric">${trend}</td>
         <td><span class="data-badge-table ${stale ? 'badge-stale' : 'badge-fresh'}">${stale ? '24H OLD' : 'FRESH'}</span></td>
         <td>
-          <button class="build-btn" onclick="window.location.href='strategy-builder.html?symbol=${r.symbol}${r.strategy ? `&strategy=${encodeURIComponent(r.strategy)}` : ''}'">Build</button>
+          <button class="build-btn" onclick="window.location.href='/workbench/strategy-builder?symbol=${r.symbol}${r.strategy ? `&strategy=${encodeURIComponent(r.strategy)}` : ''}'">Build</button>
         </td>
       </tr>
     `;

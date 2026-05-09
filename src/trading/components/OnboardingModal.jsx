@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { usePortfolioSettings } from '../hooks/usePortfolioSettings';
+import { useNotification } from '../../shared/components/NotificationProvider';
 
 export function OnboardingModal({ onComplete }) {
   const { updateSettings } = usePortfolioSettings();
+  const notifications = useNotification();
 
   const [capital, setCapital] = useState('');
   const [riskTolerance, setRiskTolerance] = useState('moderate');
@@ -80,12 +82,18 @@ export function OnboardingModal({ onComplete }) {
     const numericCapital = parseInt(capital.replace(/,/g, ''), 10);
 
     if (!numericCapital || numericCapital < 5000 || numericCapital > 10000000) {
-      alert('Please enter a capital amount between $5,000 and $10,000,000');
+      await notifications.showMessage({
+        title: 'Capital amount needed',
+        message: 'Please enter a capital amount between $5,000 and $10,000,000.',
+      });
       return;
     }
 
     if (investmentGoals.length === 0) {
-      alert('Please select at least one investment goal');
+      await notifications.showMessage({
+        title: 'Investment goal needed',
+        message: 'Please select at least one investment goal.',
+      });
       return;
     }
 
@@ -108,7 +116,10 @@ export function OnboardingModal({ onComplete }) {
       onComplete();
     } else {
       setIsSubmitting(false);
-      alert('Error saving settings. Please try again.');
+      await notifications.showError({
+        title: 'Settings not saved',
+        message: 'Error saving settings. Please try again.',
+      });
     }
   };
 

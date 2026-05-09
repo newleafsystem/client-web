@@ -10,7 +10,11 @@ import { useMarketState } from '../../trading/hooks/useMarketState';
 
 /** Use <a> for static / HTML pages, <Link> for React Router routes */
 function NavAnchor({ href, children, ...props }) {
-  if (href.includes('.html') || href === '/workbench/' || href === '/workbench') {
+  const isStaticWorkbenchHref = href === '/workbench/' ||
+    href === '/workbench' ||
+    (href.startsWith('/workbench/') && !href.startsWith('/workbench/analysis'));
+
+  if (isStaticWorkbenchHref) {
     return <a href={href} {...props}>{children}</a>;
   }
   return <Link {...props} to={href}>{children}</Link>;
@@ -444,7 +448,7 @@ export function BrandBar({
         {askAiBtn}
 
         {showBuilderCta && (
-          <a href="/workbench/strategy-builder.html" className="nl-nav-pill">
+          <a href="/workbench/strategy-builder" className="nl-nav-pill">
             Try Builder &rarr;
           </a>
         )}
@@ -497,7 +501,7 @@ export function BrandBar({
 
         {showBuilderCta && (
           <a
-            href="/workbench/strategy-builder.html"
+            href="/workbench/strategy-builder"
             className="nl-nav-pill nl-mobile-btn"
             onClick={closeMobile}
           >

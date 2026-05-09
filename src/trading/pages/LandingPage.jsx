@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { LoginPage } from '../components/LoginPage';
 import { PlantGrowthIllustration } from '../components/PlantGrowthIllustration';
 import PageSEO from '../../shared/components/PageSEO';
+import { useNotification } from '../../shared/components/NotificationProvider';
 import '../styles/landing.css';
 
 export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp }) {
@@ -557,9 +558,14 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp })
 
 // System Diagram Component — 5 segments (72° each, 8° gaps)
 function SystemDiagram() {
+  const notifications = useNotification();
+
   const handleSegmentClick = (page) => {
     if (page === '/quant/' || page === '/desk/') {
-      alert('Coming soon — contact sales@newleafsystem.com for early access.');
+      notifications.showMessage({
+        title: 'Coming soon',
+        message: 'Contact sales@newleafsystem.com for early access.',
+      });
       return;
     }
     window.location.href = page;
