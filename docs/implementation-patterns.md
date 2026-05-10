@@ -87,9 +87,11 @@ Shared profile contract:
 Patterns:
 
 - `src/shared/hooks/useAuth.js` is a shared singleton auth store. Do not create independent Firebase Auth or user-profile listeners in route components.
-- Auth starts from a sanitized UI cache cookie when present, then refreshes through Firebase Auth and the shared `users/{uid}` profile. The readable UI cache must never contain ID tokens, refresh tokens, service credentials, or private profile data.
+- Auth starts from a sanitized UI cache cookie when present, so header/nav state can render before a server round trip. The readable UI cache must never contain ID tokens, refresh tokens, service credentials, private profile data, or bearer JWTs.
 - The authoritative browser session cookie is set by `server.cjs` through `/api/auth/session` using Firebase Admin session cookies. It is HTTP-only, SameSite-controlled, secure by default, and expires after `AUTH_SESSION_MAX_AGE_HOURS` which defaults to `24`.
 - `VITE_AUTH_STATE_CACHE_TTL_HOURS` controls only the sanitized first-paint UI cache. It should match `AUTH_SESSION_MAX_AGE_HOURS` unless there is a deliberate reason to make the visible UI cache shorter.
+- `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` controls how often the UI cache revalidates with `/api/auth/session` on startup. The default is `15`, which avoids a blocking auth API call on every page while keeping role/access changes bounded by a short refresh window.
+- Protected backend actions must still trust only Firebase Auth, the HTTP-only session cookie, Firestore rules, or server-side access checks. The browser-readable UI cache is for display and navigation responsiveness only.
 - If Firebase Hosting serves the static app without an auth API rewrite, the React auth store falls back to Firebase client persistence and the session-cookie calls become no-ops. For cookie-backed auth in preview or production, route `/api/auth/*` to the Node/Cloud Run service or set `VITE_AUTH_SESSION_API_BASE_URL` to a cookie-compatible auth API origin.
 - Local HTTP testing of server-set cookies needs `AUTH_SESSION_SECURE=false` and a non-prefixed cookie name. Production should keep secure cookies enabled.
 - `client-web` may create a missing user profile on first sign-in, but it must not overwrite existing `roles` or `appAccess`.
@@ -145,7 +147,7 @@ Runtime config is environment-driven.
 - Browser config: `VITE_*` values from Vite env.
 - Node config: `lib/env.cjs` and `lib/runtime-config.cjs`.
 - Firebase Admin: `lib/firebase-admin.cjs`.
-- Auth session cookies: `AUTH_SESSION_COOKIE_NAME`, `AUTH_SESSION_MAX_AGE_HOURS`, `AUTH_SESSION_SECURE`, `AUTH_SESSION_SAME_SITE`, and `AUTH_SESSION_ALLOWED_ORIGINS`.
+- Auth session cookies and UI cache: `AUTH_SESSION_COOKIE_NAME`, `AUTH_SESSION_MAX_AGE_HOURS`, `AUTH_SESSION_SECURE`, `AUTH_SESSION_SAME_SITE`, `AUTH_SESSION_ALLOWED_ORIGINS`, `VITE_AUTH_STATE_CACHE_TTL_HOURS`, and `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES`.
 - Scanner config: `scanner/lib/config.js`.
 - Python pipeline config: `pipeline/config_loader.py`.
 - GitHub repo configuration loader: `scripts/setup-github-actions-config.sh`.

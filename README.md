@@ -237,6 +237,7 @@ Useful deploy variables:
 | `AUTH_SESSION_SAME_SITE` | `Lax` | SameSite mode for the auth session cookie |
 | `AUTH_SESSION_ALLOWED_ORIGINS` | empty | Optional comma-separated CORS allowlist when the auth API is on a separate origin |
 | `VITE_AUTH_STATE_CACHE_TTL_HOURS` | `24` | Sanitized UI auth-cache cookie lifetime |
+| `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` | `15` | Minimum age before the UI cache revalidates the HTTP-only auth session on page load |
 | `VITE_AUTH_SESSION_API_BASE_URL` | empty | Optional auth API origin; empty uses same-origin `/api/auth/*` |
 | `CLOUDFLARE_PAGES_PROJECT` | empty | Optional Cloudflare Pages project |
 | `GCP_TEST_CLOUD_RUN_SERVICE` | empty | Optional test Cloud Run service |
@@ -246,6 +247,7 @@ Auth session notes:
 
 - The secure Firebase Admin session cookie is set by the Node service at `/api/auth/session`.
 - The browser-readable auth cache stores only sanitized identity/profile fields for faster first paint. It does not store Firebase ID tokens, refresh tokens, or secrets.
+- `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` throttles startup validation so each page does not block on `/api/auth/session`; set it lower if entitlement revocation must be reflected faster.
 - For Firebase Hosting, either route `/api/auth/*` to the deployed Node/Cloud Run service or set `VITE_AUTH_SESSION_API_BASE_URL` to the auth API origin. Same-origin routing is preferred so `SameSite=Lax` cookies work without cross-site cookie settings.
 - For plain `http://localhost` testing, use a non-prefixed cookie name and `AUTH_SESSION_SECURE=false`; production should keep `AUTH_SESSION_SECURE=true`.
 

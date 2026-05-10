@@ -6,6 +6,15 @@ function ttlHours() {
   return Number.isFinite(value) && value > 0 ? value : 24;
 }
 
+function validationIntervalMinutes() {
+  const value = Number(import.meta.env.VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES || 15);
+  return Number.isFinite(value) && value >= 0 ? value : 15;
+}
+
+export function sessionValidationIntervalMs() {
+  return validationIntervalMinutes() * 60 * 1000;
+}
+
 function sessionApiBase() {
   return String(import.meta.env.VITE_AUTH_SESSION_API_BASE_URL || '').replace(/\/+$/, '');
 }
@@ -89,6 +98,7 @@ export function readCachedAuthState() {
       user: sanitizeUser(parsed.user),
       profile: sanitizeProfile(parsed.profile),
       expiresAt: parsed.expiresAt,
+      validatedAt: Number(parsed.validatedAt || 0) || null,
       source: 'cookie-cache',
     };
   } catch {
@@ -96,7 +106,14 @@ export function readCachedAuthState() {
   }
 }
 
-export function writeCachedAuthState({ user, profile }) {
+export function shouldValidateCachedAuth(cached = readCachedAuthState()) {
+  if (!cached?.user) return true;
+  const intervalMs = sessionValidationIntervalMs();
+  if (intervalMs <= 0) return false;
+  return !cached.validatedAt || Date.now() - cached.validatedAt > intervalMs;
+}
+
+export function writeCachedAuthState({ user, profile, validatedAt = Date.now() }) {
   const safeUser = sanitizeUser(user);
   if (!safeUser?.uid) {
     clearCachedAuthState();
@@ -109,6 +126,7 @@ export function writeCachedAuthState({ user, profile }) {
     JSON.stringify({
       version: CACHE_VERSION,
       expiresAt: Date.now() + maxAgeSeconds * 1000,
+      validatedAt,
       user: safeUser,
       profile: sanitizeProfile(profile),
     }),

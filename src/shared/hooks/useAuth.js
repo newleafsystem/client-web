@@ -24,6 +24,7 @@ import {
   readCachedAuthState,
   sanitizeProfile,
   sanitizeUser,
+  shouldValidateCachedAuth,
   writeCachedAuthState,
 } from '../auth/authSession';
 
@@ -66,6 +67,7 @@ function stateFromCachedAuth() {
       profile: null,
       access: normalizeUserAccess(null, null),
       loading: true,
+      sessionValidationPending: false,
       source: 'initial',
     };
   }
@@ -74,7 +76,8 @@ function stateFromCachedAuth() {
     user: cached.user,
     profile: cached.profile,
     access: normalizeUserAccess(cached.profile, cached.user),
-    loading: true,
+    loading: false,
+    sessionValidationPending: shouldValidateCachedAuth(cached),
     source: cached.source,
   };
 }
@@ -95,6 +98,7 @@ function signedOutState(source = 'signed-out') {
     profile: null,
     access: normalizeUserAccess(null, null),
     loading: false,
+    sessionValidationPending: false,
     source,
   };
 }
@@ -151,7 +155,7 @@ async function loadUserProfile(currentUser) {
   return snapshot.exists() ? { uid: snapshot.id, ...snapshot.data() } : null;
 }
 
-function applyAuthenticatedState(user, profile, source = 'firebase-auth') {
+function applyAuthenticatedState(user, profile, source = 'firebase-auth', options = {}) {
   const safeProfile = sanitizeProfile(profile);
   const safeUser = sanitizeUser(user);
   const accessUser = safeUser ? {
@@ -166,17 +170,33 @@ function applyAuthenticatedState(user, profile, source = 'firebase-auth') {
     profile: safeProfile,
     access,
     loading: false,
+    sessionValidationPending: false,
     source,
   });
 
-  writeCachedAuthState({ user: accessUser, profile: safeProfile });
+  const hasValidatedAt = Object.prototype.hasOwnProperty.call(options, 'validatedAt');
+  writeCachedAuthState({
+    user: accessUser,
+    profile: safeProfile,
+    validatedAt: hasValidatedAt ? options.validatedAt : (source === 'firebase-auth-fallback' ? null : Date.now()),
+  });
 }
 
-async function hydrateFromCookieSession() {
+async function hydrateFromCookieSession(options = {}) {
+  const cached = readCachedAuthState();
+  if (!options.force && cached?.user && !shouldValidateCachedAuth(cached)) {
+    applyAuthenticatedState(cached.user, cached.profile, cached.source, {
+      validatedAt: cached.validatedAt,
+    });
+    return true;
+  }
+
   const session = await fetchCookieSession();
   if (!session?.user) return false;
 
-  applyAuthenticatedState(session.user, session.profile, session.source);
+  applyAuthenticatedState(session.user, session.profile, session.source, {
+    validatedAt: Date.now(),
+  });
   return true;
 }
 
@@ -192,15 +212,33 @@ function startAuthObserver() {
   if (authStarted) return;
   authStarted = true;
 
-  hydrateFromCookieSession().then((hasSession) => {
+  const startupCache = readCachedAuthState();
+  if (startupCache?.user) {
+    applyAuthenticatedState(startupCache.user, startupCache.profile, startupCache.source, {
+      validatedAt: startupCache.validatedAt,
+    });
+  }
+
+  hydrateFromCookieSession({ force: shouldValidateCachedAuth(startupCache) }).then((hasSession) => {
     if (!hasSession && !auth.currentUser && !readCachedAuthState()) {
-      emitAuthState({ loading: true, source: 'firebase-auth' });
+      emitAuthState({ loading: true, sessionValidationPending: false, source: 'firebase-auth' });
     }
-    return restoreFirebaseFromCookieSession();
+    if (!auth.currentUser && (!startupCache?.user || shouldValidateCachedAuth(startupCache))) {
+      return restoreFirebaseFromCookieSession();
+    }
+    return false;
   }).catch(() => {});
 
   unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
     if (!currentUser) {
+      const cached = readCachedAuthState();
+      if (cached?.user && !shouldValidateCachedAuth(cached)) {
+        applyAuthenticatedState(cached.user, cached.profile, cached.source, {
+          validatedAt: cached.validatedAt,
+        });
+        return;
+      }
+
       const restored = await restoreFirebaseFromCookieSession().catch(() => false);
       if (!restored) {
         clearCachedAuthState();
@@ -210,7 +248,9 @@ function startAuthObserver() {
     }
 
     try {
-      emitAuthState({ loading: true, source: 'firebase-auth' });
+      if (!authState.user?.uid) {
+        emitAuthState({ loading: true, source: 'firebase-auth' });
+      }
       let profile = await createOrUpdateUserProfile(currentUser).catch(() => null);
       if (!profile) {
         profile = await loadUserProfile(currentUser).catch(() => null);

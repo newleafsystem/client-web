@@ -39,10 +39,14 @@ function browserRuntimeConfigScript() {
     appId: envValue('VITE_FIREBASE_APP_ID'),
     measurementId: envValue('VITE_FIREBASE_MEASUREMENT_ID'),
   };
+  const authStateCacheTtlHours = envValue('VITE_AUTH_STATE_CACHE_TTL_HOURS');
+  const authSessionValidateIntervalMinutes = envValue('VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES');
   const authSessionApiBaseUrl = envValue('VITE_AUTH_SESSION_API_BASE_URL');
 
   return [
     `window.NEWLEAF_FIREBASE_CONFIG = window.NEWLEAF_FIREBASE_CONFIG || ${JSON.stringify(firebaseConfig)};`,
+    `window.NEWLEAF_AUTH_STATE_CACHE_TTL_HOURS = ${JSON.stringify(authStateCacheTtlHours)};`,
+    `window.NEWLEAF_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES = ${JSON.stringify(authSessionValidateIntervalMinutes)};`,
     `window.NEWLEAF_AUTH_SESSION_API_BASE_URL = ${JSON.stringify(authSessionApiBaseUrl)};`,
   ].join('\n');
 }

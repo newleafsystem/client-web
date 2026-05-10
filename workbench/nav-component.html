@@ -975,6 +975,8 @@ nav.nl-nav,
 
 <script>
 window.NEWLEAF_FIREBASE_CONFIG = window.NEWLEAF_FIREBASE_CONFIG || {"apiKey":"","authDomain":"","projectId":"","storageBucket":"","messagingSenderId":"","appId":"","measurementId":""};
+window.NEWLEAF_AUTH_STATE_CACHE_TTL_HOURS = "";
+window.NEWLEAF_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES = "";
 window.NEWLEAF_AUTH_SESSION_API_BASE_URL = "";
 </script>
 
@@ -1425,6 +1427,10 @@ const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
 const auth = app ? getAuth(app) : null;
 const db = app ? getFirestore(app, 'newleafdb') : null;
 const AUTH_SESSION_API_BASE = String(window.NEWLEAF_AUTH_SESSION_API_BASE_URL || '').replace(/\/+$/, '');
+const UI_CACHE_COOKIE = 'newleaf_auth_state';
+const CACHE_VERSION = 1;
+const AUTH_CACHE_TTL_HOURS = Number(window.NEWLEAF_AUTH_STATE_CACHE_TTL_HOURS || 24);
+const AUTH_VALIDATE_INTERVAL_MINUTES = Number(window.NEWLEAF_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES || 15);
 const IMMUTABLE_ADMIN_EMAILS = Object.freeze([
   'sd.nirsha@gmail.com',
   'manish28june@gmail.com',
@@ -1448,8 +1454,130 @@ function registerUrl() {
   return '/register?redirect=' + encodeURIComponent(redirect);
 }
 
+function authCacheTtlHours() {
+  return Number.isFinite(AUTH_CACHE_TTL_HOURS) && AUTH_CACHE_TTL_HOURS > 0 ? AUTH_CACHE_TTL_HOURS : 24;
+}
+
+function authValidationIntervalMs() {
+  var minutes = Number.isFinite(AUTH_VALIDATE_INTERVAL_MINUTES) && AUTH_VALIDATE_INTERVAL_MINUTES >= 0
+    ? AUTH_VALIDATE_INTERVAL_MINUTES
+    : 15;
+  return minutes * 60 * 1000;
+}
+
+function cookieSecureFlag() {
+  return window.location.protocol === 'https:' ? '; Secure' : '';
+}
+
+function writeCookie(name, value, maxAgeSeconds) {
+  document.cookie = [
+    name + '=' + encodeURIComponent(value),
+    'Path=/',
+    'Max-Age=' + Math.max(0, Math.floor(maxAgeSeconds)),
+    'SameSite=Lax',
+    cookieSecureFlag()
+  ].join('; ');
+}
+
+function readCookie(name) {
+  var prefix = name + '=';
+  return document.cookie
+    .split(';')
+    .map(function (part) { return part.trim(); })
+    .find(function (part) { return part.indexOf(prefix) === 0; })
+    ?.slice(prefix.length) || '';
+}
+
 function sessionUrl(path) {
   return AUTH_SESSION_API_BASE + path;
+}
+
+function sanitizeUser(user) {
+  if (!user) return null;
+  return {
+    uid: user.uid || null,
+    email: user.email || null,
+    displayName: user.displayName || null,
+    photoURL: user.photoURL || null,
+    emailVerified: user.emailVerified === true
+  };
+}
+
+function sanitizeProfile(profile) {
+  if (!profile) return null;
+  return {
+    uid: profile.uid || null,
+    email: profile.email || null,
+    communicationEmail: profile.communicationEmail || null,
+    displayName: profile.displayName || null,
+    photoURL: profile.photoURL || null,
+    emailVerified: profile.emailVerified === true,
+    roles: Array.isArray(profile.roles) ? profile.roles : undefined,
+    role: profile.role,
+    roleMap: profile.roleMap,
+    appAccess: profile.appAccess,
+    apps: profile.apps,
+    applications: profile.applications,
+    productAccess: profile.productAccess,
+    status: profile.status || (profile.disabled ? 'disabled' : 'active'),
+    disabled: profile.disabled === true,
+    immutable: profile.immutable === true
+  };
+}
+
+function readCachedAuthState() {
+  var raw = readCookie(UI_CACHE_COOKIE);
+  if (!raw) return null;
+
+  try {
+    var parsed = JSON.parse(decodeURIComponent(raw));
+    if (parsed.version !== CACHE_VERSION) return null;
+    if (!parsed.expiresAt || parsed.expiresAt <= Date.now()) return null;
+    if (!parsed.user || !parsed.user.uid) return null;
+    return {
+      user: sanitizeUser(parsed.user),
+      profile: sanitizeProfile(parsed.profile),
+      expiresAt: parsed.expiresAt,
+      validatedAt: Number(parsed.validatedAt || 0) || null,
+      source: 'cookie-cache'
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeCachedAuthState(options) {
+  var safeUser = sanitizeUser(options && options.user);
+  if (!safeUser || !safeUser.uid) {
+    clearCachedAuthState();
+    return;
+  }
+
+  var maxAgeSeconds = authCacheTtlHours() * 60 * 60;
+  writeCookie(
+    UI_CACHE_COOKIE,
+    JSON.stringify({
+      version: CACHE_VERSION,
+      expiresAt: Date.now() + maxAgeSeconds * 1000,
+      validatedAt: options && Object.prototype.hasOwnProperty.call(options, 'validatedAt')
+        ? options.validatedAt
+        : Date.now(),
+      user: safeUser,
+      profile: sanitizeProfile(options && options.profile)
+    }),
+    maxAgeSeconds
+  );
+}
+
+function clearCachedAuthState() {
+  writeCookie(UI_CACHE_COOKIE, '', 0);
+}
+
+function shouldValidateCachedAuth(cached) {
+  if (!cached || !cached.user) return true;
+  var intervalMs = authValidationIntervalMs();
+  if (intervalMs <= 0) return false;
+  return !cached.validatedAt || Date.now() - cached.validatedAt > intervalMs;
 }
 
 async function readJsonResponse(response) {
@@ -1466,7 +1594,14 @@ async function fetchCookieSession() {
       headers: { Accept: 'application/json' }
     });
     var data = await readJsonResponse(response);
-    return response.ok && data && data.authenticated ? data : null;
+    return response.ok && data && data.authenticated ? {
+      authenticated: true,
+      user: sanitizeUser(data.user),
+      profile: sanitizeProfile(data.profile),
+      access: data.access || null,
+      expiresAt: data.expiresAt || null,
+      source: 'http-cookie'
+    } : null;
   } catch (error) {
     return null;
   }
@@ -1486,7 +1621,14 @@ async function createCookieSession(user) {
       body: JSON.stringify({ idToken: idToken })
     });
     var data = await readJsonResponse(response);
-    return response.ok && data && data.authenticated ? data : null;
+    return response.ok && data && data.authenticated ? {
+      authenticated: true,
+      user: sanitizeUser(data.user),
+      profile: sanitizeProfile(data.profile),
+      access: data.access || null,
+      expiresAt: data.expiresAt || null,
+      source: 'http-cookie'
+    } : null;
   } catch (error) {
     return null;
   }
@@ -1515,6 +1657,7 @@ async function clearCookieSession() {
     });
   } catch (error) {
   }
+  clearCachedAuthState();
 }
 
 function allAppAccess() {
@@ -1749,12 +1892,24 @@ function accessFromSession(session) {
   return getAccess(session && session.profile, session && session.user);
 }
 
-function renderAuthState(user, profile, access) {
+function renderAuthState(user, profile, access, options) {
   var displayUser = user && profile && !user.displayName && profile.displayName
     ? Object.assign({}, user, { displayName: profile.displayName })
     : user;
   applyRoleBasedNav(access);
   applyWorkbenchPageGate(access, displayUser);
+
+  if (displayUser) {
+    writeCachedAuthState({
+      user: displayUser,
+      profile: profile,
+      validatedAt: options && Object.prototype.hasOwnProperty.call(options, 'validatedAt')
+        ? options.validatedAt
+        : Date.now()
+    });
+  } else {
+    clearCachedAuthState();
+  }
 
   var navRight = document.querySelector('.nl-nav-right');
   if (navRight) {
@@ -1800,21 +1955,58 @@ function renderAuthState(user, profile, access) {
   }
 }
 
-async function renderCookieSessionIfPresent() {
-  var session = await fetchCookieSession();
-  if (!session || !session.user) return false;
-  renderAuthState(session.user, session.profile, accessFromSession(session));
+function renderCachedAuthState(cached) {
+  if (!cached || !cached.user) return false;
+  renderAuthState(cached.user, cached.profile, getAccess(cached.profile, cached.user), {
+    validatedAt: cached.validatedAt
+  });
   return true;
 }
 
+async function renderCookieSessionIfPresent(options) {
+  var cached = readCachedAuthState();
+  if (!(options && options.force) && cached && cached.user && !shouldValidateCachedAuth(cached)) {
+    return renderCachedAuthState(cached);
+  }
+
+  var session = await fetchCookieSession();
+  if (!session || !session.user) return false;
+  renderAuthState(session.user, session.profile, accessFromSession(session), {
+    validatedAt: Date.now()
+  });
+  return true;
+}
+
+var startupCache = readCachedAuthState();
+var renderedStartupCache = startupCache && startupCache.user && !shouldValidateCachedAuth(startupCache)
+  ? renderCachedAuthState(startupCache)
+  : false;
+var startupNeedsValidation = shouldValidateCachedAuth(startupCache);
+
 if (!auth) {
-  renderCookieSessionIfPresent().then(function (rendered) {
-    if (!rendered) wireFallbackAuthLinks();
+  renderCookieSessionIfPresent({ force: startupNeedsValidation }).then(function (rendered) {
+    if (!rendered && !renderedStartupCache) {
+      renderAuthState(null, null, getAccess(null, null));
+      wireFallbackAuthLinks();
+    }
   });
 } else {
-  renderCookieSessionIfPresent();
+  if (startupNeedsValidation) {
+    renderCookieSessionIfPresent({ force: true }).then(function (rendered) {
+      if (!rendered && !renderedStartupCache && !auth.currentUser) {
+        renderAuthState(null, null, getAccess(null, null));
+      }
+    });
+  }
+
   onAuthStateChanged(auth, async function (user) {
     if (!user) {
+      var cached = readCachedAuthState();
+      if (cached && cached.user && !shouldValidateCachedAuth(cached)) {
+        renderCachedAuthState(cached);
+        return;
+      }
+
       var restoredToken = await fetchCustomTokenFromCookie();
       if (restoredToken) {
         await signInWithCustomToken(auth, restoredToken).catch(function () {});
@@ -1827,7 +2019,9 @@ if (!auth) {
     var session = await createCookieSession(user);
     var profile = session && session.profile ? session.profile : await loadUserProfile(user);
     var access = session ? accessFromSession(session) : getAccess(profile, user);
-    renderAuthState(user, profile, access);
+    renderAuthState(user, profile, access, {
+      validatedAt: session ? Date.now() : null
+    });
   });
 }
 
