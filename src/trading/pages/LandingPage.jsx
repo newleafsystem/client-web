@@ -81,18 +81,6 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
 
         <div className="hero-grad"></div>
 
-        <div className="hero-ctas-tr">
-          <a className="hero-cta-gold" href="/register">Get Started Free →</a>
-          <div className="hero-demo-cue">
-            <span>Watch demo</span>
-            <button className="hero-demo-arrow" onClick={scrollToDemo} aria-label="Watch demo">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
         <div className="hero-lower">
           <div className="hero-stats-pill">
             <div className="hero-stat">
@@ -114,6 +102,14 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
               <span className="hero-stat-num">1</span>
               <span className="hero-stat-lbl">Data Hub</span>
             </div>
+          </div>
+          <div className="hero-demo-cue">
+            <span>Watch demo</span>
+            <button className="hero-demo-arrow" onClick={scrollToDemo} aria-label="Watch demo">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
           </div>
         </div>
 

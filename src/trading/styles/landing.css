@@ -140,16 +140,6 @@
   pointer-events: none;
 }
 
-.hero-ctas-tr {
-  position: absolute;
-  top: 32px;
-  left: 40px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .hero-lower {
   position: absolute;
   bottom: 80px;
@@ -160,29 +150,6 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
-}
-
-.hero-cta-gold {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  border-radius: var(--brand-button-radius);
-  background: var(--brand-button-primary-bg);
-  color: var(--brand-button-primary-text);
-  font-size: 16px;
-  font-weight: 800;
-  font-family: 'DM Sans', sans-serif;
-  border: 1px solid var(--brand-button-primary-border);
-  cursor: pointer;
-  text-decoration: none;
-  box-shadow: var(--brand-button-shadow);
-  transition: all .15s;
-}
-.hero-cta-gold:hover {
-  background: var(--brand-button-primary-hover);
-  border-color: var(--brand-button-primary-hover);
-  box-shadow: var(--brand-button-shadow-hover);
 }
 
 .hero-demo-cue {
@@ -876,7 +843,6 @@ footer {
   .nav-links { display:none }
   .hero-vid { aspect-ratio: 16 / 8 }
   .hero-lower { bottom: 60px }
-  .hero-ctas-tr { top: 20px; left: 20px }
   .pipeline { grid-template-columns:1fr 1fr }
   .pipe-step + .pipe-step::before { display:none }
   .cards-grid { grid-template-columns:1fr }
@@ -891,10 +857,8 @@ footer {
 @media (max-width:520px) {
   .hero-vid { aspect-ratio: auto; min-height: 70svh }
   .hero-ctas { flex-direction: column; align-items: center }
-  .hero-cta-gold { padding: 10px 18px; font-size: 13px }
   .hero-demo-cue { font-size: 9px }
   .hero-demo-arrow { width: 38px; height: 38px }
-  .hero-ctas-tr { top: 12px; left: 12px; gap: 8px }
   .hero-stats-pill { padding: 14px 16px }
   .hero-stat { padding: 0 16px }
   .hero-stat-div { height: 24px }
