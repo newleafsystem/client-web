@@ -239,7 +239,7 @@ Useful deploy variables:
 | `AUTH_SESSION_ALLOWED_ORIGINS` | empty | Optional comma-separated CORS allowlist when the auth API is on a separate origin |
 | `VITE_AUTH_STATE_CACHE_TTL_HOURS` | `24` | Sanitized UI auth-cache cookie lifetime |
 | `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` | `15` | Minimum age before the UI cache revalidates the HTTP-only auth session on page load |
-| `VITE_AUTH_SESSION_API_BASE_URL` | empty | Optional auth API origin; empty uses same-origin `/api/auth/*` |
+| `VITE_AUTH_SESSION_API_BASE_URL` | `https://api.newleafsystem.com` | Shared NewLeaf API origin for `/api/auth/*` session endpoints |
 | `CLOUDFLARE_PAGES_PROJECT` | empty | Optional Cloudflare Pages project |
 | `GCP_TEST_CLOUD_RUN_SERVICE` | empty | Optional test Cloud Run service |
 | `GCP_CLOUD_RUN_SERVICE` | empty | Optional production Cloud Run service |
@@ -251,7 +251,7 @@ Auth session notes:
 - Firebase Authentication authorized domains must include the app origin and the auth handler domain, including `newleaf-preview.web.app`, `newleafsystem.web.app`, custom domains such as `newleafsystem.com` and `www.newleafsystem.com`, and `localhost` for local development.
 - The browser-readable auth cache stores only sanitized identity/profile fields for faster first paint. It does not store Firebase ID tokens, refresh tokens, or secrets.
 - `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` throttles startup validation so each page does not block on `/api/auth/session`; set it lower if entitlement revocation must be reflected faster.
-- For Firebase Hosting, either route `/api/auth/*` to the deployed Node/Cloud Run service or set `VITE_AUTH_SESSION_API_BASE_URL` to the auth API origin. Same-origin routing is preferred so `SameSite=Lax` cookies work without cross-site cookie settings.
+- For Firebase Hosting, client-web should set `VITE_AUTH_SESSION_API_BASE_URL=https://api.newleafsystem.com`. The shared API sets the HTTP-only session cookie with `AUTH_SESSION_COOKIE_DOMAIN=.newleafsystem.com` and `AUTH_SESSION_COOKIE_PATH=/`, so both client-web and admin-web use the same auth channel.
 - For plain `http://localhost` testing, use a non-prefixed cookie name and `AUTH_SESSION_SECURE=false`; production should keep `AUTH_SESSION_SECURE=true`.
 
 Sync repo variables/secrets from local `.env` without printing values:
