@@ -232,6 +232,7 @@ Useful deploy variables:
 | `FIREBASE_PROJECT_ID` | `newleaf-trading` | Firebase/GCP project |
 | `FIREBASE_TEST_HOSTING_TARGET` | `newleaf-preview` | Test Hosting target |
 | `FIREBASE_HOSTING_TARGET` | `newleafsystem` | Production Hosting target |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `newleafsystem.web.app` | Firebase Auth popup/redirect handler domain for the active Hosting site |
 | `AUTH_SESSION_MAX_AGE_HOURS` | `24` | HTTP-only auth session cookie lifetime |
 | `AUTH_SESSION_SECURE` | `true` | Adds Secure to the auth session cookie |
 | `AUTH_SESSION_SAME_SITE` | `Lax` | SameSite mode for the auth session cookie |
@@ -246,6 +247,8 @@ Useful deploy variables:
 Auth session notes:
 
 - The secure Firebase Admin session cookie is set by the Node service at `/api/auth/session`.
+- Google sign-in uses the Firebase Web SDK `authDomain`. For client-web, set `VITE_FIREBASE_AUTH_DOMAIN` to the Firebase Hosting domain for the build target: `newleaf-preview.web.app` in the `test` GitHub environment and `newleafsystem.web.app` or a configured custom auth domain in `production`. Avoid `*.firebaseapp.com` unless the default Firebase handler domain is intentional.
+- Firebase Authentication authorized domains must include the app origin and the auth handler domain, including `newleaf-preview.web.app`, `newleafsystem.web.app`, custom domains such as `newleafsystem.com` and `www.newleafsystem.com`, and `localhost` for local development.
 - The browser-readable auth cache stores only sanitized identity/profile fields for faster first paint. It does not store Firebase ID tokens, refresh tokens, or secrets.
 - `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` throttles startup validation so each page does not block on `/api/auth/session`; set it lower if entitlement revocation must be reflected faster.
 - For Firebase Hosting, either route `/api/auth/*` to the deployed Node/Cloud Run service or set `VITE_AUTH_SESSION_API_BASE_URL` to the auth API origin. Same-origin routing is preferred so `SameSite=Lax` cookies work without cross-site cookie settings.
