@@ -92,8 +92,8 @@ Patterns:
 - `VITE_AUTH_STATE_CACHE_TTL_HOURS` controls only the sanitized first-paint UI cache. It should match `AUTH_SESSION_MAX_AGE_HOURS` unless there is a deliberate reason to make the visible UI cache shorter.
 - `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` controls how often the UI cache revalidates with `/api/auth/session` on startup. The default is `15`, which avoids a blocking auth API call on every page while keeping role/access changes bounded by a short refresh window.
 - Protected backend actions must still trust only Firebase Auth, the HTTP-only session cookie, Firestore rules, or server-side access checks. The browser-readable UI cache is for display and navigation responsiveness only.
-- Firebase Google sign-in popup and redirect flows use `VITE_FIREBASE_AUTH_DOMAIN` as the `/__/auth/handler` host. Client-web builds should use the active Firebase Hosting domain, for example `newleaf-preview.web.app` for test and `newleafsystem.web.app` or a configured custom domain for production. Do not use a `*.firebaseapp.com` auth domain unless the default Firebase handler is intentional.
-- Firebase Authentication authorized domains must include every app origin and handler domain used by client-web: preview, production, custom domains, and localhost for development.
+- Firebase Google sign-in popup and redirect flows use `VITE_FIREBASE_AUTH_DOMAIN` as the `/__/auth/handler` host. Client-web builds should use NewLeaf registered domains only: `preview.newleafsystem.com` for test and `www.newleafsystem.com` or `newleafsystem.com` for production. Do not use default `*.web.app` or `*.firebaseapp.com` auth origins for NewLeaf preview or production builds.
+- Firebase Authentication authorized domains must include every app origin and handler domain used by client-web: `preview.newleafsystem.com`, `newleafsystem.com`, `www.newleafsystem.com`, and localhost for development.
 - `VITE_AUTH_SESSION_API_BASE_URL` should point to `https://api.newleafsystem.com` in preview and production. The shared admin-web API owns `/api/auth/*`, sets the HTTP-only Firebase session cookie for `.newleafsystem.com`, and returns the same `appAccess` user record consumed by admin-web.
 - If Firebase Hosting serves the static app without an auth API rewrite and `VITE_AUTH_SESSION_API_BASE_URL` is empty, the React auth store falls back to Firebase client persistence and the session-cookie calls become no-ops. Production builds should avoid that fallback.
 - Local HTTP testing of server-set cookies needs `AUTH_SESSION_SECURE=false` and a non-prefixed cookie name. Production should keep secure cookies enabled.
@@ -169,7 +169,8 @@ Add new config keys to `.env.example`, runtime loaders, GitHub Actions config he
 - Firestore database id: `newleafdb`.
 - Preview Hosting target/site: `newleaf-preview`.
 - Production Hosting target/site: `newleafsystem`.
-- Production default domain: `newleafsystem.web.app`.
+- Production custom domains: `newleafsystem.com` and `www.newleafsystem.com`.
+- Preview custom domain: `preview.newleafsystem.com`.
 
 Firebase Admin credentials should use one of:
 

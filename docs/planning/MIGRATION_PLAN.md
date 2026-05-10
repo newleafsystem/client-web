@@ -438,7 +438,7 @@ navigate('/analysis/X')  →  navigate('/workbench/analysis/X')
 **Cross-app links (in nav bars):**
 ```
 AppHeader:    <a href="/workbench/">  →  <Link to="/workbench">
-SystemNav:    external https://newleaf-trading.web.app  →  <Link to="/trading">
+SystemNav:    external trading site  →  <Link to="/trading">
 ```
 
 ---

@@ -165,8 +165,8 @@ node scanner/newleaf-pipeline.js --watchlist
 | [newleafsystem.com/picks](https://newleafsystem.com/picks) | Weekly picks |
 | [newleafsystem.com/picks/analysis/spy](https://newleafsystem.com/picks/analysis/spy/) | Analysis page (example) |
 | [newleafsystem.com/sitemap.xml](https://newleafsystem.com/sitemap.xml) | Sitemap |
-| [newleaf-alpaca-r2.web.app](https://newleaf-alpaca-r2.web.app) | Workbench (strategy builder) |
-| [newleaf-trading.web.app](https://newleaf-trading.web.app) | Trading app (investor) |
+| [newleafsystem.com/workbench](https://newleafsystem.com/workbench) | Workbench (strategy builder) |
+| [newleafsystem.com/invest](https://newleafsystem.com/invest) | Trading app (investor) |
 
 ## Project Structure
 
@@ -212,8 +212,8 @@ newleafsystem/
 
 - **Project:** `newleaf-trading`
 - **Database:** `newleafdb` (Firestore)
-- **Test Hosting site:** `newleaf-preview` -> newleaf-preview.web.app
-- **Production Hosting site:** `newleafsystem` -> newleafsystem.com
+- **Test Hosting site:** `newleaf-preview` -> preview.newleafsystem.com
+- **Production Hosting site:** `newleafsystem` -> newleafsystem.com and www.newleafsystem.com
 - **Auth:** Google + email/password
 - **Service account:** use `FIREBASE_CREDENTIALS_BASE64` locally and in GitHub Actions secrets. Do not keep service account JSON files in the repo.
 
@@ -232,7 +232,7 @@ Useful deploy variables:
 | `FIREBASE_PROJECT_ID` | `newleaf-trading` | Firebase/GCP project |
 | `FIREBASE_TEST_HOSTING_TARGET` | `newleaf-preview` | Test Hosting target |
 | `FIREBASE_HOSTING_TARGET` | `newleafsystem` | Production Hosting target |
-| `VITE_FIREBASE_AUTH_DOMAIN` | `newleafsystem.web.app` | Firebase Auth popup/redirect handler domain for the active Hosting site |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `www.newleafsystem.com` | Firebase Auth popup/redirect handler domain for the active Hosting site |
 | `AUTH_SESSION_MAX_AGE_HOURS` | `24` | HTTP-only auth session cookie lifetime |
 | `AUTH_SESSION_SECURE` | `true` | Adds Secure to the auth session cookie |
 | `AUTH_SESSION_SAME_SITE` | `Lax` | SameSite mode for the auth session cookie |
@@ -247,8 +247,8 @@ Useful deploy variables:
 Auth session notes:
 
 - The secure Firebase Admin session cookie is set by the Node service at `/api/auth/session`.
-- Google sign-in uses the Firebase Web SDK `authDomain`. For client-web, set `VITE_FIREBASE_AUTH_DOMAIN` to the Firebase Hosting domain for the build target: `newleaf-preview.web.app` in the `test` GitHub environment and `newleafsystem.web.app` or a configured custom auth domain in `production`. Avoid `*.firebaseapp.com` unless the default Firebase handler domain is intentional.
-- Firebase Authentication authorized domains must include the app origin and the auth handler domain, including `newleaf-preview.web.app`, `newleafsystem.web.app`, custom domains such as `newleafsystem.com` and `www.newleafsystem.com`, and `localhost` for local development.
+- Google sign-in uses the Firebase Web SDK `authDomain`. For client-web, set `VITE_FIREBASE_AUTH_DOMAIN=preview.newleafsystem.com` in the `test` GitHub environment and `VITE_FIREBASE_AUTH_DOMAIN=www.newleafsystem.com` or `newleafsystem.com` in `production`. Do not use default `*.web.app` or `*.firebaseapp.com` browser origins for NewLeaf production or preview auth.
+- Firebase Authentication authorized domains should include only the NewLeaf browser origins and auth-handler domains you actually use: `newleafsystem.com`, `www.newleafsystem.com`, `preview.newleafsystem.com`, and `localhost` for local development.
 - The browser-readable auth cache stores only sanitized identity/profile fields for faster first paint. It does not store Firebase ID tokens, refresh tokens, or secrets.
 - `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` throttles startup validation so each page does not block on `/api/auth/session`; set it lower if entitlement revocation must be reflected faster.
 - For Firebase Hosting, client-web should set `VITE_AUTH_SESSION_API_BASE_URL=https://api.newleafsystem.com`. The shared API sets the HTTP-only session cookie with `AUTH_SESSION_COOKIE_DOMAIN=.newleafsystem.com` and `AUTH_SESSION_COOKIE_PATH=/`, so both client-web and admin-web use the same auth channel.
@@ -266,7 +266,7 @@ bash scripts/setup-github-actions-config.sh --repo OWNER/REPO
 | Type | Host | Value |
 |------|------|-------|
 | A | @ | 199.36.158.100 |
-| CNAME | www | newleafsystem.web.app |
+| CNAME | www | Firebase Hosting-provided target for `www.newleafsystem.com` |
 | TXT | @ | hosting-site=newleafsystem |
 | TXT | @ | Search Console verification TXT from Google (set only in DNS, not repo) |
 
