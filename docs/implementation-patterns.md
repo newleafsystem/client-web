@@ -224,6 +224,9 @@ Scanner scripts under `scanner/` should:
 - Run production schedules through Google Cloud Scheduler calling `https://api.newleafsystem.com/api/internal/scheduler/*`. Do not use Cloudflare for scheduling.
 - `scanner/run-scheduler-job.js` is the canonical scheduler entrypoint. It supports `scanner-fast`, `scanner-daily-catchup`, `scanner-oi`, `scanner-watchlist`, and `scanner-sync-firestore`.
 - Scheduler overlap protection and daily catch-up markers live in Firestore through `scanner/lib/scheduler-state.cjs`; do not use `/tmp` marker files for production scheduling.
+- Managed scanner watchlist config lives in Firestore at `marketWatchlists/default` and is edited by admin-web. Scheduler runs call `scanner/lib/watchlist-config.cjs` first, write an ignored `scanner/watchlist.runtime.json`, and then child pipeline scripts read that runtime file through `WATCHLIST_FILE`.
+- Only enabled symbols in enabled scan markets are processed. Non-US markets can be stored for planning, but keep them `scanEnabled=false` until the scanner has compatible provider support.
+- Rate-limit settings live with the managed watchlist. Respect `maxSymbolsPerRun`, `maxSymbolsPerMarket`, `intradayConcurrency`, `dailyConcurrency`, and `yahooRequestDelayMs`; daily Yahoo OI processing stays sequential.
 - `server.cjs` exposes scheduler trigger endpoints under `/api/internal/scheduler/{job}`. Requests must include `X-NewLeaf-Scheduler-Secret` when `SCHEDULER_SHARED_SECRET` is configured.
 - `scripts/setup-google-cloud-scheduler.sh` creates or updates the Google Cloud Scheduler HTTP jobs. It must never print `SCHEDULER_SHARED_SECRET`.
 - See [google-cloud-scheduler.md](google-cloud-scheduler.md) for setup flow and required variables.

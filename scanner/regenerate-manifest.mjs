@@ -4,8 +4,7 @@
  */
 
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { readFileSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 
@@ -15,7 +14,11 @@ const require = createRequire(import.meta.url);
 const { loadScannerConfig } = require('./lib/config.js');
 
 const config = loadScannerConfig();
-const watchlist = JSON.parse(readFileSync(resolve(__dirname, 'watchlist.json'), 'utf-8'));
+const watchlist = config.watchlistData || {
+  updatedAt: new Date().toISOString(),
+  totalSymbols: config.watchlist.length,
+  symbols: config.watchlist
+};
 const marketCapMapping = watchlist.marketCapMapping || {};
 const marketCapTiers = watchlist.marketCapTiers || {};
 
@@ -50,12 +53,14 @@ async function regenerateManifest() {
 
     // Step 2: Create fresh manifest with current watchlist
     const sectorMapping = watchlist.sectorMapping || {};
-    console.log(`📝 Creating fresh manifest with ${watchlist.totalSymbols} symbols...`);
+    const symbols = watchlist.symbols || [];
+    const totalSymbols = watchlist.totalSymbols || symbols.length;
+    console.log(`📝 Creating fresh manifest with ${totalSymbols} symbols...`);
     
     const manifest = {
       updatedAt: new Date().toISOString(),
-      totalReports: watchlist.totalSymbols,
-      reports: watchlist.symbols.map(symbol => {
+      totalReports: totalSymbols,
+      reports: symbols.map(symbol => {
         const marketCapTier = marketCapMapping[symbol] || 'unknown';
         const tierInfo = marketCapTiers[marketCapTier] || {};
         return {
@@ -78,7 +83,7 @@ async function regenerateManifest() {
       CacheControl: 'public, max-age=300'
     }));
 
-    console.log(`✓ Fresh manifest uploaded (${watchlist.totalSymbols} symbols)`);
+    console.log(`✓ Fresh manifest uploaded (${totalSymbols} symbols)`);
     console.log(`\n📊 Sector breakdown:`);
     
     // Count symbols per sector

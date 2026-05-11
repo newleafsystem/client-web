@@ -9,6 +9,7 @@ const {
   markDailyStep,
   withSchedulerLock
 } = require('./lib/scheduler-state.cjs');
+const { prepareManagedWatchlistRuntime } = require('./lib/watchlist-config.cjs');
 
 const SCANNER_DIR = __dirname;
 const args = process.argv.slice(2);
@@ -16,6 +17,7 @@ const jobName = args.find(arg => !arg.startsWith('--')) || '';
 const FORCE = args.includes('--force');
 const NO_UPLOAD = args.includes('--no-upload');
 const DRY_RUN = args.includes('--dry-run');
+let preparedWatchlist = null;
 
 function usage() {
   console.log(`Usage: node scanner/run-scheduler-job.js <job> [--force] [--no-upload] [--dry-run]
@@ -93,6 +95,15 @@ function maybeNoUpload(extraArgs = []) {
   return NO_UPLOAD ? [...extraArgs, '--no-upload'] : extraArgs;
 }
 
+function withManagedConcurrency(extraArgs = [], mode = 'intraday') {
+  const limits = preparedWatchlist?.watchlist?.limits || {};
+  const key = mode === 'daily' ? 'dailyConcurrency' : 'intradayConcurrency';
+  const concurrency = limits[key];
+  return Number.isFinite(Number(concurrency))
+    ? [...extraArgs, `--concurrency=${Number(concurrency)}`]
+    : extraArgs;
+}
+
 async function runFast() {
   if (!FORCE && !isMarketHoursEt()) {
     console.log('Market is closed in America/New_York. Skipping scanner-fast.');
@@ -105,7 +116,7 @@ async function runFast() {
   }
 
   await withSchedulerLock('scanner-fast', () => (
-    nodeScript('pipeline-fast.js', maybeNoUpload(['--watchlist']))
+    nodeScript('pipeline-fast.js', maybeNoUpload(withManagedConcurrency(['--watchlist'], 'intraday')))
   ));
 }
 
@@ -161,6 +172,7 @@ async function runSingle(lockName, script, scriptArgs = []) {
 }
 
 async function main() {
+  preparedWatchlist = await prepareManagedWatchlistRuntime({ scannerDir: SCANNER_DIR });
   switch (jobName) {
     case 'scanner-fast':
     case 'fast':

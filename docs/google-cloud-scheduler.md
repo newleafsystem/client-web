@@ -19,6 +19,14 @@ Google Cloud Scheduler
 - `newleaf-scanner-fast`: runs every 15 minutes during weekday market hours. The backend rechecks the America/New_York market window before doing work.
 - `newleaf-scanner-daily-catchup`: runs on the same cadence and uses Firestore markers so OI enrichment, watchlist generation, and Firestore sync run once per trading day.
 
+Before each run, `scanner/run-scheduler-job.js` loads `marketWatchlists/default` from Firestore. It writes the active scan set to the ignored `scanner/watchlist.runtime.json`, sets `WATCHLIST_FILE` for child scripts, and applies watchlist rate-limit settings. If the managed config is unavailable, the worker falls back to the local `scanner/watchlist.json`.
+
+Seed the managed config from the current local watchlist:
+
+```bash
+node scanner/seed-managed-watchlist.js
+```
+
 ## Required Config
 
 - `SCHEDULER_API_BASE_URL=https://api.newleafsystem.com`

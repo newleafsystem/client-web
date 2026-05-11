@@ -8,8 +8,24 @@ const yahooFinance = new YahooFinance({
 
 const DEFAULT_RETRIES = 2;
 const DEFAULT_TIMEOUT_MS = 25000;
+let lastYahooRequestAt = 0;
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function yahooRequestDelayMs() {
+  const parsed = Number(process.env.YAHOO_REQUEST_DELAY_MS || 0);
+  return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+async function waitForYahooSlot() {
+  const delayMs = yahooRequestDelayMs();
+  if (!delayMs) return;
+  const elapsed = Date.now() - lastYahooRequestAt;
+  if (elapsed < delayMs) {
+    await sleep(delayMs - elapsed);
+  }
+  lastYahooRequestAt = Date.now();
+}
 
 function normalizeSymbol(symbol) {
   return String(symbol || '').trim().toUpperCase();
@@ -48,7 +64,7 @@ async function withRetries(label, fn, options = {}) {
       const timeout = new Promise((_, reject) => {
         setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
       });
-      return await Promise.race([fn(), timeout]);
+      return await Promise.race([waitForYahooSlot().then(fn), timeout]);
     } catch (error) {
       if (attempt === retries) throw error;
       await sleep(500 * (attempt + 1));

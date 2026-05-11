@@ -40,6 +40,7 @@ const path = require('path');
 const oiTracker = require('./oi-tracker');
 const { analyzeGammaEnhanced } = require('./gamma-analyzer-enhanced');
 const { loadScannerConfig } = require('./lib/config');
+const { loadWatchlistDataSync } = require('./lib/watchlist-config.cjs');
 const {
   getOptionChain,
   getOptionExpirations,
@@ -67,10 +68,7 @@ const ALPACA_DATA   = 'https://data.alpaca.markets';
 let WATCHLIST_DATA = null;
 function loadWatchlistData() {
   if (WATCHLIST_DATA) return WATCHLIST_DATA;
-  const watchlistPath = path.join(__dirname, 'watchlist.json');
-  if (fs.existsSync(watchlistPath)) {
-    WATCHLIST_DATA = JSON.parse(fs.readFileSync(watchlistPath, 'utf8'));
-  }
+  WATCHLIST_DATA = loadWatchlistDataSync({ scannerDir: __dirname });
   return WATCHLIST_DATA || {};
 }
 
@@ -1008,38 +1006,27 @@ async function main() {
   const totalShards = parseInt(getFlag('total-shards') ?? 1);
 
   let toScan = cliSymbols;
-  // Load watchlist from watchlist.json (100 stocks with sectors)
+  // Load managed runtime watchlist when present, falling back to local watchlist.json.
   if (useWatchlist || !toScan.length) {
-    const watchlistPath = path.join(__dirname, 'watchlist.json');
-    if (fs.existsSync(watchlistPath)) {
-      try {
-        const watchlistData = JSON.parse(fs.readFileSync(watchlistPath, 'utf8'));
-        const sectorMapping = watchlistData.sectorMapping || {};
-        toScan = watchlistData.symbols || cfg.watchlist || ['SPY','QQQ','MSFT','AAPL'];
-        console.log(C.green(`  ✓ Loaded ${toScan.length} symbols from watchlist.json`));
-        
-        // Count symbols per sector
-        const sectorCounts = {};
-        toScan.forEach(sym => {
-          const sector = sectorMapping[sym] || 'Other';
-          sectorCounts[sector] = (sectorCounts[sector] || 0) + 1;
-        });
-        
-        // Show top 5 sectors
-        const topSectors = Object.entries(sectorCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([sector, count]) => `${sector}(${count})`)
-          .join(', ');
-        console.log(C.dim(`  Sectors: ${topSectors}...`));
-      } catch (err) {
-        console.log(C.dim(`  ⚠️  Failed to load watchlist.json: ${err.message}`));
-        toScan = cfg.watchlist || ['SPY','QQQ','MSFT','AAPL'];
-      }
-    } else {
-      console.log(C.dim(`  ⚠️  watchlist.json not found, using WATCHLIST from environment`));
-      toScan = cfg.watchlist || ['SPY','QQQ','MSFT','AAPL'];
-    }
+    const watchlistData = cfg.watchlistData || loadWatchlistData();
+    const sectorMapping = watchlistData.sectorMapping || {};
+    toScan = watchlistData.symbols || cfg.watchlist || ['SPY','QQQ','MSFT','AAPL'];
+    console.log(C.green(`  ✓ Loaded ${toScan.length} symbols from ${watchlistData.source || 'watchlist config'}`));
+
+    // Count symbols per sector
+    const sectorCounts = {};
+    toScan.forEach(sym => {
+      const sector = sectorMapping[sym] || 'Other';
+      sectorCounts[sector] = (sectorCounts[sector] || 0) + 1;
+    });
+
+    // Show top 5 sectors
+    const topSectors = Object.entries(sectorCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([sector, count]) => `${sector}(${count})`)
+      .join(', ');
+    if (topSectors) console.log(C.dim(`  Sectors: ${topSectors}...`));
   }
 
   const sorted    = [...toScan].sort();
