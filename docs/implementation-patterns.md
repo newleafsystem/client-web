@@ -240,6 +240,7 @@ Pipeline scripts under `pipeline/` should:
 - Use `pipeline/templates/report.html` as the default report template.
 - Use `pipeline/templates/report-portrait.html` for portrait report generation.
 - Keep email HTML in `pipeline/templates/weekly-email-template.html`.
+- Resolve email recipients from `users/{uid}.notificationPreferences.email`. The weekly picks sender should only include users whose email delivery is enabled and whose `weeklyPicks` topic is not disabled; do not email every user solely because an email field exists.
 
 ## Deployment
 

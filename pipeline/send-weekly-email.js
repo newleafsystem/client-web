@@ -180,11 +180,35 @@ async function getSubscribers() {
   const emails = [];
   usersSnap.docs.forEach(doc => {
     const data = doc.data();
-    if (data.email) {
-      emails.push(data.email);
+    if (receivesWeeklyPicksEmail(data)) {
+      emails.push(notificationEmail(data));
     }
   });
   return [...new Set(emails)]; // deduplicate
+}
+
+function receivesWeeklyPicksEmail(user) {
+  if (String(user.status || '').toLowerCase() === 'deleted') {
+    return false;
+  }
+  const email = user.notificationPreferences?.email || {};
+  const address = notificationEmail(user);
+  if (!address) {
+    return false;
+  }
+  if (email.enabled === false) {
+    return false;
+  }
+  return email.topics?.weeklyPicks !== false;
+}
+
+function notificationEmail(user) {
+  return String(
+    user.notificationPreferences?.email?.address ||
+    user.communicationEmail ||
+    user.email ||
+    ''
+  ).trim().toLowerCase();
 }
 
 // ── Send email ──────────────────────────────────────────────────────────────
@@ -249,7 +273,7 @@ async function main() {
   // Step 2: Fetch subscribers from Firestore
   console.log('  Fetching subscribers...');
   const subscribers = await getSubscribers();
-  console.log(`  Found ${subscribers.length} subscriber(s): ${subscribers.join(', ')}\n`);
+  console.log(`  Found ${subscribers.length} subscriber(s) with weekly picks email enabled.\n`);
 
   if (subscribers.length === 0) {
     console.log('  ⚠️  No subscribers found in users collection.\n');
@@ -282,8 +306,7 @@ async function main() {
 
   // Dry run — just show what would happen
   if (DRY_RUN) {
-    console.log(`  [DRY RUN] Would send to ${subscribers.length} subscriber(s):`);
-    subscribers.forEach(e => console.log(`    - ${e}`));
+    console.log(`  [DRY RUN] Would send to ${subscribers.length} subscriber(s).`);
     console.log(`  [DRY RUN] Subject: NewLeaf Weekly Newsletter — ${picks.length} New Recommendation${picks.length === 1 ? '' : 's'}`);
     console.log(`  [DRY RUN] Picks: ${picks.map(p => p.symbol).join(', ')}\n`);
     process.exit(0);
