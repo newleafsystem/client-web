@@ -9,11 +9,11 @@
  *
  * Data Sources:
  *   ❌ Alpaca → NOT USED (loads existing latest.json instead)
- *   ✅ Yahoo Service :5300 → Open Interest (T-1 data)
+ *   ✅ yahoo-finance2 adapter → Open Interest (T-1 data)
  *
  * Workflow:
  *   1. Load existing latest.json for each symbol (from fast pipeline)
- *   2. Fetch OI data from Yahoo service
+ *   2. Fetch OI data from Yahoo Finance through Node
  *   3. Merge OI into option chains
  *   4. Recalculate gamma walls (now accurate with OI)
  *   5. Calculate OI delta (position changes vs yesterday)
@@ -36,7 +36,7 @@
  *   • Runs sequentially (Yahoo thread limit)
  *
  * Requirements:
- *   • Yahoo service must be running (localhost:5300)
+ *   • yahoo-finance2 must be installed
  *   • latest.json must exist for each symbol (from fast pipeline)
  *
  * Usage:
@@ -57,7 +57,7 @@ if (!process.argv.includes('--daily')) {
   process.argv.push('--daily');
 }
 
-// Force concurrency=1 for Yahoo service (thread limit)
+// Force concurrency=1 for Yahoo Finance throttling guard
 if (!process.argv.some(arg => arg.startsWith('--concurrency'))) {
   process.argv.push('--concurrency=1');
 }
@@ -65,8 +65,8 @@ if (!process.argv.some(arg => arg.startsWith('--concurrency'))) {
 console.log('\n  📊 OI ENRICHMENT PIPELINE (Yahoo ONLY)\n');
 console.log('  ────────────────────────────────────────────');
 console.log('  Mode:        Daily (forced)');
-console.log('  Concurrency: 1 (Yahoo thread limit)');
-console.log('  Data source: Yahoo service :5300');
+console.log('  Concurrency: 1 (Yahoo throttling guard)');
+console.log('  Data source: yahoo-finance2');
 console.log('  OI data:     T-1 (yesterday close)');
 console.log('  ────────────────────────────────────────────\n');
 

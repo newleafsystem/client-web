@@ -37,7 +37,7 @@ jobs:
         run: npm ci --prefix scanner
 
       - name: Check shell scripts
-        run: bash -n scripts/*.sh scripts/scanner/*.sh scanner/yahoo-svc/start.sh
+        run: bash -n scripts/*.sh scripts/scanner/*.sh
 
       - name: Check JavaScript syntax
         run: |

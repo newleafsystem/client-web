@@ -53,7 +53,6 @@ jobs:
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
       ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-      YAHOO_SVC_URL: ${{ vars.YAHOO_SVC_URL }}
       PIPELINE_DTE_MIN: ${{ vars.PIPELINE_DTE_MIN }}
       PIPELINE_DTE_MAX: ${{ vars.PIPELINE_DTE_MAX }}
       PIPELINE_CONCURRENCY: ${{ vars.PIPELINE_CONCURRENCY }}
@@ -144,19 +143,19 @@ jobs:
               npm run email:send
               ;;
             scanner-daily)
-              bash scripts/scanner/newleaf-daily.sh
+              node scanner/run-scheduler-job.js scanner-daily-catchup --force
               ;;
             scanner-intraday)
-              bash scripts/scanner/newleaf-intraday.sh
+              node scanner/run-scheduler-job.js scanner-fast --force
               ;;
             scanner-fast)
-              bash scripts/scanner/run-fast-pipeline.sh
+              node scanner/run-scheduler-job.js scanner-fast --force
               ;;
             scanner-watchlist)
-              bash scripts/scanner/run-watchlist-pipeline.sh
+              node scanner/run-scheduler-job.js scanner-watchlist --force
               ;;
             scanner-oi)
-              bash scripts/scanner/run-oi-enrichment.sh
+              node scanner/run-scheduler-job.js scanner-oi --force
               ;;
             upload-watchlist)
               node scanner/upload-watchlist.js

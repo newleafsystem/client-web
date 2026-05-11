@@ -266,6 +266,7 @@ jobs:
       GCP_TEST_CLOUD_RUN_SERVICE: ${{ vars.GCP_TEST_CLOUD_RUN_SERVICE }}
       GCP_CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE }}
       GCP_CLOUD_RUN_SOURCE: ${{ vars.GCP_CLOUD_RUN_SOURCE }}
+      GCP_CLOUD_RUN_TIMEOUT: ${{ vars.GCP_CLOUD_RUN_TIMEOUT }}
       GCP_RUN_ALLOW_UNAUTHENTICATED: ${{ vars.GCP_RUN_ALLOW_UNAUTHENTICATED }}
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
@@ -278,7 +279,22 @@ jobs:
       AUTH_SESSION_SAME_SITE: ${{ vars.AUTH_SESSION_SAME_SITE }}
       AUTH_SESSION_ALLOWED_ORIGINS: ${{ vars.AUTH_SESSION_ALLOWED_ORIGINS }}
       VITE_ADMIN_EMAILS: ${{ vars.VITE_ADMIN_EMAILS }}
+      ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+      ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      R2_ACCOUNT_ID: ${{ vars.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
+      R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
       R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      PIPELINE_DTE_MIN: ${{ vars.PIPELINE_DTE_MIN }}
+      PIPELINE_DTE_MAX: ${{ vars.PIPELINE_DTE_MAX }}
+      PIPELINE_CONCURRENCY: ${{ vars.PIPELINE_CONCURRENCY }}
+      WATCHLIST: ${{ vars.WATCHLIST }}
+      SCHEDULER_API_BASE_URL: ${{ vars.SCHEDULER_API_BASE_URL }}
+      SCHEDULER_ALLOW_UNAUTHENTICATED: ${{ vars.SCHEDULER_ALLOW_UNAUTHENTICATED }}
+      SCHEDULER_LOCK_TTL_MINUTES: ${{ vars.SCHEDULER_LOCK_TTL_MINUTES }}
+      SCHEDULER_SHARED_SECRET: ${{ secrets.SCHEDULER_SHARED_SECRET }}
 
     steps:
       - name: Check out repo
@@ -337,7 +353,22 @@ jobs:
             "AUTH_SESSION_SAME_SITE=${AUTH_SESSION_SAME_SITE:-Lax}"
             "AUTH_SESSION_ALLOWED_ORIGINS=${AUTH_SESSION_ALLOWED_ORIGINS:-}"
             "VITE_ADMIN_EMAILS=${VITE_ADMIN_EMAILS:-}"
+            "ALPACA_API_KEY=${ALPACA_API_KEY:-}"
+            "ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY:-}"
+            "R2_ACCOUNT_ID=${R2_ACCOUNT_ID:-}"
+            "R2_BUCKET=${R2_BUCKET:-}"
+            "R2_ENDPOINT=${R2_ENDPOINT:-}"
             "R2_PUBLIC_BASE_URL=${R2_PUBLIC_BASE_URL:-}"
+            "R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID:-}"
+            "R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY:-}"
+            "PIPELINE_DTE_MIN=${PIPELINE_DTE_MIN:-7}"
+            "PIPELINE_DTE_MAX=${PIPELINE_DTE_MAX:-45}"
+            "PIPELINE_CONCURRENCY=${PIPELINE_CONCURRENCY:-3}"
+            "WATCHLIST=${WATCHLIST:-}"
+            "SCHEDULER_API_BASE_URL=${SCHEDULER_API_BASE_URL:-https://api.newleafsystem.com}"
+            "SCHEDULER_ALLOW_UNAUTHENTICATED=${SCHEDULER_ALLOW_UNAUTHENTICATED:-false}"
+            "SCHEDULER_LOCK_TTL_MINUTES=${SCHEDULER_LOCK_TTL_MINUTES:-20}"
+            "SCHEDULER_SHARED_SECRET=${SCHEDULER_SHARED_SECRET:-}"
           )
           env_arg="^|^$(IFS='|'; echo "${env_vars[*]}")"
 
@@ -346,5 +377,6 @@ jobs:
             --project "$project" \
             --region "$region" \
             --set-env-vars "$env_arg" \
+            --timeout "${GCP_CLOUD_RUN_TIMEOUT:-1800}" \
             "${allow_flag[@]}" \
             --quiet

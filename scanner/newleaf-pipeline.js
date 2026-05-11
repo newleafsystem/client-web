@@ -4,11 +4,14 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * Data sources:
  *   Alpaca DATA API  → live stock price, bars, option bid/ask + Greeks
- *   Yahoo svc :5300  → expiry dates + Open Interest for ALL expiries
+ *   yahoo-finance2 adapter -> expiry dates + Open Interest for ALL expiries
+ *
+ * Current implementation resolves Yahoo option data in-process through the
+ * Node yahoo-finance2 adapter; it does not require the old Python sidecar.
  *
  * Modes:
  *   (default)   Full run — Alpaca + Yahoo OI → latest.json
- *   --intraday  Alpaca only (no Yahoo). Fast. Updates prices+IV every 15 min.
+ *   --intraday  Alpaca market data with Yahoo expiry calendar, no Yahoo OI.
  *               Also appends ATM IV to history/iv.json
  *   --daily     Full run + saves snapshots to history/:
  *               history/iv.json      ← ATM IV time series (30+ days)
@@ -37,6 +40,11 @@ const path = require('path');
 const oiTracker = require('./oi-tracker');
 const { analyzeGammaEnhanced } = require('./gamma-analyzer-enhanced');
 const { loadScannerConfig } = require('./lib/config');
+const {
+  getOptionChain,
+  getOptionExpirations,
+  optionChainToOiMap
+} = require('./lib/yahooFinance');
 
 // ── ATM Contracts for Strategy Builder ───────────────────────────────────────
 const { saveATMContracts } = require('./save-atm-contracts');
@@ -225,31 +233,17 @@ async function getAlpacaChain(symbol, isoExpiry, hdrs) {
   return out;
 }
 
-// ── Yahoo svc ─────────────────────────────────────────────────────────────────
-async function yahooGet(svcUrl, endpoint, retries=2) {
-  for (let i=0; i<=retries; i++) {
-    try {
-      const res = await fetch(svcUrl+endpoint, { headers:{'Accept':'application/json'}, signal:AbortSignal.timeout(25000) });
-      if (res.status===429) { await sleep(2000*(i+1)); continue; }
-      if (!res.ok) throw new Error(`Yahoo svc ${res.status}: ${endpoint}`);
-      return await res.json();
-    } catch(err) { if (i===retries) throw err; await sleep(jitter(400)); }
-  }
-}
-
-async function getYahooExpiries(symbol, svcUrl) {
-  const d = await yahooGet(svcUrl, `/api/options/${symbol}`);
-  if (!d.expirations?.length) throw new Error(`No expirations from Yahoo svc for ${symbol}`);
+// ── Yahoo Finance option data ─────────────────────────────────────────────────
+async function getYahooExpiries(symbol) {
+  const d = await getOptionExpirations(symbol);
+  if (!d.expirations?.length) throw new Error(`No expirations from Yahoo Finance for ${symbol}`);
   return { expiries: d.expirations, currentPrice: d.currentPrice };
 }
 
-async function getYahooOIMap(symbol, isoExpiry, svcUrl) {
+async function getYahooOIMap(symbol, isoExpiry) {
   try {
-    const d=await yahooGet(svcUrl, `/api/options/${symbol}/${isoExpiry}`);
-    const oiMap={};
-    const ingest=(contracts, type)=>{ for (const c of (contracts||[])) oiMap[`${c.strike}_${type}`]={openInterest:c.openInterest||0, volume:c.volume||0, iv:c.impliedVolatility||0}; };
-    ingest(d.calls,'call'); ingest(d.puts,'put');
-    return oiMap;
+    const chain = await getOptionChain(symbol, isoExpiry);
+    return optionChainToOiMap(chain);
   } catch(_) { return {}; }
 }
 
@@ -674,7 +668,6 @@ function calcMonthlyPremium(contracts, spot) {
 // ── Process one symbol ────────────────────────────────────────────────────────
 async function processSymbol(symbol, cfg, date, dteMin, dteMax) {
   const hdrs   = alpacaHdrs(cfg);
-  const svcUrl = cfg.yahoosvc?.url || 'http://localhost:5300';
   const log    = msg => console.log(`  ${C.gold('['+symbol+']')} ${msg}`);
 
   // 1. Stock snapshot + bars
@@ -690,9 +683,9 @@ async function processSymbol(symbol, cfg, date, dteMin, dteMax) {
   let gammaData, allContracts=[], contractCount=0, withOI=0;
 
   if (intradayMode) {
-    // INTRADAY: Alpaca only (7 expiries) — fast, no Yahoo
+    // INTRADAY: Alpaca market data with Yahoo expiry calendar, no Yahoo OI
     try {
-      const {expiries} = await getYahooExpiries(symbol, svcUrl);
+      const {expiries} = await getYahooExpiries(symbol);
       const relevant   = expiries.filter(iso=>{ const d=calcDTE(iso); return d>=dteMin&&d<=dteMax; });
       log(`Expiries: ${expiries.length} total, ${relevant.length} in range`);
       if (!relevant.length) throw new Error('No expiries in DTE range');
@@ -721,25 +714,24 @@ async function processSymbol(symbol, cfg, date, dteMin, dteMax) {
       gammaData = analyzeGammaEnhanced([], spot, dteMin, dteMax, null);
     }
   } else {
-    // FULL/DAILY: Alpaca + Yahoo OI
+    // FULL/DAILY: Alpaca + Yahoo Finance OI
     try {
-      const {expiries} = await getYahooExpiries(symbol, svcUrl);
+      const {expiries} = await getYahooExpiries(symbol);
       const relevant   = expiries.filter(iso=>{ const d=calcDTE(iso); return d>=dteMin&&d<=dteMax; });
       log(`Expiries: ${expiries.length} total, ${relevant.length} in range`);
       if (!relevant.length) throw new Error('No expiries in DTE range');
 
       for (const isoExpiry of relevant.slice(0,8)) {
         const dte = calcDTE(isoExpiry);
-        // Fetch Alpaca and Yahoo sequentially (not parallel) to avoid
-        // thread exhaustion in yfinance when processing many symbols
+        // Fetch Alpaca and Yahoo sequentially to avoid provider throttling.
         const chain  = await getAlpacaChain(symbol, isoExpiry, hdrs).catch(()=>[]);
         await sleep(jitter(300)); // let Alpaca breathe
-        const oiMap  = await getYahooOIMap(symbol, isoExpiry, svcUrl).catch(()=>({}));
+        const oiMap  = await getYahooOIMap(symbol, isoExpiry).catch(()=>({}));
         for (const c of chain) { c.dte=dte; c.expiry=isoExpiry; }
         mergeOI(chain, oiMap);
         allContracts.push(...chain);
         process.stdout.write('.');
-        await sleep(jitter(500)); // pause between expiries to let threads recover
+        await sleep(jitter(500)); // pause between expiries to reduce throttling
       }
       process.stdout.write('\n');
       contractCount = allContracts.length;
@@ -794,7 +786,7 @@ async function processSymbol(symbol, cfg, date, dteMin, dteMax) {
       mode: intradayMode ? 'intraday' : dailyMode ? 'daily' : 'full',
       dataSource: {
         prices: 'alpaca',
-        openInterest: withOI > 0 ? 'yahoo-svc' : 'none',
+        openInterest: withOI > 0 ? 'yahoo-finance2' : 'none',
         greeks: gammaData.analysis.topStrikes?.some(s => Math.abs(s.gamma_exposure) > 0)
           ? 'alpaca-opra'
           : 'estimated-bs'
@@ -1054,25 +1046,10 @@ async function main() {
   const mySymbols = totalShards>1 ? sorted.filter((_,i)=>i%totalShards===myShard) : sorted;
   if (!mySymbols.length) { console.error('No symbols to process'); process.exit(1); }
 
-  // Full/daily mode: force concurrency=1 for Yahoo svc to avoid thread exhaustion
-  // yfinance makes multiple threads per call — 5 parallel symbols = 40 threads = crash
+  // Full/daily mode: keep Yahoo option-chain requests conservative to avoid throttling.
   if (!intradayMode && concurrency > 1) {
-    console.log(C.dim(`  Concurrency capped at 1 for full/daily mode (Yahoo svc thread limit)`));
+    console.log(C.dim(`  Concurrency capped at 1 for full/daily mode (Yahoo option-chain throttle guard)`));
     concurrency = 1;
-  }
-
-  // Check Yahoo svc (not needed for intraday mode)
-  const svcUrl = cfg.yahoosvc?.url || 'http://localhost:5300';
-  if (!intradayMode) {
-    try {
-      const h = await fetch(svcUrl+'/health', {signal:AbortSignal.timeout(3000)});
-      if (!h.ok) throw new Error();
-      console.log(C.green(`  ✓ Yahoo svc running at ${svcUrl}`));
-    } catch(_) {
-      console.error(C.red(`\n  ✗ Yahoo service not running at ${svcUrl}`));
-      console.error(C.dim(`    Start it: cd yahoo-svc && ./start.sh\n`));
-      process.exit(1);
-    }
   }
 
   // Seed manifest from R2 if no local copy

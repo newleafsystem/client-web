@@ -10,7 +10,8 @@
  * Data Sources:
  *   ✅ Alpaca Stock Bars  → price, volume, OHLC
  *   ✅ Alpaca Option Quotes → bid/ask, IV, Greeks
- *   ❌ Yahoo Service → NOT USED (no OI data)
+ *   ✅ yahoo-finance2 → expiry calendar only
+ *   ❌ Yahoo OI data → NOT USED
  *
  * Outputs:
  *   ✅ reports/{symbol}/latest.json       → Always current (OI = null)
@@ -49,11 +50,11 @@ if (!process.argv.some(arg => arg.startsWith('--concurrency'))) {
   process.argv.push('--concurrency=5');
 }
 
-console.log('\n  🚀 FAST PIPELINE (Alpaca ONLY - No Yahoo/OI)\n');
+console.log('\n  🚀 FAST PIPELINE (Alpaca market data - No Yahoo OI)\n');
 console.log('  ────────────────────────────────────────────');
 console.log('  Mode:        Intraday (forced)');
 console.log('  Concurrency: 5 parallel');
-console.log('  Data source: Alpaca only');
+console.log('  Data source: Alpaca market data + Yahoo expiry calendar');
 console.log('  OI data:     null (enriched by daily pipeline)');
 console.log('  ────────────────────────────────────────────\n');
 

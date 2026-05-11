@@ -17,6 +17,8 @@
 'use strict';
 
 const http = require('http');
+const crypto = require('crypto');
+const { spawn } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 
@@ -35,6 +37,7 @@ const {
 const runtimeConfig = loadRuntimeConfig();
 const R2_BASE = runtimeConfig.r2.publicBaseUrl;
 const authSessionConfig = runtimeConfig.authSession;
+const schedulerConfig = runtimeConfig.scheduler || {};
 const PORT    = parseInt(process.argv.find(a => a.startsWith('--port='))?.split('=')[1] || process.env.PORT || '3000', 10);
 
 // ── Firebase init ──────────────────────────────────────────────────
@@ -84,6 +87,58 @@ function sendJson(req, res, status, payload, extraHeaders = {}) {
   res.end(JSON.stringify(payload));
 }
 
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a || ''), 'utf8');
+  const right = Buffer.from(String(b || ''), 'utf8');
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+function isSchedulerRequestAuthorized(req) {
+  const configuredSecret = schedulerConfig.sharedSecret;
+  if (configuredSecret) {
+    return safeEqual(req.headers['x-newleaf-scheduler-secret'], configuredSecret);
+  }
+  return schedulerConfig.allowUnauthenticated === true;
+}
+
+function runSchedulerJob(jobName) {
+  const allowedJobs = new Set([
+    'scanner-fast',
+    'scanner-daily-catchup',
+    'scanner-oi',
+    'scanner-watchlist',
+    'scanner-sync-firestore'
+  ]);
+
+  if (!allowedJobs.has(jobName)) {
+    const error = new Error(`Unknown scheduler job: ${jobName}`);
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return new Promise((resolve, reject) => {
+    const startedAt = Date.now();
+    const proc = spawn(process.execPath, [path.join(__dirname, 'scanner', 'run-scheduler-job.js'), jobName], {
+      cwd: __dirname,
+      stdio: 'inherit',
+      env: process.env
+    });
+
+    proc.on('error', reject);
+    proc.on('close', code => {
+      const durationMs = Date.now() - startedAt;
+      if (code === 0) {
+        resolve({ job: jobName, ok: true, durationMs });
+      } else {
+        const error = new Error(`Scheduler job failed: ${jobName} exited with code ${code}`);
+        error.statusCode = 500;
+        error.durationMs = durationMs;
+        reject(error);
+      }
+    });
+  });
+}
+
 async function verifiedSessionPayload(req) {
   const sessionCookie = readSessionCookie(req, authSessionConfig);
   if (!sessionCookie) return null;
@@ -126,6 +181,26 @@ const server = http.createServer(async (req, res) => {
       );
     } catch {
       sendJson(req, res, 401, { authenticated: false, error: 'Invalid authentication session.' });
+    }
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname.startsWith('/api/internal/scheduler/')) {
+    if (!isSchedulerRequestAuthorized(req)) {
+      sendJson(req, res, 401, { ok: false, error: 'Unauthorized scheduler request.' });
+      return;
+    }
+
+    const jobName = url.pathname.split('/').pop();
+    try {
+      const result = await runSchedulerJob(jobName);
+      sendJson(req, res, 200, result);
+    } catch (error) {
+      sendJson(req, res, error.statusCode || 500, {
+        ok: false,
+        job: jobName,
+        error: error.message
+      });
     }
     return;
   }

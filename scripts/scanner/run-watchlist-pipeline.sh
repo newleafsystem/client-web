@@ -32,8 +32,8 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting watchlist pipeline..." >> "$LOG_FI
 for attempt in $(seq 1 $MAX_RETRIES); do
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Attempt $attempt of $MAX_RETRIES..." >> "$LOG_FILE"
 
-  # Run watchlist pipeline
-  node pipeline-watchlist.js >> "$LOG_FILE" 2>&1
+  # Run watchlist pipeline through the durable scheduler runner.
+  node run-scheduler-job.js scanner-watchlist >> "$LOG_FILE" 2>&1
   EXIT_CODE=$?
 
   if [ $EXIT_CODE -eq 0 ]; then

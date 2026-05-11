@@ -3,9 +3,9 @@
 # run-oi-enrichment.sh — Cron wrapper for OI Enrichment Pipeline (with retry)
 # ═══════════════════════════════════════════════════════════════════════════
 #
-# Purpose: Run OI enrichment once daily (Yahoo service)
+# Purpose: Run OI enrichment once daily (Yahoo Finance through Node)
 # Schedule: 32 14 * * 1-5 (Once at 2:32pm London = 9:32am ET, Mon-Fri)
-# Requires: Yahoo service running on localhost:5300
+# Requires: yahoo-finance2 dependency
 # Enhanced: Auto-retry on failure (v3.1)
 #
 # ═══════════════════════════════════════════════════════════════════════════
@@ -32,8 +32,8 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting OI enrichment pipeline (Yahoo)..."
 for attempt in $(seq 1 $MAX_RETRIES); do
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Attempt $attempt of $MAX_RETRIES..." >> "$LOG_FILE"
 
-  # Run OI enrichment pipeline with watchlist
-  node pipeline-oi-enrichment.js --watchlist >> "$LOG_FILE" 2>&1
+  # Run OI enrichment pipeline through the durable scheduler runner.
+  node run-scheduler-job.js scanner-oi >> "$LOG_FILE" 2>&1
   EXIT_CODE=$?
 
   if [ $EXIT_CODE -eq 0 ]; then

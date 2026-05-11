@@ -151,9 +151,14 @@ node scanner/newleaf-pipeline.js NVDA AAPL TSLA
 # Scan full watchlist (111 stocks)
 node scanner/newleaf-pipeline.js --watchlist
 
-# Data sources: Alpaca ($90/mo OPRA) + Yahoo (free, localhost:5300)
+# Data sources: Alpaca market data + yahoo-finance2 option expiry/OI enrichment
 # Output: R2 → reports/{SYMBOL}/latest.json + contracts/atm-latest.json
 ```
+
+Production scanner scheduling is handled by Google Cloud Scheduler calling
+`https://api.newleafsystem.com/api/internal/scheduler/*`. The scheduler entrypoint
+is `node scanner/run-scheduler-job.js`; local cron wrappers delegate to that Node
+runner.
 
 ---
 
@@ -223,7 +228,8 @@ newleafsystem/
 - `Deploy Web` builds once, then deploys Firebase test by default.
 - Pushes to `main` deploy to `FIREBASE_TEST_HOSTING_TARGET`, defaulting to `newleaf-preview`.
 - Production Firebase deploys require manual dispatch with `deploy_environment=production`.
-- Cloudflare Pages and Google Cloud Run jobs are manual and use the selected `test` or `production` GitHub environment.
+- Google Cloud Run deploys are manual and use the selected `test` or `production` GitHub environment.
+- Google Cloud Scheduler is configured with `scripts/setup-google-cloud-scheduler.sh`; Cloudflare is not used for scheduling.
 
 Useful deploy variables:
 
@@ -240,9 +246,12 @@ Useful deploy variables:
 | `VITE_AUTH_STATE_CACHE_TTL_HOURS` | `24` | Sanitized UI auth-cache cookie lifetime |
 | `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` | `15` | Minimum age before the UI cache revalidates the HTTP-only auth session on page load |
 | `VITE_AUTH_SESSION_API_BASE_URL` | `https://api.newleafsystem.com` | Shared NewLeaf API origin for `/api/auth/*` session endpoints |
-| `CLOUDFLARE_PAGES_PROJECT` | empty | Optional Cloudflare Pages project |
 | `GCP_TEST_CLOUD_RUN_SERVICE` | empty | Optional test Cloud Run service |
 | `GCP_CLOUD_RUN_SERVICE` | empty | Optional production Cloud Run service |
+| `SCHEDULER_API_BASE_URL` | `https://api.newleafsystem.com` | Backend origin called by Google Cloud Scheduler |
+| `SCHEDULER_SHARED_SECRET` | empty | Secret header value for scheduler trigger endpoints |
+| `GCP_SCHEDULER_REGION` | `us-central1` | Google Cloud Scheduler region |
+| `GCP_SCHEDULER_SERVICE_ACCOUNT` | empty | Optional service account used for Scheduler OIDC token |
 
 Public market/report JSON, PDFs, thumbnails, and Workbench guide media must load through `https://api.newleafsystem.com/api/v1/public/data/*` or `/api/v1/public/media/*`. Do not add browser calls to object-storage provider hosts directly; the shared API owns those origins.
 

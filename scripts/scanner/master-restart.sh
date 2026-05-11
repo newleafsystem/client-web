@@ -30,14 +30,8 @@ mkdir -p "$SCANNER_DIR/reports"
 echo "Cleaning R2 report objects..."
 (cd "$SCANNER_DIR" && node clean-r2.js)
 
-echo "Checking Yahoo service..."
-if ! curl -sf http://localhost:5300/health >/dev/null 2>&1; then
-  echo "Starting Yahoo service..."
-  (cd "$SCANNER_DIR/yahoo-svc" && ./start.sh)
-fi
-
 echo "Running fresh scanner daily pipeline..."
-(cd "$SCANNER_DIR" && node newleaf-pipeline.js --watchlist --daily 2>&1 | tee /tmp/newleaf-restart.log)
+(cd "$SCANNER_DIR" && node run-scheduler-job.js scanner-daily-catchup --force 2>&1 | tee /tmp/newleaf-restart.log)
 
 if [ -f "$SCANNER_DIR/reports/manifest.json" ]; then
   echo "Restart complete. Manifest written to scanner/reports/manifest.json"

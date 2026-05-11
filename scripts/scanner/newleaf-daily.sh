@@ -6,4 +6,4 @@ export NVM_DIR="$HOME/.nvm"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCANNER_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)/scanner"
 cd "$SCANNER_DIR"
-node scheduler-daily.js --once >> /tmp/newleaf-daily.log 2>&1
+node run-scheduler-job.js scanner-daily-catchup >> /tmp/newleaf-daily.log 2>&1

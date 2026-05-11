@@ -1,20 +1,19 @@
 #!/usr/bin/env node
 /**
- * scheduler-daily.js — Yahoo + Alpaca daily scheduler
+ * scheduler-daily.js — Alpaca + Yahoo Finance daily scheduler
  * Runs ONCE per day at market open (9:30am ET) Mon-Fri.
- * Uses --daily mode: Alpaca + Yahoo OI, concurrency=1, saves history.
+ * Uses --daily mode: Alpaca + Yahoo Finance OI, concurrency=1, saves history.
  *
  * Usage:
  *   node scheduler-daily.js          <- runs continuously, fires once per day
  *   node scheduler-daily.js --once   <- run once now and exit (for cron)
  *
  * Cron: 32 14 * * 1-5  /path/to/newleaf-daily.sh
- * Requires Yahoo svc running: cd yahoo-svc && ./start.sh
+ * Yahoo option data is resolved in-process through the Node yahoo-finance2 adapter.
  */
 
 'use strict';
 
-const http = require('http');
 const { spawn } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
@@ -38,20 +37,6 @@ function isDST(date) {
   const jan = new Date(date.getFullYear(), 0, 1).getTimezoneOffset();
   const jul = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
   return Math.min(jan, jul) === date.getTimezoneOffset();
-}
-
-// ── Check Yahoo svc using native http (avoids Node fetch localhost quirks) ────
-function checkYahooSvc() {
-  return new Promise((resolve) => {
-    const svcUrl = CONFIG.yahoosvc?.url || 'http://localhost:5300';
-    const port   = parseInt(svcUrl.split(':')[2] || '5300');
-    const req    = http.get(
-      { host: '127.0.0.1', port, path: '/health', timeout: 4000 },
-      (res) => { resolve(res.statusCode === 200); res.resume(); }
-    );
-    req.on('error',   () => resolve(false));
-    req.on('timeout', () => { req.destroy(); resolve(false); });
-  });
 }
 
 // ── Log run status to R2 ──────────────────────────────────────────────────────
@@ -87,16 +72,6 @@ async function runPipeline() {
   console.log(C.bold(`\n  Scheduled Daily Run — ${nowStr()}`));
   console.log(C.dim(`  Run ID: ${runId} | Symbols: ${symbols.length} | Mode: DAILY`));
   console.log(C.dim('  ─────────────────────────────────────────────────'));
-
-  // Check Yahoo svc using http module
-  const yahooOk = await checkYahooSvc();
-  if (!yahooOk) {
-    console.error(C.red(`  Yahoo svc not responding at port 5300`));
-    console.error(C.dim('    Start it: cd yahoo-svc && nohup python3 option_api.py &'));
-    await logStatus({ runId, timestamp, mode: 'daily', durationSec: 0, totalSymbols: symbols.length, ok: 0, failed: symbols.length, exitCode: 1, error: 'Yahoo svc not running', shard: null, symbols: symbols.map(sym => ({ sym, ok: false, score: null })) });
-    return;
-  }
-  console.log(C.green('  Yahoo svc ready'));
 
   const args = ['newleaf-pipeline.js', '--watchlist', '--daily', '--concurrency=1'];
   if (NO_UPLOAD) args.push('--no-upload');

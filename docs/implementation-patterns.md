@@ -156,6 +156,7 @@ Runtime config is environment-driven.
 - Firebase Admin: `lib/firebase-admin.cjs`.
 - Auth session cookies and UI cache: `AUTH_SESSION_COOKIE_NAME`, `AUTH_SESSION_MAX_AGE_HOURS`, `AUTH_SESSION_SECURE`, `AUTH_SESSION_SAME_SITE`, `AUTH_SESSION_ALLOWED_ORIGINS`, `VITE_AUTH_STATE_CACHE_TTL_HOURS`, and `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES`.
 - Scanner config: `scanner/lib/config.js`.
+- Scheduler config: `SCHEDULER_API_BASE_URL`, `SCHEDULER_SHARED_SECRET`, `SCHEDULER_ALLOW_UNAUTHENTICATED`, `SCHEDULER_LOCK_TTL_MINUTES`, `GCP_SCHEDULER_REGION`, and `GCP_SCHEDULER_SERVICE_ACCOUNT`.
 - Python pipeline config: `pipeline/config_loader.py`.
 - GitHub repo configuration loader: `scripts/setup-github-actions-config.sh`.
 
@@ -217,6 +218,15 @@ Scanner scripts under `scanner/` should:
 - Keep reports, logs, and generated output under ignored directories.
 - Avoid absolute machine paths.
 - Keep scheduler shell wrappers under `scripts/scanner/`.
+- Use Node.js for scanner runtime services. The former Python Yahoo sidecar is replaced by `scanner/lib/yahooFinance.js`, backed by `yahoo-finance2`.
+- Keep Alpaca as the primary Node market-data source for stock snapshots, bars, option quotes, IV, and Greeks.
+- Use Yahoo Finance through the Node adapter for option expiration calendars and open interest enrichment.
+- Run production schedules through Google Cloud Scheduler calling `https://api.newleafsystem.com/api/internal/scheduler/*`. Do not use Cloudflare for scheduling.
+- `scanner/run-scheduler-job.js` is the canonical scheduler entrypoint. It supports `scanner-fast`, `scanner-daily-catchup`, `scanner-oi`, `scanner-watchlist`, and `scanner-sync-firestore`.
+- Scheduler overlap protection and daily catch-up markers live in Firestore through `scanner/lib/scheduler-state.cjs`; do not use `/tmp` marker files for production scheduling.
+- `server.cjs` exposes scheduler trigger endpoints under `/api/internal/scheduler/{job}`. Requests must include `X-NewLeaf-Scheduler-Secret` when `SCHEDULER_SHARED_SECRET` is configured.
+- `scripts/setup-google-cloud-scheduler.sh` creates or updates the Google Cloud Scheduler HTTP jobs. It must never print `SCHEDULER_SHARED_SECRET`.
+- See [google-cloud-scheduler.md](google-cloud-scheduler.md) for setup flow and required variables.
 
 Pipeline scripts under `pipeline/` should:
 
@@ -246,7 +256,9 @@ Deployment rules:
 - Firebase Hosting uses `cleanUrls: true`; do not add new user-facing `.html` links.
 - Test on `newleaf-preview` before production.
 - Production `newleafsystem` deploys are manual and explicit.
-- Cloudflare Pages and Google Cloud Run jobs are optional manual jobs and require repo variables/secrets before use.
+- Cloud Run backend deploys are manual and require repo variables/secrets before use.
+- Google Cloud Scheduler is the production scheduler for scanner jobs. Use `scripts/setup-google-cloud-scheduler.sh` after the backend is deployed and TLS is healthy.
+- Cloudflare is not a scheduler for this repo.
 - GitHub variables/secrets should be loaded with `scripts/setup-github-actions-config.sh`; never print values.
 
 ## Security
@@ -305,7 +317,7 @@ npx -y firebase-tools@latest deploy --project newleaf-trading --only hosting:new
 
 Run the strongest cheap checks available for the change:
 
-- Shell changes: `bash -n scripts/*.sh scripts/scanner/*.sh scanner/yahoo-svc/start.sh`
+- Shell changes: `bash -n scripts/*.sh scripts/scanner/*.sh`
 - JS/CJS/MJS changes: `node --check <file>`
 - Python changes: `python -m py_compile <file>`
 - Frontend/config/build changes: `npm run build`

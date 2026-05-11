@@ -25,14 +25,14 @@ cd "$SCANNER_DIR" || {
   exit 1
 }
 
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting fast pipeline (Alpaca only)..." >> "$LOG_FILE"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting fast pipeline (Node scheduler runner)..." >> "$LOG_FILE"
 
 # Retry loop
 for attempt in $(seq 1 $MAX_RETRIES); do
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Attempt $attempt of $MAX_RETRIES..." >> "$LOG_FILE"
 
-  # Run fast pipeline with watchlist
-  node pipeline-fast.js --watchlist >> "$LOG_FILE" 2>&1
+  # Run fast pipeline through the durable scheduler runner.
+  node run-scheduler-job.js scanner-fast >> "$LOG_FILE" 2>&1
   EXIT_CODE=$?
 
   if [ $EXIT_CODE -eq 0 ]; then
