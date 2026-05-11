@@ -1506,6 +1506,9 @@
   'use strict';
 
   const R2 = window.R2;
+  const DATA_API = window.location.hostname === 'localhost'
+    ? '/api/v1/public/data'
+    : R2;
   const G = id => document.getElementById(id);
   const fmtP = n => n != null ? '$' + n.toFixed(2) : '—';
   const fmtPct = (n, d=1) => n != null ? n.toFixed(d) + '%' : '—';
@@ -1664,6 +1667,32 @@
 
   // Enrich all rows
   async function enrichAll() {
+    const symbols = rows.map(r => r.symbol).filter(Boolean);
+    if (!symbols.length) return;
+
+    try {
+      const url = DATA_API + '/reports/latest?symbols=' + encodeURIComponent(symbols.join(',')) + '&_=' + Date.now();
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const payload = await res.json();
+      const reports = payload.reports || {};
+      let updated = 0;
+
+      rows.forEach(row => {
+        const data = reports[row.symbol];
+        if (!data) return;
+        applyReportToRow(row, data);
+        updated++;
+      });
+
+      if (updated > 0) {
+        renderGrid();
+        return;
+      }
+    } catch(_) {
+      // Fall back to per-symbol fetches for local previews without the API server.
+    }
+
     for (let i = 0; i < rows.length; i += 3) {
       const batch = rows.slice(i, i + 3);
       await Promise.all(batch.map(enrichRow));
@@ -1677,18 +1706,22 @@
       if (!res.ok) return;
       const data = await res.json();
 
-      row.pillars = data.scoring?.pillars || null;
-      row.rsi = data.technicalData?.rsi || null;
-      row.confidence = data.gammaData?.analysis?.confidence_score || null;
-      row.iv = data.gammaData?.ivData?.atmIv || row.iv || null;
-      row.gammaRange = data.gammaData?.analysis?.gamma_range || null;
-      row._loaded = true;
+      applyReportToRow(row, data);
 
       const el = document.getElementById('card-' + row.symbol);
       if (el && el.style.display !== 'none') {
         el.outerHTML = buildCard(row);
       }
     } catch(_) {}
+  }
+
+  function applyReportToRow(row, data) {
+    row.pillars = data.scoring?.pillars || null;
+    row.rsi = data.technicalData?.rsi || null;
+    row.confidence = data.gammaData?.analysis?.confidence_score || null;
+    row.iv = data.gammaData?.ivData?.atmIv || row.iv || null;
+    row.gammaRange = data.gammaData?.analysis?.gamma_range || null;
+    row._loaded = true;
   }
 
   // Toggle section
