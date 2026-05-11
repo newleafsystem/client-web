@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "20.x"
+    "node": "22.x"
   },
   "scripts": {
     "gcp-build": "node -e \"console.log('Skipping frontend build for Cloud Run worker')\"",
