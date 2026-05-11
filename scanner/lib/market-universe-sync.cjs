@@ -445,6 +445,15 @@ async function upsertMarketSymbols(db, marketId, symbols, { dryRun = false, now 
   };
 }
 
+async function countActiveMarketSymbols(db, marketId) {
+  const snapshot = await db.collection(UNIVERSE_COLLECTION)
+    .where('market', '==', marketId)
+    .where('active', '==', true)
+    .count()
+    .get();
+  return Number(snapshot.data().count || 0);
+}
+
 function mergeMarkets(existingMarkets = [], marketIds = []) {
   const byId = new Map(existingMarkets.map((market) => [market.id, market]));
   for (const marketId of marketIds) {
@@ -561,11 +570,12 @@ async function syncMarketUniverse(options = {}) {
         syncedAt: now
       });
     } catch (error) {
+      const cachedCount = await countActiveMarketSymbols(db, marketId).catch(() => 0);
       results.push({
         market: marketId,
-        status: 'failed',
+        status: cachedCount > 0 ? 'cached' : 'failed',
         source: definition.source,
-        count: 0,
+        count: cachedCount,
         error: String(error.message || error).slice(0, 500),
         syncedAt: now
       });
@@ -581,7 +591,7 @@ async function syncMarketUniverse(options = {}) {
   }
 
   return {
-    ok: results.some((result) => result.status === 'synced'),
+    ok: results.some((result) => result.status === 'synced' || result.status === 'cached'),
     dryRun,
     updatedAt: now,
     markets: results
