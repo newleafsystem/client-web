@@ -232,7 +232,7 @@ Useful deploy variables:
 | `FIREBASE_PROJECT_ID` | `newleaf-trading` | Firebase/GCP project |
 | `FIREBASE_TEST_HOSTING_TARGET` | `newleaf-preview` | Test Hosting target |
 | `FIREBASE_HOSTING_TARGET` | `newleafsystem` | Production Hosting target |
-| `VITE_FIREBASE_AUTH_DOMAIN` | `www.newleafsystem.com` | Firebase Auth popup/redirect handler domain for the active Hosting site |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `api.newleafsystem.com` | Shared Firebase Auth popup/redirect handler domain |
 | `AUTH_SESSION_MAX_AGE_HOURS` | `24` | HTTP-only auth session cookie lifetime |
 | `AUTH_SESSION_SECURE` | `true` | Adds Secure to the auth session cookie |
 | `AUTH_SESSION_SAME_SITE` | `Lax` | SameSite mode for the auth session cookie |
@@ -247,8 +247,8 @@ Useful deploy variables:
 Auth session notes:
 
 - The secure Firebase Admin session cookie is set by the Node service at `/api/auth/session`.
-- Google sign-in uses the Firebase Web SDK `authDomain`. For client-web, set `VITE_FIREBASE_AUTH_DOMAIN=preview.newleafsystem.com` in the `test` GitHub environment and `VITE_FIREBASE_AUTH_DOMAIN=www.newleafsystem.com` or `newleafsystem.com` in `production`. Do not use default `*.web.app` or `*.firebaseapp.com` browser origins for NewLeaf production or preview auth.
-- Firebase Authentication authorized domains should include only the NewLeaf browser origins and auth-handler domains you actually use: `newleafsystem.com`, `www.newleafsystem.com`, `preview.newleafsystem.com`, and `localhost` for local development.
+- Google sign-in uses the Firebase Web SDK `authDomain`. For client-web preview and production, set `VITE_FIREBASE_AUTH_DOMAIN=api.newleafsystem.com`. The client Hosting site changes between preview and production, but the auth handler stays on the shared API facade.
+- Firebase Authentication authorized domains should include only the NewLeaf browser origins and auth-handler domains you actually use: `api.newleafsystem.com`, `newleafsystem.com`, `www.newleafsystem.com`, `preview.newleafsystem.com`, `admin.newleafsystem.com`, and `localhost` for local development.
 - The browser-readable auth cache stores only sanitized identity/profile fields for faster first paint. It does not store Firebase ID tokens, refresh tokens, or secrets.
 - `VITE_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES` throttles startup validation so each page does not block on `/api/auth/session`; set it lower if entitlement revocation must be reflected faster.
 - For Firebase Hosting, client-web should set `VITE_AUTH_SESSION_API_BASE_URL=https://api.newleafsystem.com`. The shared API sets the HTTP-only session cookie with `AUTH_SESSION_COOKIE_DOMAIN=.newleafsystem.com` and `AUTH_SESSION_COOKIE_PATH=/`, so both client-web and admin-web use the same auth channel.

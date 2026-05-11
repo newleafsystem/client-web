@@ -6,7 +6,9 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:4000/api/tiles';
+const API_BASE_URL = `${String(
+  import.meta.env.VITE_API_BASE_URL || 'https://api.newleafsystem.com/api/v1'
+).replace(/\/+$/, '')}/tiles`;
 
 /**
  * Create a tile generation task
