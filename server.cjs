@@ -205,6 +205,14 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && url.pathname === '/health') {
+    sendJson(req, res, 200, {
+      ok: true,
+      service: 'newleaf-scanner-worker'
+    });
+    return;
+  }
+
   if (req.method === 'GET' && url.pathname === '/api/auth/session') {
     try {
       const payload = await verifiedSessionPayload(req);
