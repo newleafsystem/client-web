@@ -1546,15 +1546,7 @@
 
       rows = (manifest.reports || []).map(r => ({ ...r, _loaded: false }));
 
-      // Update stats
-      const high = rows.filter(r => r.opportunityScore >= 70).length;
-      const ivVals = rows.map(r => r.iv).filter(v => v != null);
-      const avgIV = ivVals.length ? ivVals.reduce((a,b)=>a+b,0)/ivVals.length : null;
-
-      G('sTotal').textContent = rows.length;
-      G('sHigh').textContent = high;
-      G('sAvgIV').textContent = avgIV != null ? fmtPct(avgIV) : '—';
-      G('sDate').textContent = rows[0]?.date || '—';
+      updateSummaryStats();
 
       // Build dynamic filters
       buildDynamicFilters();
@@ -1576,7 +1568,7 @@
 
     rows.forEach(r => {
       const meta = companyMetadata[r.symbol] || {};
-      const sector = meta.sector || 'Unknown';
+      const sector = meta.sector || r.sector || 'Unknown';
       sectors.set(sector, (sectors.get(sector) || 0) + 1);
 
       if (r.strategy) {
@@ -1686,6 +1678,9 @@
       });
 
       if (updated > 0) {
+        updateSummaryStats();
+        buildDynamicFilters();
+        updateFilterBadges();
         renderGrid();
         return;
       }
@@ -1697,6 +1692,10 @@
       const batch = rows.slice(i, i + 3);
       await Promise.all(batch.map(enrichRow));
     }
+    updateSummaryStats();
+    buildDynamicFilters();
+    updateFilterBadges();
+    renderGrid();
   }
 
   async function enrichRow(row) {
@@ -1716,12 +1715,55 @@
   }
 
   function applyReportToRow(row, data) {
-    row.pillars = data.scoring?.pillars || null;
+    const scoring = data.scoring || {};
+    const pillars = scoring.pillars || {};
+    const strategy = scoring.strategy || {};
+    const snapshot = data.snapshot || {};
+    const generatedAt = data.meta?.generatedAt || data.meta?.generated_at || data.generatedAt || null;
+
+    row.price = snapshot.price ?? row.price ?? null;
+    row.change = snapshot.change ?? row.change ?? null;
+    row.changePercent = snapshot.changePercent ?? row.changePercent ?? null;
+    row.volume = snapshot.volume ?? row.volume ?? null;
+    row.opportunityScore = scoring.opportunityScore ?? data.qualityScore ?? row.opportunityScore ?? null;
+    row.direction = scoring.direction ?? row.direction ?? null;
+    row.strategy = typeof strategy === 'string' ? strategy : strategy.name ?? row.strategy ?? null;
+    row.strategyIcon = typeof strategy === 'object' ? strategy.icon ?? row.strategyIcon ?? '' : row.strategyIcon ?? '';
+    row.gammaWallScore = pillars.gamma ?? row.gammaWallScore ?? null;
+    row.ivRank = pillars.iv ?? row.ivRank ?? null;
+    row.technicalScore = pillars.trend ?? row.technicalScore ?? null;
+    row.pillars = scoring.pillars || null;
     row.rsi = data.technicalData?.rsi || null;
     row.confidence = data.gammaData?.analysis?.confidence_score || null;
-    row.iv = data.gammaData?.ivData?.atmIv || row.iv || null;
+    row.iv = data.gammaData?.ivData?.atmIv ?? row.iv ?? null;
     row.gammaRange = data.gammaData?.analysis?.gamma_range || null;
+    row.marketCapTier = data.marketCapTier ?? row.marketCapTier ?? null;
+    row.marketCapLabel = data.marketCapLabel ?? row.marketCapLabel ?? null;
+    row.sector = data.sector ?? row.sector ?? null;
+    row.date = generatedAt ? String(generatedAt).slice(0, 10) : row.date;
     row._loaded = true;
+  }
+
+  function updateSummaryStats() {
+    const high = rows.filter(r => Number(r.opportunityScore) >= 70).length;
+    const premiumVals = rows
+      .map(r => {
+        if (r.iv != null && r.iv !== '' && Number.isFinite(Number(r.iv)) && Number(r.iv) > 0) {
+          return Number(r.iv);
+        }
+        if (r.ivRank != null && Number.isFinite(Number(r.ivRank))) {
+          return (Number(r.ivRank) / 35) * 100;
+        }
+        return null;
+      })
+      .filter(v => v != null);
+    const avgPremium = premiumVals.length ? premiumVals.reduce((a,b)=>a+b,0)/premiumVals.length : null;
+    const latestDate = rows.map(r => r.date).filter(Boolean).sort().pop();
+
+    G('sTotal').textContent = rows.length;
+    G('sHigh').textContent = high;
+    G('sAvgIV').textContent = avgPremium != null ? fmtPct(avgPremium) : '—';
+    G('sDate').textContent = latestDate || '—';
   }
 
   // Toggle section
@@ -1788,6 +1830,8 @@
         const sector = (meta[sym].sector || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
         if (sector === value) return meta[sym].sector;
       }
+      const row = rows.find(r => (r.sector || '').toLowerCase().replace(/[^a-z0-9]/g, '-') === value);
+      if (row) return row.sector;
     }
 
     const labels = {
@@ -1862,7 +1906,7 @@
       if (query) {
         const meta = companyMetadata[r.symbol] || {};
         const name = (meta.name || '').toLowerCase();
-        const sector = (meta.sector || '').toLowerCase();
+        const sector = (meta.sector || r.sector || '').toLowerCase();
         if (!r.symbol.toLowerCase().includes(query) &&
             !name.includes(query) &&
             !sector.includes(query)) {
@@ -1873,7 +1917,7 @@
       // Sector filter
       if (filterState.sector.size > 0) {
         const meta = companyMetadata[r.symbol] || {};
-        const sector = (meta.sector || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
+        const sector = (meta.sector || r.sector || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
         if (!filterState.sector.has(sector)) return false;
       }
 
