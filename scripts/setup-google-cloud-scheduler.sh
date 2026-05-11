@@ -123,7 +123,10 @@ run_gcloud() {
     printf ' %q' "${rendered[@]}"
     printf '\n'
   else
-    "${command[@]}"
+    if ! "${command[@]}" >/dev/null; then
+      echo "Google Cloud Scheduler command failed. Secret values were not printed." >&2
+      return 1
+    fi
   fi
 }
 
