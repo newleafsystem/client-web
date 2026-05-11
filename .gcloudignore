@@ -1,0 +1,16 @@
+.gcloudignore
+.git
+.gitignore
+
+#!include:.gitignore
+
+.env
+.env.*
+.secrets/
+.local-archives/
+dist-backup/
+pipeline/output/
+scanner/reports/
+scanner/logs/
+scanner/crontab
+scanner/crontab.old
