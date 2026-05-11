@@ -34,7 +34,6 @@ function browserRuntimeConfigScript() {
     apiKey: envValue('VITE_FIREBASE_API_KEY'),
     authDomain: envValue('VITE_FIREBASE_AUTH_DOMAIN'),
     projectId: envValue('VITE_FIREBASE_PROJECT_ID'),
-    storageBucket: envValue('VITE_FIREBASE_STORAGE_BUCKET'),
     messagingSenderId: envValue('VITE_FIREBASE_MESSAGING_SENDER_ID'),
     appId: envValue('VITE_FIREBASE_APP_ID'),
     measurementId: envValue('VITE_FIREBASE_MEASUREMENT_ID'),

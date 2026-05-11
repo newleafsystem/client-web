@@ -225,7 +225,7 @@
     return (
       value.indexOf('/reports/') !== -1 ||
       value.indexOf('/r2') !== -1 ||
-      value.indexOf('r2.dev') !== -1 ||
+      value.indexOf('/api/v1/public/') !== -1 ||
       value.indexOf('watchlist-snapshots.json') !== -1 ||
       value.indexOf('manifest.json') !== -1 ||
       value.indexOf('company-metadata.json') !== -1

@@ -1,14 +1,14 @@
 /**
  * analysisApi.js
  *
- * Fetches analysis data from R2 (Cloudflare storage).
- * R2 data is proxied through server.cjs at /r2/reports/{SYMBOL}/latest.json.
+ * Fetches analysis data through the shared NewLeaf API facade.
+ * Browser code must not call object-storage provider origins directly.
  */
 
 import { fetchR2Report, transformToGammaData, transformToTechnicalData } from './r2Api';
 
 /**
- * Fetch gamma wall analysis from R2.
+ * Fetch gamma wall analysis from the market-data report.
  * Returns the envelope shape that AnalysisPage.jsx expects.
  */
 export async function fetchGammaWall(ticker) {
@@ -29,7 +29,7 @@ export async function fetchGammaWall(ticker) {
 }
 
 /**
- * Fetch technical analysis from R2.
+ * Fetch technical analysis from the market-data report.
  */
 export async function fetchTechnicalAnalysis(ticker) {
   const r2 = await fetchR2Report(ticker);
@@ -37,7 +37,7 @@ export async function fetchTechnicalAnalysis(ticker) {
 }
 
 /**
- * Fetch full analysis (gamma + technical combined) from R2.
+ * Fetch full analysis (gamma + technical combined) from the market-data report.
  */
 export async function fetchFullAnalysis(ticker) {
   const r2 = await fetchR2Report(ticker);

@@ -132,7 +132,10 @@ See [access-control.md](access-control.md) for the shared admin-web/client-web s
 - Workbench Firebase auth behavior lives in `scripts/workbench-nav-auth.js`.
 - Static Workbench notification UI lives in `scripts/workbench-modal-runtime.js`.
 - Static Workbench footer fallback lives in `scripts/workbench-footer-runtime.js`.
-- Static Workbench market-data fetches should use the shared loader installed by `workbench/load-nav.js`; do not add page-local spinner fragments for R2 calls.
+- Static Workbench market-data fetches should use the shared loader installed by `workbench/load-nav.js`; do not add page-local spinner fragments for API/data calls.
+- Browser code must not call storage provider hosts directly. Market JSON, PDFs, thumbnails, and static video assets should resolve through `https://api.newleafsystem.com/api/v1/public/data/*` or `https://api.newleafsystem.com/api/v1/public/media/*`. React code should use `src/shared/api/publicAssets.js`; static Workbench HTML may use the absolute API facade URL.
+- Browser code must not store provider API keys or call provider market-data APIs directly. Live quote features should call `https://api.newleafsystem.com/api/v1/market/*` with `credentials: "include"` so provider credentials remain on the backend.
+- Do not read `import.meta.env` dynamically in browser code. Reference only the exact `VITE_*` keys required by the feature so Vite does not serialize unrelated environment values into the production bundle.
 - Static Workbench pages should use the generated shared header and static footer runtime. Legacy direct `body > footer` elements are replaced by the branded static footer at runtime.
 - Static Workbench URL normalization lives in `scripts/workbench-url-runtime.js`.
 - User-facing Workbench links must be extensionless, for example `/workbench/stock?symbol=SPY` instead of `/workbench/stock.html?symbol=SPY`.

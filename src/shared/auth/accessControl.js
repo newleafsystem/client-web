@@ -32,10 +32,7 @@ export const IMMUTABLE_ADMIN_EMAILS = Object.freeze([
 ]);
 
 const DISABLED_STATUSES = new Set(['disabled', 'inactive', 'revoked', 'suspended']);
-
-function envValue(key) {
-  return import.meta.env?.[key] || '';
-}
+const BOOTSTRAP_ADMIN_EMAILS = import.meta.env.VITE_ADMIN_EMAILS || '';
 
 function normalizeKey(value) {
   return String(value || '').trim().toLowerCase();
@@ -69,7 +66,7 @@ function normalizeBooleanMap(value) {
 }
 
 function bootstrapAdminEmails() {
-  return [...new Set([...IMMUTABLE_ADMIN_EMAILS, ...normalizeList(envValue('VITE_ADMIN_EMAILS'))])];
+  return [...new Set([...IMMUTABLE_ADMIN_EMAILS, ...normalizeList(BOOTSTRAP_ADMIN_EMAILS)])];
 }
 
 export function isImmutableAdminUser(user) {

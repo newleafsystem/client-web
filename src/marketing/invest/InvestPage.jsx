@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { publicMediaUrl } from '../../shared/api/publicAssets';
 import { InvestProductEyebrow } from './components/InvestProductEyebrow';
 
 const PHASES = [
@@ -596,7 +597,7 @@ function VideoHero() {
                 }}
               >
                 <img
-                  src="https://pub-554c552d94e74e32822dd23be2656ba0.r2.dev/NewLeafInvestThumbNailV3.png"
+                  src={publicMediaUrl('NewLeafInvestThumbNailV3.png')}
                   alt="Video thumbnail"
                   style={{
                     width: '100%',

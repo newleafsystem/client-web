@@ -4,8 +4,8 @@ import { collection, query, getDocs, orderBy, limit, doc, getDoc } from 'firebas
 import { db } from '../firebase/config';
 import { ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { SectionLoader } from '../shared/components/LeafLoader';
+import { publicDataUrl } from '../shared/api/publicAssets';
 
-const R2_BASE = 'https://pub-04bbb919022645b3a3f318b2ebdf48c0.r2.dev';
 const mono = "'Space Mono', monospace";
 const serif = "'Playfair Display', serif";
 const forest = '#0B2D23';
@@ -100,7 +100,7 @@ export default function PickAnalysisPage() {
   const legs = tile?.legs || [];
   const greeks = tile?.greeks || {};
   const pdfSlug = `${sym}-${(pick.strategy || '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+$/, '')}`;
-  const pdfUrl = `${R2_BASE}/reports/pdf/${sym}/${pdfSlug}-latest.pdf`;
+  const pdfUrl = publicDataUrl(`reports/pdf/${sym}/${pdfSlug}-latest.pdf`);
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 2rem 60px' }}>

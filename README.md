@@ -244,6 +244,10 @@ Useful deploy variables:
 | `GCP_TEST_CLOUD_RUN_SERVICE` | empty | Optional test Cloud Run service |
 | `GCP_CLOUD_RUN_SERVICE` | empty | Optional production Cloud Run service |
 
+Public market/report JSON, PDFs, thumbnails, and Workbench guide media must load through `https://api.newleafsystem.com/api/v1/public/data/*` or `/api/v1/public/media/*`. Do not add browser calls to object-storage provider hosts directly; the shared API owns those origins.
+
+Live market-data tools must call `https://api.newleafsystem.com/api/v1/market/*` with the shared auth session. Do not store provider credentials in browser storage.
+
 Auth session notes:
 
 - The secure Firebase Admin session cookie is set by the Node service at `/api/auth/session`.

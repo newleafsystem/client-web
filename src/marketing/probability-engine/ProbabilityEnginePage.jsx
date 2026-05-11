@@ -138,7 +138,7 @@ export function ProbabilityEnginePage() {
             For live P&amp;L tracking, we use a cascading pricing system that balances accuracy with availability:
           </p>
           <CascadeDiagram tiers={[
-            { tier: '1', label: 'R2 Market Match', description: 'Exact mid-price from latest 15-min scan', color: '#0B7A52' },
+            { tier: '1', label: 'Market Data Match', description: 'Exact mid-price from latest 15-min scan', color: '#0B7A52' },
             { tier: '2', label: 'Black-Scholes Estimate', description: 'Modelled price using spot + entry IV', color: '#B7791F' },
             { tier: '3', label: 'Intrinsic Value', description: 'max(0, S-K) for calls, max(0, K-S) for puts', color: '#6b7280' },
           ]} />
@@ -146,7 +146,7 @@ export function ProbabilityEnginePage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <TierRow
               tier="1"
-              title="R2 Market Match"
+              title="Market Data Match"
               badge="Most Accurate"
               badgeColor="#0B7A52"
               description="Exact mid-price from our latest 15-minute scan. Uses real bid-ask data from Alpaca's options feed. Available during market hours for all watchlist symbols."

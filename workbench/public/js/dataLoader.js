@@ -1,7 +1,7 @@
 /**
  * dataLoader.js
  *
- * Shared R2 data loader for all NewLeaf Pro scanner pages
+ * Shared market-data loader for all NewLeaf Pro scanner pages
  *
  * Phase 4A of STRATEGY_ENGINE_BUILD.md
  * Date: 2026-04-03
@@ -14,10 +14,10 @@
 
 class DataLoader {
   constructor() {
-    // Use /r2 proxy for local dev, direct R2 URL for production
+    // Use the local proxy in development and the API facade in production
     this.R2_BASE = window.location.hostname === 'localhost'
       ? '/r2'
-      : 'https://pub-04bbb919022645b3a3f318b2ebdf48c0.r2.dev';
+      : 'https://api.newleafsystem.com/api/v1/public/data';
     this.manifestUrl = `${this.R2_BASE}/reports/manifest.json`;
     this.reportsCache = new Map();
     this.manifestCache = null;
@@ -26,7 +26,7 @@ class DataLoader {
   }
 
   /**
-   * Load manifest from R2
+   * Load manifest from the API facade
    * @returns {Promise<Object>} - Manifest with symbols array
    */
   async loadManifest() {
@@ -48,7 +48,7 @@ class DataLoader {
   }
 
   /**
-   * Load single report from R2
+   * Load single report from the API facade
    * @param {string} symbol - Stock symbol
    * @returns {Promise<Object>} - Report data
    */
@@ -124,7 +124,7 @@ class DataLoader {
       symbols = manifest.symbols || [];
     }
 
-    console.log(`Loading ${symbols.length} reports from R2...`);
+    console.log(`Loading ${symbols.length} reports from the API facade...`);
     const reports = await this.loadReports(symbols);
     console.log(`Loaded ${reports.size} reports successfully`);
 

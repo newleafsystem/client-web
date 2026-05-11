@@ -337,7 +337,7 @@ https://newleafsystem.com/desk/                     Trade execution</div>
       <tr><td>Workbench</td><td>Static HTML + vanilla JS</td><td>dist/workbench/ (from newleaf-alpaca-r2)</td><td>27 HTML pages, nl-brand.css, load-nav.js</td></tr>
       <tr><td>Database</td><td>Cloud Firestore</td><td>newleaf-trading / newleafdb</td><td>Shared across all apps</td></tr>
       <tr><td>Auth</td><td>Firebase Auth</td><td>Google + email/password</td><td>Shared auth, subscription tier in user doc</td></tr>
-      <tr><td>Storage</td><td>Cloudflare R2</td><td>pub-04bbb919022645b3a3f318b2ebdf48c0.r2.dev</td><td>Reports, ATM contracts, manifests</td></tr>
+      <tr><td>Storage</td><td>API-owned object storage</td><td>api.newleafsystem.com/api/v1/public/data</td><td>Reports, ATM contracts, manifests</td></tr>
       <tr><td>Data &mdash; Options</td><td>Alpaca Markets API</td><td>Paid OPRA feed</td><td>Bid/ask, Greeks, IV, OI</td></tr>
       <tr><td>Data &mdash; Supplemental</td><td>Yahoo Finance (yfinance)</td><td>localhost:5300</td><td>Expiry list, OI enrichment, IV fallback</td></tr>
       <tr><td>Pipeline</td><td>Node.js scripts</td><td>pipeline/ in monorepo</td><td>Writes Firestore data only (no HTML generation)</td></tr>

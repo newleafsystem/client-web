@@ -469,18 +469,14 @@
     <div class="section-title">Live Option Price</div>
     <div class="section-sub">Real-time quote &amp; Greeks via Alpaca Markets</div>
 
-    <!-- API Keys Banner -->
+    <!-- API channel banner -->
     <div class="api-banner">
-      <label>API Keys</label>
+      <label>Market Data</label>
       <div class="api-inputs">
-        <input type="text" id="apiKey" placeholder="Alpaca API Key ID" autocomplete="off" />
-        <input type="password" id="apiSecret" placeholder="Alpaca Secret Key" autocomplete="off" />
-        <select id="baseUrl" style="min-width:140px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;color:var(--cream);font-family:var(--mono);font-size:0.7rem;padding:0.45rem 0.75rem;outline:none;">
-          <option value="https://data.alpaca.markets">Live Data</option>
-          <option value="https://paper-api.alpaca.markets">Paper</option>
-        </select>
+        <span style="font-size:0.68rem;color:var(--muted);letter-spacing:.04em;">
+          Served through api.newleafsystem.com. Provider credentials stay on the backend.
+        </span>
       </div>
-      <button class="save-btn" onclick="saveKeys()">Save</button>
     </div>
 
     <!-- Search Card -->
@@ -651,22 +647,7 @@
     }
 
     // ── API Keys ─────────────────────────────────────────────────
-    function loadKeys() {
-      $('apiKey').value    = localStorage.getItem('nlAlpacaKey') || '';
-      $('apiSecret').value = localStorage.getItem('nlAlpacaSecret') || '';
-      $('baseUrl').value   = localStorage.getItem('nlAlpacaBase') || 'https://data.alpaca.markets';
-    }
-    function saveKeys() {
-      localStorage.setItem('nlAlpacaKey',    $('apiKey').value.trim());
-      localStorage.setItem('nlAlpacaSecret', $('apiSecret').value.trim());
-      localStorage.setItem('nlAlpacaBase',   $('baseUrl').value);
-      $('apiKey').style.borderColor    = 'var(--green)';
-      $('apiSecret').style.borderColor = 'var(--green)';
-      setTimeout(() => {
-        $('apiKey').style.borderColor    = '';
-        $('apiSecret').style.borderColor = '';
-      }, 1200);
-    }
+    const MARKET_API = 'https://api.newleafsystem.com/api/v1/market/options/snapshots';
 
     // ── OCC live preview ─────────────────────────────────────────
     function updateOCC() {
@@ -696,18 +677,14 @@
     updateOCC();
 
     // ── Fetch Snapshot (tries opra feed, then no feed) ──────────
-    async function fetchSnapshot(base, key, secret, occ) {
-      const headers = { 'APCA-API-KEY-ID': key, 'APCA-API-SECRET-KEY': secret };
+    async function fetchSnapshot(occ) {
       const feeds = ['opra', ''];           // try opra first, then bare
       for (const feed of feeds) {
         const qs  = feed ? `symbols=${encodeURIComponent(occ)}&feed=${feed}`
                          : `symbols=${encodeURIComponent(occ)}`;
-        const url = `${base}/v1beta1/options/snapshots?${qs}`;
-        console.log('[NewLeaf] Trying:', url);
-        const res = await fetch(url, { headers });
+        const res = await fetch(`${MARKET_API}?${qs}`, { credentials: 'include' });
         if (!res.ok) {
           const body = await res.text();
-          console.warn(`[NewLeaf] ${res.status} with feed=${feed||'(none)'}:`, body);
           if (feed === '') {
             // last attempt failed — surface the error
             let msg = body;
@@ -717,7 +694,6 @@
           continue;   // try next feed
         }
         const data = await res.json();
-        console.log('[NewLeaf] Response:', data);
         const snap = data.snapshots?.[occ] ?? data[occ] ?? null;
         if (snap) return snap;
       }
@@ -730,15 +706,6 @@
     const REFRESH_SEC = 15;
 
     async function fetchOption() {
-      const key    = ($('apiKey').value || localStorage.getItem('nlAlpacaKey') || '').trim();
-      const secret = ($('apiSecret').value || localStorage.getItem('nlAlpacaSecret') || '').trim();
-      const base   = $('baseUrl').value || 'https://data.alpaca.markets';
-
-      if (!key || !secret) {
-        showStatus('Enter your Alpaca API Key and Secret above, then click Save.', true);
-        return;
-      }
-
       const sym    = $('symbol').value.trim().toUpperCase();
       const strike = $('strike').value;
       const expiry = $('expiry').value;
@@ -755,11 +722,11 @@
       $('result').style.display = 'none';
 
       try {
-        const snap = await fetchSnapshot(base, key, secret, occ);
+        const snap = await fetchSnapshot(occ);
         if (!snap) throw new Error(`No snapshot found for ${occ} — contract may not exist or has no data yet.`);
 
         renderResult(snap, occ, sym, strike, expiry, cp);
-        startAutoRefresh(key, secret, base, occ, sym, strike, expiry, cp);
+        startAutoRefresh(occ, sym, strike, expiry, cp);
       } catch (e) {
         showStatus(`Error: ${e.message}`, true);
       } finally {
@@ -820,7 +787,7 @@
       $('refreshLabel').style.display = '';
     }
 
-    function startAutoRefresh(key, secret, base, occ, sym, strike, expiry, cp) {
+    function startAutoRefresh(occ, sym, strike, expiry, cp) {
       clearInterval(refreshTimer);
       clearInterval(countdownInt);
 
@@ -842,7 +809,7 @@
         $('countdownBar').style.width = '100%';
         remaining = REFRESH_SEC;
         try {
-          const snap = await fetchSnapshot(base, key, secret, occ);
+          const snap = await fetchSnapshot(occ);
           if (snap) renderResult(snap, occ, sym, strike, expiry, cp);
         } catch(_) {}
       }
@@ -860,13 +827,9 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') fetchOption();
     });
-
-    // Init — pre-load hardcoded keys if nothing stored yet
-    const DEFAULT_KEY    = 'AK45G2WHRJH2FSPJKCUDT6FDWE';
-    const DEFAULT_SECRET = 'NarNQFfjopAQrpgWxY5MUaQqBZPt87XGss7HkCVUsMU';
-    if (!localStorage.getItem('nlAlpacaKey'))    localStorage.setItem('nlAlpacaKey',    DEFAULT_KEY);
-    if (!localStorage.getItem('nlAlpacaSecret')) localStorage.setItem('nlAlpacaSecret', DEFAULT_SECRET);
-    loadKeys();
+    localStorage.removeItem('nlAlpacaKey');
+    localStorage.removeItem('nlAlpacaSecret');
+    localStorage.removeItem('nlAlpacaBase');
   </script>
 </body>
 </html>

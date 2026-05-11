@@ -1,7 +1,7 @@
 /**
- * r2Api.js — R2 data fetcher + transformation layer
+ * r2Api.js — market-data fetcher + transformation layer
  *
- * Fetches from R2 via /r2/reports/{SYMBOL}/latest.json (proxied through server.cjs)
+ * Fetches reports through the shared API facade
  * and transforms to the shapes the existing React components expect.
  */
 
@@ -13,10 +13,9 @@ import {
   suggestStrategy,
 } from '../utils/technicalScoring';
 import { emitDataLoading } from '../../shared/lib/dataLoading';
+import { publicDataUrl } from '../../shared/api/publicAssets';
 
-// ── R2 public bucket URL ─────────────────────────────────────────────────────
-
-const R2_BASE = 'https://pub-04bbb919022645b3a3f318b2ebdf48c0.r2.dev';
+// ── Market data API facade ─────────────────────────────────────────────────────
 
 // ── In-memory cache (30s TTL per symbol) ─────────────────────────────────────
 
@@ -24,8 +23,8 @@ const cache = new Map();
 const CACHE_TTL = 30_000;
 
 /**
- * Fetch a symbol's latest report from R2.
- * Uses the public R2 URL directly (works on both localhost and production).
+ * Fetch a symbol's latest report through the API facade.
+ * Browser callers never use storage provider URLs directly.
  * Cached for 30s to avoid redundant fetches when AnalysisPage calls both
  * gamma and technical in quick succession.
  */
@@ -36,11 +35,11 @@ export async function fetchR2Report(symbol) {
     return cached.data;
   }
 
-  const url = `${R2_BASE}/reports/${key}/latest.json`;
+  const url = publicDataUrl(`reports/${key}/latest.json`);
   emitDataLoading(true, `Loading ${key} market data`);
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`R2 fetch failed: ${res.status} for ${key}`);
+    if (!res.ok) throw new Error(`Market data fetch failed: ${res.status} for ${key}`);
     const data = await res.json();
 
     cache.set(key, { data, fetchedAt: Date.now() });
@@ -53,7 +52,7 @@ export async function fetchR2Report(symbol) {
 // ── Gamma data transformation ────────────────────────────────────────────────
 
 /**
- * Transform R2 report into the flat shape that gamma-tab components expect.
+ * Transform market-data report into the flat shape that gamma-tab components expect.
  * Components read: data.spot, data.put_wall, data.call_wall, data.center,
  * data.gamma_flip, data.top_strikes[], data.condor_allowed, etc.
  */
@@ -64,7 +63,7 @@ export function transformToGammaData(r2) {
   const putWall = analysis.put_wall || 0;
   const callWall = analysis.call_wall || 0;
 
-  // Build top_strikes from R2's topStrikes + enrich with optionChain aggregates
+  // Build top_strikes from the report's topStrikes + enrich with optionChain aggregates
   const chain = r2.optionChain || [];
 
   // Aggregate option chain by strike for richer data
@@ -175,7 +174,7 @@ function computeRollingSMA(closes, period) {
 }
 
 /**
- * Transform R2 report into the shape that technical-tab components expect.
+ * Transform market-data report into the shape that technical-tab components expect.
  * Uses existing scoring functions from technicalScoring.js.
  */
 export function transformToTechnicalData(r2) {
@@ -270,7 +269,7 @@ export function transformToTechnicalData(r2) {
 // ── Price fetcher for PriceContext ────────────────────────────────────────────
 
 /**
- * Fetch prices for multiple symbols from R2.
+ * Fetch prices for multiple symbols from market-data reports.
  * Returns { [symbol]: { symbol, price, change, changePercent, ... } }
  */
 export async function fetchR2Prices(symbols) {
@@ -304,7 +303,7 @@ export async function fetchR2Prices(symbols) {
 // ── Option leg matcher for portfolio P&L ─────────────────────────────────────
 
 /**
- * Find the current mid-price for a specific option leg from R2's option chain.
+ * Find the current mid-price for a specific option leg from the report's option chain.
  * Returns mid price or null if not found.
  */
 export function matchOptionLeg(optionChain, strike, expiry, type) {

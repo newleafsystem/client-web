@@ -84,7 +84,7 @@ export function AIPortfolioPage() {
               { label: 'Alpaca Markets', detail: 'Real-time options & price data', color: '#0B7A52', icon: '\u{1F4C8}' },
               { label: 'Yahoo Finance', detail: 'Open Interest & OI delta', color: '#B7791F', icon: '\u{1F4CA}' },
               { label: 'Firebase + Firestore', detail: 'Portfolio state & real-time sync', color: '#C94F4F', icon: '\u{1F5C4}' },
-              { label: 'Cloudflare R2', detail: 'Report storage & CDN', color: '#6b7280', icon: '\u{2601}' },
+              { label: 'Managed Storage', detail: 'Report storage & CDN', color: '#6b7280', icon: '\u{2601}' },
             ]}
           />
         </div>
