@@ -11,6 +11,7 @@ const DEFAULT_LIMITS = Object.freeze({
   maxSymbolsPerRun: 150,
   maxSymbolsPerMarket: 150,
   yahooBatchSize: 150,
+  yahooMaxOiExpiries: 1,
   intradayConcurrency: 5,
   dailyConcurrency: 1,
   yahooRequestDelayMs: 350,
@@ -96,6 +97,7 @@ async function prepareManagedWatchlistRuntime({ scannerDir = path.resolve(__dirn
     process.env.YAHOO_REQUEST_DELAY_MS = String(managed.limits?.yahooRequestDelayMs ?? DEFAULT_LIMITS.yahooRequestDelayMs);
     process.env.YAHOO_BATCH_SIZE = String(managed.limits?.yahooBatchSize ?? DEFAULT_LIMITS.yahooBatchSize);
     process.env.YAHOO_BATCH_DELAY_MS = String(managed.limits?.yahooBatchDelayMs ?? DEFAULT_LIMITS.yahooBatchDelayMs);
+    process.env.YAHOO_MAX_OI_EXPIRIES = String(managed.limits?.yahooMaxOiExpiries ?? DEFAULT_LIMITS.yahooMaxOiExpiries);
 
     console.log(`Managed watchlist loaded: ${managed.symbols.length} active symbols across ${managed.markets.length} markets`);
     return { source: 'firestore', watchlist: managed, path: outputPath };
@@ -180,6 +182,12 @@ function normalizeLimits(raw = {}) {
       1,
       5000
     ),
+    yahooMaxOiExpiries: clampInt(
+      process.env.YAHOO_MAX_OI_EXPIRIES ?? raw.yahooMaxOiExpiries,
+      DEFAULT_LIMITS.yahooMaxOiExpiries,
+      0,
+      8
+    ),
     intradayConcurrency: clampInt(raw.intradayConcurrency, DEFAULT_LIMITS.intradayConcurrency, 1, 10),
     dailyConcurrency: clampInt(raw.dailyConcurrency, DEFAULT_LIMITS.dailyConcurrency, 1, 1),
     yahooRequestDelayMs: clampInt(process.env.YAHOO_REQUEST_DELAY_MS ?? raw.yahooRequestDelayMs, DEFAULT_LIMITS.yahooRequestDelayMs, 0, 5000),
@@ -225,6 +233,11 @@ function normalizeSymbol(raw = {}) {
     symbol,
     market,
     name: String(raw.name || '').trim(),
+    providerSymbol: String(raw.providerSymbol || symbol).trim().toUpperCase(),
+    exchange: String(raw.exchange || '').trim(),
+    assetClass: String(raw.assetClass || '').trim(),
+    listingSource: String(raw.listingSource || raw.source || '').trim(),
+    active: raw.active !== false,
     group: String(raw.group || '').trim(),
     sector: String(raw.sector || '').trim(),
     marketCapTier: String(raw.marketCapTier || '').trim() || 'unknown',

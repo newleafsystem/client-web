@@ -4,7 +4,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * Data sources:
  *   Alpaca DATA API  → live stock price, bars, option bid/ask + Greeks
- *   yahoo-finance2 adapter -> expiry dates + Open Interest for ALL expiries
+ *   yahoo-finance2 adapter -> expiry dates + Open Interest for configured expiries
  *
  * Current implementation resolves Yahoo option data in-process through the
  * Node yahoo-finance2 adapter; it does not require the old Python sidecar.
@@ -70,6 +70,24 @@ function loadWatchlistData() {
   if (WATCHLIST_DATA) return WATCHLIST_DATA;
   WATCHLIST_DATA = loadWatchlistDataSync({ scannerDir: __dirname });
   return WATCHLIST_DATA || {};
+}
+
+function clampInt(value, fallback, min, max) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(min, Math.min(max, Math.trunc(parsed)));
+}
+
+function yahooMaxOiExpiries() {
+  const watchlistData = loadWatchlistData();
+  return clampInt(
+    getFlag('yahoo-max-oi-expiries') ??
+      process.env.YAHOO_MAX_OI_EXPIRIES ??
+      watchlistData?.limits?.yahooMaxOiExpiries,
+    1,
+    0,
+    8
+  );
 }
 
 // ── Earnings Calendar ─────────────────────────────────────────────────────────
@@ -719,12 +737,20 @@ async function processSymbol(symbol, cfg, date, dteMin, dteMax) {
       log(`Expiries: ${expiries.length} total, ${relevant.length} in range`);
       if (!relevant.length) throw new Error('No expiries in DTE range');
 
+      const yahooOiLimit = yahooMaxOiExpiries();
+      const yahooOiExpiries = new Set(relevant.slice(0, yahooOiLimit));
+      if (yahooOiLimit < Math.min(8, relevant.length)) {
+        log(`Yahoo OI limited to ${yahooOiLimit} expiry${yahooOiLimit === 1 ? '' : 'ies'} to stay inside daily call budget`);
+      }
+
       for (const isoExpiry of relevant.slice(0,8)) {
         const dte = calcDTE(isoExpiry);
         // Fetch Alpaca and Yahoo sequentially to avoid provider throttling.
         const chain  = await getAlpacaChain(symbol, isoExpiry, hdrs).catch(()=>[]);
         await sleep(jitter(300)); // let Alpaca breathe
-        const oiMap  = await getYahooOIMap(symbol, isoExpiry).catch(()=>({}));
+        const oiMap  = yahooOiExpiries.has(isoExpiry)
+          ? await getYahooOIMap(symbol, isoExpiry).catch(()=>({}))
+          : {};
         for (const c of chain) { c.dte=dte; c.expiry=isoExpiry; }
         mergeOI(chain, oiMap);
         allContracts.push(...chain);

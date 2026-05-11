@@ -88,6 +88,7 @@ async function main() {
       maxSymbolsPerRun: 150,
       maxSymbolsPerMarket: 150,
       yahooBatchSize: 150,
+      yahooMaxOiExpiries: 1,
       intradayConcurrency: 5,
       dailyConcurrency: 1,
       yahooRequestDelayMs: 350,

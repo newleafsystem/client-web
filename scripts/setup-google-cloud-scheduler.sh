@@ -164,6 +164,12 @@ upsert_job() {
 }
 
 upsert_job \
+  "newleaf-market-universe-sync" \
+  "15 5 * * *" \
+  "/api/internal/scheduler/market-universe-sync" \
+  "NewLeaf daily market listing universe sync. Does not call Yahoo Finance live data."
+
+upsert_job \
   "newleaf-scanner-fast" \
   "*/15 9-16 * * 1-5" \
   "/api/internal/scheduler/scanner-fast" \

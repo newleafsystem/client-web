@@ -103,6 +103,7 @@ function isSchedulerRequestAuthorized(req) {
 
 function runSchedulerJob(jobName) {
   const allowedJobs = new Set([
+    'market-universe-sync',
     'scanner-fast',
     'scanner-daily-catchup',
     'scanner-oi',

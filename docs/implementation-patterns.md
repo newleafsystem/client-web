@@ -222,11 +222,13 @@ Scanner scripts under `scanner/` should:
 - Keep Alpaca as the primary Node market-data source for stock snapshots, bars, option quotes, IV, and Greeks.
 - Use Yahoo Finance through the Node adapter for option expiration calendars and open interest enrichment.
 - Run production schedules through Google Cloud Scheduler calling `https://api.newleafsystem.com/api/internal/scheduler/*`. Do not use Cloudflare for scheduling.
-- `scanner/run-scheduler-job.js` is the canonical scheduler entrypoint. It supports `scanner-fast`, `scanner-daily-catchup`, `scanner-oi`, `scanner-watchlist`, and `scanner-sync-firestore`.
+- `scanner/run-scheduler-job.js` is the canonical scheduler entrypoint. It supports `market-universe-sync`, `scanner-fast`, `scanner-daily-catchup`, `scanner-oi`, `scanner-watchlist`, and `scanner-sync-firestore`.
 - Scheduler overlap protection and daily catch-up markers live in Firestore through `scanner/lib/scheduler-state.cjs`; do not use `/tmp` marker files for production scheduling.
 - Managed scanner watchlist config lives in Firestore at `marketWatchlists/default` and is edited by admin-web. Scheduler runs call `scanner/lib/watchlist-config.cjs` first, write an ignored `scanner/watchlist.runtime.json`, and then child pipeline scripts read that runtime file through `WATCHLIST_FILE`.
+- Full listing universes live in top-level `marketUniverseSymbols` documents keyed by `MARKET:SYMBOL`. `scanner/sync-market-universe.js` refreshes those listings daily from free trusted market-specific sources such as Nasdaq Trader files for US and NSE's equity CSV for India. China uses a configured CSV URL until a stable free official source is selected.
 - Only enabled symbols in enabled scan markets are processed. Non-US markets can be stored for planning, but keep them `scanEnabled=false` until the scanner has compatible provider support.
-- Rate-limit settings live with the managed watchlist. Respect `maxSymbolsPerRun`, `maxSymbolsPerMarket`, `intradayConcurrency`, `dailyConcurrency`, and `yahooRequestDelayMs`; daily Yahoo OI processing stays sequential.
+- Rate-limit settings live with the managed watchlist and runtime environment. Respect `maxSymbolsPerRun`, `maxSymbolsPerMarket`, `intradayConcurrency`, `dailyConcurrency`, `yahooRequestDelayMs`, `yahooBatchSize`, `yahooBatchDelayMs`, and `yahooMaxOiExpiries`; daily Yahoo OI processing stays sequential.
+- Yahoo Finance has a tight daily-call budget. `scanner/lib/yahooFinance.js` must use the provider cache before live calls, reserve live calls against `YAHOO_DAILY_CALL_LIMIT`, and fall back to stale cache when live calls are blocked but cached data exists.
 - `server.cjs` exposes scheduler trigger endpoints under `/api/internal/scheduler/{job}`. Requests must include `X-NewLeaf-Scheduler-Secret` when `SCHEDULER_SHARED_SECRET` is configured.
 - `scripts/setup-google-cloud-scheduler.sh` creates or updates the Google Cloud Scheduler HTTP jobs. It must never print `SCHEDULER_SHARED_SECRET`.
 - See [google-cloud-scheduler.md](google-cloud-scheduler.md) for setup flow and required variables.
@@ -242,6 +244,7 @@ Pipeline scripts under `pipeline/` should:
 - Keep email HTML in `pipeline/templates/weekly-email-template.html`.
 - Resolve email recipients from `users/{uid}.notificationPreferences.email`. The weekly picks sender should only include users whose email delivery is enabled and whose `weeklyPicks` topic is not disabled; do not email every user solely because an email field exists.
 - Managed scanner watchlists come from `marketWatchlists/default` and may contain more active symbols than a provider's preferred batch size. The scanner should process every active symbol in consecutive batches using `YAHOO_BATCH_SIZE` and `YAHOO_BATCH_DELAY_MS`; do not silently truncate the runtime watchlist at 150 symbols.
+- Intraday runs should reuse the cached Yahoo expiration calendar. Daily OI runs should cap Yahoo chain calls with `YAHOO_MAX_OI_EXPIRIES=1` by default so a 111-symbol US watchlist stays under the 250-call daily Yahoo budget when the cache is warm for expiration lookups.
 
 ## Deployment
 

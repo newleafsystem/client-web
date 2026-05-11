@@ -25,6 +25,7 @@ function usage() {
 Jobs:
   scanner-fast            Intraday Alpaca market data update
   scanner-daily-catchup   Daily OI, watchlist, and Firestore sync with durable markers
+  market-universe-sync     Daily market listing universe sync
   scanner-oi              OI enrichment only
   scanner-watchlist       Watchlist snapshot and manifest only
   scanner-sync-firestore  R2 to Firestore sync only`);
@@ -171,9 +172,17 @@ async function runSingle(lockName, script, scriptArgs = []) {
   await withSchedulerLock(lockName, () => nodeScript(script, maybeNoUpload(scriptArgs)));
 }
 
+async function runMarketUniverseSync() {
+  await runSingle('market-universe-sync', 'sync-market-universe.js');
+}
+
 async function main() {
   preparedWatchlist = await prepareManagedWatchlistRuntime({ scannerDir: SCANNER_DIR });
   switch (jobName) {
+    case 'market-universe-sync':
+    case 'sync-market-universe':
+      await runMarketUniverseSync();
+      break;
     case 'scanner-fast':
     case 'fast':
       await runFast();

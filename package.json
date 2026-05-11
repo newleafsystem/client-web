@@ -22,6 +22,7 @@
     "email:dry-run": "node pipeline/send-weekly-email.js --dry-run",
     "scheduler:fast": "node scanner/run-scheduler-job.js scanner-fast",
     "scheduler:daily": "node scanner/run-scheduler-job.js scanner-daily-catchup",
+    "scheduler:universe": "node scanner/run-scheduler-job.js market-universe-sync",
     "scheduler:setup:gcp": "bash scripts/setup-google-cloud-scheduler.sh",
     "audit:hygiene": "node scripts/audit-repo-hygiene.cjs"
   },

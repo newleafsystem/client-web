@@ -4,6 +4,7 @@
   "scripts": {
     "scheduler:fast": "node run-scheduler-job.js scanner-fast",
     "scheduler:daily": "node run-scheduler-job.js scanner-daily-catchup",
+    "scheduler:universe": "node run-scheduler-job.js market-universe-sync",
     "yahoo:service": "node yahoo-service.js"
   },
   "dependencies": {

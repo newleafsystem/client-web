@@ -22,6 +22,7 @@ pipeline/alpaca?config.json
 pipeline/output/
 scanner/reports/
 scanner/logs/
+scanner/.cache/
 scanner/watchlist.runtime.json
 scanner/*.log
 scanner/**/*.log
