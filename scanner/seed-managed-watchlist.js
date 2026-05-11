@@ -83,12 +83,15 @@ async function main() {
       }
     ],
     symbols,
+    universeSymbols: symbols.map(({ enabled, ...symbol }) => symbol),
     limits: {
       maxSymbolsPerRun: 150,
       maxSymbolsPerMarket: 150,
+      yahooBatchSize: 150,
       intradayConcurrency: 5,
       dailyConcurrency: 1,
-      yahooRequestDelayMs: 350
+      yahooRequestDelayMs: 350,
+      yahooBatchDelayMs: 60000
     },
     notes: 'Seeded from scanner/watchlist.json. Admin-web owns future edits.',
     createdAt: now,

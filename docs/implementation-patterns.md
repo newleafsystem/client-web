@@ -241,6 +241,7 @@ Pipeline scripts under `pipeline/` should:
 - Use `pipeline/templates/report-portrait.html` for portrait report generation.
 - Keep email HTML in `pipeline/templates/weekly-email-template.html`.
 - Resolve email recipients from `users/{uid}.notificationPreferences.email`. The weekly picks sender should only include users whose email delivery is enabled and whose `weeklyPicks` topic is not disabled; do not email every user solely because an email field exists.
+- Managed scanner watchlists come from `marketWatchlists/default` and may contain more active symbols than a provider's preferred batch size. The scanner should process every active symbol in consecutive batches using `YAHOO_BATCH_SIZE` and `YAHOO_BATCH_DELAY_MS`; do not silently truncate the runtime watchlist at 150 symbols.
 
 ## Deployment
 

@@ -1006,9 +1006,10 @@ async function main() {
   const totalShards = parseInt(getFlag('total-shards') ?? 1);
 
   let toScan = cliSymbols;
+  let watchlistData = null;
   // Load managed runtime watchlist when present, falling back to local watchlist.json.
   if (useWatchlist || !toScan.length) {
-    const watchlistData = cfg.watchlistData || loadWatchlistData();
+    watchlistData = cfg.watchlistData || loadWatchlistData();
     const sectorMapping = watchlistData.sectorMapping || {};
     toScan = watchlistData.symbols || cfg.watchlist || ['SPY','QQQ','MSFT','AAPL'];
     console.log(C.green(`  ✓ Loaded ${toScan.length} symbols from ${watchlistData.source || 'watchlist config'}`));
@@ -1032,6 +1033,22 @@ async function main() {
   const sorted    = [...toScan].sort();
   const mySymbols = totalShards>1 ? sorted.filter((_,i)=>i%totalShards===myShard) : sorted;
   if (!mySymbols.length) { console.error('No symbols to process'); process.exit(1); }
+
+  const parsedProviderBatchSize = parseInt(
+    getFlag('yahoo-batch-size') ??
+    process.env.YAHOO_BATCH_SIZE ??
+    watchlistData?.limits?.yahooBatchSize ??
+    watchlistData?.limits?.maxSymbolsPerRun ??
+    150
+  );
+  const parsedProviderBatchDelayMs = parseInt(
+    getFlag('yahoo-batch-delay-ms') ??
+    process.env.YAHOO_BATCH_DELAY_MS ??
+    watchlistData?.limits?.yahooBatchDelayMs ??
+    0
+  );
+  const providerBatchSize = Number.isFinite(parsedProviderBatchSize) ? Math.max(1, parsedProviderBatchSize) : 150;
+  const providerBatchDelayMs = Number.isFinite(parsedProviderBatchDelayMs) ? Math.max(0, parsedProviderBatchDelayMs) : 0;
 
   // Full/daily mode: keep Yahoo option-chain requests conservative to avoid throttling.
   if (!intradayMode && concurrency > 1) {
@@ -1062,6 +1079,7 @@ async function main() {
 
   const results=[], t0=Date.now();
   const runId = new Date().toISOString().replace(/:/g,'').slice(0,15); // 20260327T0930
+  let providerBatchCount = 0;
 
   for (let i=0; i<mySymbols.length; i+=concurrency) {
     const batch = mySymbols.slice(i, i+concurrency);
@@ -1071,7 +1089,13 @@ async function main() {
         .catch(err=>{console.error(C.red(`  [${sym}] FAILED: ${err.message}`));return{sym,ok:false,error:err.message};})
     ));
     results.push(...res);
+    providerBatchCount += batch.length;
     console.log();
+    if (providerBatchDelayMs > 0 && providerBatchCount >= providerBatchSize && i + batch.length < mySymbols.length) {
+      console.log(C.dim(`  Provider batch boundary reached (${providerBatchSize} symbols). Waiting ${providerBatchDelayMs}ms before continuing...`));
+      await sleep(providerBatchDelayMs);
+      providerBatchCount = 0;
+    }
   }
 
   const elapsed=((Date.now()-t0)/1000).toFixed(1), ok=results.filter(r=>r.ok), bad=results.filter(r=>!r.ok);

@@ -10,9 +10,11 @@ const RUNTIME_WATCHLIST_FILE = 'watchlist.runtime.json';
 const DEFAULT_LIMITS = Object.freeze({
   maxSymbolsPerRun: 150,
   maxSymbolsPerMarket: 150,
+  yahooBatchSize: 150,
   intradayConcurrency: 5,
   dailyConcurrency: 1,
-  yahooRequestDelayMs: 350
+  yahooRequestDelayMs: 350,
+  yahooBatchDelayMs: 60000
 });
 
 const DEFAULT_MARKET_CAP_TIERS = Object.freeze({
@@ -92,6 +94,8 @@ async function prepareManagedWatchlistRuntime({ scannerDir = path.resolve(__dirn
     process.env.WATCHLIST = managed.symbols.join(',');
     process.env.PIPELINE_CONCURRENCY = String(managed.limits?.intradayConcurrency ?? DEFAULT_LIMITS.intradayConcurrency);
     process.env.YAHOO_REQUEST_DELAY_MS = String(managed.limits?.yahooRequestDelayMs ?? DEFAULT_LIMITS.yahooRequestDelayMs);
+    process.env.YAHOO_BATCH_SIZE = String(managed.limits?.yahooBatchSize ?? DEFAULT_LIMITS.yahooBatchSize);
+    process.env.YAHOO_BATCH_DELAY_MS = String(managed.limits?.yahooBatchDelayMs ?? DEFAULT_LIMITS.yahooBatchDelayMs);
 
     console.log(`Managed watchlist loaded: ${managed.symbols.length} active symbols across ${managed.markets.length} markets`);
     return { source: 'firestore', watchlist: managed, path: outputPath };
@@ -114,20 +118,15 @@ function createRuntimeWatchlist(config = {}, localWatchlist = {}) {
   const groupMap = {};
   const sectorMapping = {};
   const marketCapMapping = {};
+  const universeSymbols = normalizeUniverseSymbols(config.universeSymbols, config.symbols);
   const selected = [];
-  const perMarketCount = new Map();
 
   for (const raw of Array.isArray(config.symbols) ? config.symbols : []) {
     const symbol = normalizeSymbol(raw);
     const market = marketById.get(symbol.market);
     if (!symbol.enabled || !market?.enabled || !market.scanEnabled) continue;
 
-    const marketLimit = Math.min(market.maxSymbolsPerRun || limits.maxSymbolsPerMarket, limits.maxSymbolsPerMarket);
-    const currentMarketCount = perMarketCount.get(symbol.market) || 0;
-    if (currentMarketCount >= marketLimit || selected.length >= limits.maxSymbolsPerRun) continue;
-
     selected.push(symbol.symbol);
-    perMarketCount.set(symbol.market, currentMarketCount + 1);
 
     const group = symbol.group || localSectorMapping[symbol.symbol] || symbol.sector || symbol.market;
     const sector = symbol.sector || localSectorMapping[symbol.symbol] || group;
@@ -144,6 +143,7 @@ function createRuntimeWatchlist(config = {}, localWatchlist = {}) {
     source: 'firestore:marketWatchlists/default',
     totalSymbols: uniqueSymbols.length,
     symbols: uniqueSymbols,
+    universeSymbols,
     markets,
     limits,
     groups: groupMap,
@@ -161,6 +161,7 @@ function normalizeRuntimeWatchlist(value = {}) {
     totalSymbols: Number(value.totalSymbols || symbols.length),
     symbols,
     markets: Array.isArray(value.markets) ? value.markets : [],
+    universeSymbols: Array.isArray(value.universeSymbols) ? value.universeSymbols.map(normalizeSymbol) : [],
     limits: normalizeLimits(value.limits),
     groups: value.groups || {},
     marketCapTiers: value.marketCapTiers || DEFAULT_MARKET_CAP_TIERS,
@@ -171,11 +172,23 @@ function normalizeRuntimeWatchlist(value = {}) {
 
 function normalizeLimits(raw = {}) {
   return {
-    maxSymbolsPerRun: clampInt(raw.maxSymbolsPerRun, DEFAULT_LIMITS.maxSymbolsPerRun, 1, 500),
-    maxSymbolsPerMarket: clampInt(raw.maxSymbolsPerMarket, DEFAULT_LIMITS.maxSymbolsPerMarket, 1, 500),
+    maxSymbolsPerRun: clampInt(raw.maxSymbolsPerRun, DEFAULT_LIMITS.maxSymbolsPerRun, 1, 5000),
+    maxSymbolsPerMarket: clampInt(raw.maxSymbolsPerMarket, DEFAULT_LIMITS.maxSymbolsPerMarket, 1, 5000),
+    yahooBatchSize: clampInt(
+      process.env.YAHOO_BATCH_SIZE ?? raw.yahooBatchSize ?? raw.maxSymbolsPerRun,
+      DEFAULT_LIMITS.yahooBatchSize,
+      1,
+      5000
+    ),
     intradayConcurrency: clampInt(raw.intradayConcurrency, DEFAULT_LIMITS.intradayConcurrency, 1, 10),
     dailyConcurrency: clampInt(raw.dailyConcurrency, DEFAULT_LIMITS.dailyConcurrency, 1, 1),
-    yahooRequestDelayMs: clampInt(raw.yahooRequestDelayMs, DEFAULT_LIMITS.yahooRequestDelayMs, 0, 5000)
+    yahooRequestDelayMs: clampInt(process.env.YAHOO_REQUEST_DELAY_MS ?? raw.yahooRequestDelayMs, DEFAULT_LIMITS.yahooRequestDelayMs, 0, 5000),
+    yahooBatchDelayMs: clampInt(
+      process.env.YAHOO_BATCH_DELAY_MS ?? raw.yahooBatchDelayMs,
+      DEFAULT_LIMITS.yahooBatchDelayMs,
+      0,
+      600000
+    )
   };
 }
 
@@ -189,9 +202,19 @@ function normalizeMarkets(rawMarkets = []) {
     provider: String(market.provider || 'manual').trim().toLowerCase(),
     enabled: market.enabled !== false,
     scanEnabled: market.scanEnabled === true,
-    maxSymbolsPerRun: clampInt(market.maxSymbolsPerRun, DEFAULT_LIMITS.maxSymbolsPerMarket, 1, 500),
+    maxSymbolsPerRun: clampInt(market.maxSymbolsPerRun, DEFAULT_LIMITS.maxSymbolsPerMarket, 1, 5000),
     notes: String(market.notes || '').trim()
   })).filter((market) => market.id);
+}
+
+function normalizeUniverseSymbols(rawUniverse, rawSymbols) {
+  const source = Array.isArray(rawUniverse) && rawUniverse.length > 0 ? rawUniverse : rawSymbols;
+  const seen = new Set();
+  return (Array.isArray(source) ? source : []).map(normalizeSymbol).filter((symbol) => {
+    if (!symbol.symbol || seen.has(symbol.id)) return false;
+    seen.add(symbol.id);
+    return true;
+  });
 }
 
 function normalizeSymbol(raw = {}) {
