@@ -65,7 +65,10 @@ const DEFAULT_LIMITS = Object.freeze({
 
 const US_NASDAQ_LISTED_URL = 'https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt';
 const US_OTHER_LISTED_URL = 'https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt';
-const NSE_EQUITY_LIST_URL = 'https://archives.nseindia.com/content/equities/EQUITY_L.csv';
+const NSE_EQUITY_LIST_URLS = Object.freeze([
+  'https://archives.nseindia.com/content/equities/EQUITY_L.csv',
+  'https://nsearchives.nseindia.com/content/equities/EQUITY_L.csv'
+]);
 
 const EXCHANGE_CODES = Object.freeze({
   A: 'NYSE American',
@@ -294,14 +297,30 @@ async function fetchUsUniverse({ ttlHours }) {
 }
 
 async function fetchIndiaUniverse({ ttlHours }) {
-  const url = process.env.NSE_EQUITY_LIST_URL || NSE_EQUITY_LIST_URL;
-  const text = await fetchText(url, {
-    cacheKey: 'in-nse-equity-list',
-    ttlHours,
-    headers: {
-      'referer': 'https://www.nseindia.com/market-data/securities-available-for-trading'
+  const urls = [
+    process.env.NSE_EQUITY_LIST_URL,
+    ...NSE_EQUITY_LIST_URLS
+  ].filter(Boolean);
+  let text = '';
+  let lastError = null;
+  for (const url of urls) {
+    try {
+      text = await fetchText(url, {
+        cacheKey: `in-nse-equity-list-${safeCacheName(url)}`,
+        ttlHours,
+        headers: {
+          'accept-language': 'en-US,en;q=0.9',
+          'referer': 'https://www.nseindia.com/market-data/securities-available-for-trading'
+        }
+      });
+      break;
+    } catch (error) {
+      lastError = error;
     }
-  });
+  }
+  if (!text) {
+    throw lastError || new Error('Unable to fetch NSE equity list');
+  }
   return dedupeSymbols(parseCsv(text)
     .filter((row) => !row.SERIES || row.SERIES === 'EQ')
     .map((row) => ({
@@ -562,7 +581,7 @@ async function syncMarketUniverse(options = {}) {
   }
 
   return {
-    ok: results.every((result) => result.status !== 'failed'),
+    ok: results.some((result) => result.status === 'synced'),
     dryRun,
     updatedAt: now,
     markets: results
