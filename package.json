@@ -3,7 +3,11 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
+    "gcp-build": "node -e \"console.log('Skipping frontend build for Cloud Run worker')\"",
     "dev": "vite",
     "start": "node server.cjs",
     "build": "node scripts/clean-spa.js && node scripts/build-workbench-nav.mjs && vite build && node scripts/build-extensionless-static.mjs && node scripts/prerender.js",
