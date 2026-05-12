@@ -25,6 +25,14 @@ const MODE = process.env.MODE || process.env.NODE_ENV || 'production';
 const LOAD_DOTENV_FOR_NAV = process.env.NEWLEAF_LOAD_DOTENV_FOR_NAV === '1';
 const VITE_ENV = LOAD_DOTENV_FOR_NAV ? loadEnv(MODE, ROOT, '') : {};
 
+// Static Workbench pages cannot re-render BrandBar after auth resolves.
+// Render every role-gated nav entry into the scaffold; workbench-nav-auth.js
+// hides unauthorized [data-app-id] entries once session access is known.
+const STATIC_NAV_ACCESS = Object.freeze({
+  canAccessApp: () => true,
+  hasRole: () => true,
+});
+
 function envValue(key) {
   return process.env[key] ?? VITE_ENV[key] ?? '';
 }
@@ -78,10 +86,7 @@ async function main() {
         createElement(BrandBar, {
           surface: 'workbench',
           authState: 'loading',
-          access: {
-            canAccessApp: (appId) => appId === 'workbench',
-            hasRole: () => false,
-          },
+          access: STATIC_NAV_ACCESS,
         })
       )
     );
