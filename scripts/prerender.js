@@ -89,6 +89,7 @@ async function prerender() {
         const url = req.url();
         if (
           url.includes('api.newleafsystem.com/api/auth') ||
+          url.includes('api.newleafsystem.com/api/v1/public/media/') ||
           url.includes('googleapis.com') ||
           url.includes('gstatic.com') ||
           url.includes('googletagmanager.com') ||

@@ -1,21 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { publicMediaUrl } from '../../shared/api/publicAssets';
 
+const HERO_VIDEO_VERSION = '20260513-optimized';
+
+function heroMediaUrl(path) {
+  return `${publicMediaUrl(path)}?v=${HERO_VIDEO_VERSION}`;
+}
+
 const HERO_VIDEO = {
   desktop: {
     title: 'NewLeaf System growth journey',
     poster: 'https://i.ytimg.com/vi/EAjd5E5NK-A/maxresdefault.jpg',
     sources: [
-      { src: publicMediaUrl('home/hero-desktop.m3u8'), type: 'application/vnd.apple.mpegurl' },
-      { src: publicMediaUrl('home/hero-desktop.mp4'), type: 'video/mp4' },
+      { src: heroMediaUrl('home/hero-desktop.mp4'), type: 'video/mp4' },
     ],
   },
   mobile: {
     title: 'NewLeaf System mobile overview',
     poster: 'https://i.ytimg.com/vi/HCBWTZTsNj0/maxresdefault.jpg',
     sources: [
-      { src: publicMediaUrl('home/hero-mobile.m3u8'), type: 'application/vnd.apple.mpegurl' },
-      { src: publicMediaUrl('home/hero-mobile.mp4'), type: 'video/mp4' },
+      { src: heroMediaUrl('home/hero-mobile.mp4'), type: 'video/mp4' },
     ],
   },
 };
