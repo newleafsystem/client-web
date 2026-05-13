@@ -518,8 +518,8 @@ const server = http.createServer(async (req, res) => {
   // ── Static file serving ───────────────────────────────────────
   const DIST = path.join(__dirname, 'dist');
 
-  // SPA fallback: /trading/*, /workbench/*, /picks/* → dist/index.html
-  const SPA_PREFIXES = ['/trading/', '/trading', '/picks/', '/picks', '/strategies/', '/learn', '/workbench/analysis', '/verification-desk'];
+  // SPA fallback: /trading/*, /workbench/*, /picks/* -> dist/index.html
+  const SPA_PREFIXES = ['/trading/', '/trading', '/picks/', '/picks', '/strategies/', '/learn', '/workbench/', '/workbench', '/verification-desk'];
   if (SPA_PREFIXES.some(p => url.pathname === p || url.pathname.startsWith(p + '/'))) {
     const candidate = path.join(DIST, url.pathname);
     const hasExtension = path.extname(url.pathname) !== '';

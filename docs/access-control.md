@@ -86,6 +86,6 @@ Central files:
 - `src/shared/hooks/useAuth.js`: Firebase Auth state plus live `users/{uid}` profile subscription.
 - `src/shared/components/BrandBar.jsx`: role/app-aware navigation rendering.
 - `src/shared/components/AppAccessGate.jsx`: app route access UI.
-- `scripts/workbench-nav-auth.js`: static Workbench nav and page access overlay.
+- `src/shared/components/WorkbenchStaticPage.jsx`: React-owned wrapper for legacy Workbench HTML under the Workbench access gate.
 
 Client-side checks improve user experience but are not a security boundary. Firestore rules and backend/provider checks must enforce the same app and role constraints for private data and privileged operations.

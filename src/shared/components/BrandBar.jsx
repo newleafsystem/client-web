@@ -9,15 +9,7 @@ import { useMarketState } from '../../trading/hooks/useMarketState';
 // Helpers
 // ═══════════════════════════════════════════════════════════════
 
-/** Use <a> for static / HTML pages, <Link> for React Router routes */
 function NavAnchor({ href, children, ...props }) {
-  const isStaticWorkbenchHref = href === '/workbench/' ||
-    href === '/workbench' ||
-    (href.startsWith('/workbench/') && !href.startsWith('/workbench/analysis'));
-
-  if (isStaticWorkbenchHref) {
-    return <a href={href} {...props}>{children}</a>;
-  }
   return <Link {...props} to={href}>{children}</Link>;
 }
 

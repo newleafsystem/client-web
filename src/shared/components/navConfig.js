@@ -1,8 +1,7 @@
 /**
  * navConfig.js — Centralised navigation configuration
  *
- * Consumed by BrandBar (React) and referenced when updating
- * nav-component.html (Workbench static pages).
+ * Consumed by BrandBar (React) and the cached navigation state.
  *
  * NavItem types:
  *   { kind: 'link',     label, href, requiredApp?, requiredRole?, public? }

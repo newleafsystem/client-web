@@ -36,6 +36,18 @@ That pattern is superseded by:
 - Extensionless Workbench links such as `/workbench/strategy-builder`.
 - Firebase Hosting `cleanUrls: true` plus `scripts/build-extensionless-static.mjs` for non-Firebase/static-preview compatibility.
 
+## 2026-05-13: Generated Static Workbench Shell
+
+Previous guidance used static Workbench pages as user-facing pages under `dist/workbench/`. A build script generated `workbench/nav-component.html` from React navigation primitives, then injected `scripts/workbench-nav-auth.js`, `scripts/workbench-nav-runtime.js`, `scripts/workbench-footer-runtime.js`, and `scripts/workbench-url-runtime.js` into those static pages. `scripts/build-extensionless-static.mjs` created directory-index copies for routes such as `/workbench/watchlist`.
+
+That pattern is superseded by:
+
+- React-owned `/workbench/*` routes in `src/App.jsx`.
+- `WorkbenchLayout` rendering the only `BrandBar`, auth gate, and `Footer` for Workbench.
+- `WorkbenchStaticPage` embedding raw HTML from `/workbench-static/*.html`.
+- `workbench/load-nav.js` acting only as an embedded content runtime for loaders, modals, link bridging, and iframe height.
+- No generated `nav-component.html`, static Workbench auth overlay, static footer fallback, or extensionless static Workbench copies.
+
 ## Architecture
 
 `client-web` combines:

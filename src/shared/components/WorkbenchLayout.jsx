@@ -1,9 +1,8 @@
 /**
  * WorkbenchLayout — layout shell for React pages under /workbench/*
  *
- * Previously loaded nav-component.html via fetch and injected it.
- * Now uses BrandBar directly. The static workbench HTML pages still
- * load nav-component.html themselves.
+ * React owns BrandBar/Footer for every /workbench route. Legacy static
+ * Workbench HTML is embedded as page content by WorkbenchStaticPage.
  */
 import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';

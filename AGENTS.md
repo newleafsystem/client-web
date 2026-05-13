@@ -35,7 +35,7 @@ src/
   blog/                           Blog layout and posts
   shared/                         Shared layouts, nav, SEO, hooks
 
-workbench/                        Static HTML workbench pages copied into dist
+workbench/                        Raw legacy HTML workbench tools embedded by React routes
 public/                           Static public assets and policy pages
 pipeline/                         Weekly picks, report, email, PDF, and R2 scripts
 scanner/                          Market scanner, R2 sync, Firestore sync, schedulers
@@ -78,6 +78,7 @@ Before changing behavior, read the nearest relevant source files and:
 - Firebase web config must use `import.meta.env.VITE_FIREBASE_*`; do not hardcode Firebase API keys.
 - User management is owned by `admin-web`; client-web consumes shared Firebase Auth + `users/{uid}` Firestore profiles from `newleafdb`.
 - Product navigation and route access must use `src/shared/auth/accessControl.js`, `BrandBar` `requiredApp` metadata, and `AppAccessGate`; do not add email-only or page-local role checks.
+- Workbench user-facing routes are React-owned. Raw HTML under `workbench/` is copied to `dist/workbench-static/` and embedded by `WorkbenchStaticPage`; do not reintroduce generated static nav/auth/footer files.
 - The admin/investor UI should be compact, scan-friendly, and operational. Avoid marketing-style heroes inside tool surfaces.
 - Preserve existing lazy-loading and route-splitting patterns in `src/App.jsx`.
 

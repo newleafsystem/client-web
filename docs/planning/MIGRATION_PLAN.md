@@ -255,7 +255,7 @@ One `src/shared/components/Nav.jsx` replaces both `AppHeader` (trading) and `Sys
 | `postcss.config.js` | Create | Copy from trading app |
 | `index.html` | Create | Vite SPA shell at project root |
 | `.env` | Create | `VITE_API_BASE_URL=`, `VITE_ADMIN_EMAILS=...` |
-| `scripts/clean-spa.js` | Create | Pre-build: removes old `dist/trading/`, `dist/workbench/`, `dist/assets/` |
+| `scripts/clean-spa.js` | Create | Pre-build: removes old `dist/trading/`, stale `dist/workbench/`, `dist/workbench-static/`, `dist/assets/` |
 
 **Merged dependencies:**
 ```
@@ -547,7 +547,7 @@ No script changes needed — the pipeline commands stay the same, just the scrip
 
 **Cleanup:**
 - Update `.gitignore`: add `dist/assets/`, `.env`, `dist-backup/`
-- Remove old `dist/trading/` and `dist/workbench/` directories
+- Remove old `dist/trading/`, stale `dist/workbench/`, and `dist/workbench-static/` directories
 - Remove old `dist/picks/` static HTML files (React handles these now)
 - Backup old static `dist/index.html` (replaced by Vite SPA shell)
 

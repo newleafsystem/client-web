@@ -21,6 +21,7 @@ const LandingPage = lazy(() => import('./trading/pages/LandingPage').then(m => (
 const LearnPage = lazy(() => import('./trading/pages/LearnPage').then(m => ({ default: m.LearnPage })));
 const TradingLayout = lazy(() => import('./trading/TradingLayout'));
 const WorkbenchAnalysisWrapper = lazy(() => import('./shared/components/WorkbenchAnalysisWrapper'));
+const WorkbenchStaticPage = lazy(() => import('./shared/components/WorkbenchStaticPage'));
 const AuthPage = lazy(() => import('./trading/pages/AuthPage').then(m => ({ default: m.AuthPage })));
 
 // Marketing pages — lazy
@@ -151,10 +152,12 @@ export default function App() {
           <Route path=":weekId" element={<WeekViewerPage />} />
         </Route>
 
-        {/* ═══ WORKBENCH ANALYSIS ═══ */}
+        {/* ═══ WORKBENCH ═══ */}
         <Route element={<WorkbenchLayout />}>
+          <Route path="/workbench" element={<WorkbenchStaticPage />} />
           <Route path="/workbench/analysis" element={<WorkbenchAnalysisWrapper />} />
           <Route path="/workbench/analysis/:ticker" element={<WorkbenchAnalysisWrapper />} />
+          <Route path="/workbench/:staticPage" element={<WorkbenchStaticPage />} />
         </Route>
 
         {/* ═══ INVEST (formerly Trading) ═══ */}

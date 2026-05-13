@@ -70,7 +70,7 @@ table.matrix tr:hover{background:rgba(201,169,110,.04)}
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="section">
   <h2 class="section-title">1. URL Map</h2>
-  <p class="section-sub">All pages served from newleafsystem.com. React SPA for public + trading + picks. Static HTML for workbench.</p>
+  <p class="section-sub">All pages served from newleafsystem.com. React SPA for public, trading, picks, and Workbench shell routes. Legacy Workbench HTML is embedded content.</p>
 
   <div class="url-example">PUBLIC (no auth required)
 https://newleafsystem.com/                          Landing page
@@ -90,11 +90,11 @@ https://newleafsystem.com/trading/analysis/AAPL      Symbol analysis
 https://newleafsystem.com/trading/position/abc123    Position detail
 https://newleafsystem.com/trading/admin              Admin panel
 
-STATIC HTML (newleaf-alpaca-r2)
+REACT SHELL + EMBEDDED WORKBENCH HTML
 https://newleafsystem.com/workbench/                Strategy hub
-https://newleafsystem.com/workbench/all-stocks.html Scanner
-https://newleafsystem.com/workbench/watchlist.html  Watchlist
-https://newleafsystem.com/workbench/strategy-builder.html  Builder
+https://newleafsystem.com/workbench/all-stocks      Scanner
+https://newleafsystem.com/workbench/watchlist       Watchlist
+https://newleafsystem.com/workbench/strategy-builder  Builder
 
 LEGACY (pre-built, untouched)
 https://newleafsystem.com/quant/                    Quant engine
@@ -108,7 +108,7 @@ https://newleafsystem.com/desk/                     Trade execution</div>
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="section">
   <h2 class="section-title">2. Site Structure</h2>
-  <p class="section-sub">Grouped by access level. React SPA serves /, /trading/*, /picks/*. Static HTML for /workbench/*.</p>
+  <p class="section-sub">Grouped by access level. React SPA serves /, /trading/*, /picks/*, and /workbench/* with embedded legacy Workbench content.</p>
 
   <!-- PUBLIC PAGES -->
   <div class="sitemap-section">
@@ -200,11 +200,11 @@ https://newleafsystem.com/desk/                     Trade execution</div>
     </div>
   </div>
 
-  <!-- WORKBENCH (STATIC HTML) -->
+  <!-- WORKBENCH (REACT SHELL + EMBEDDED HTML) -->
   <div class="sitemap-section">
     <div class="sitemap-header workbench">
       <span class="sitemap-app workbench">NewLeaf Workbench</span>
-      <span class="sitemap-tier tier-admin">Static HTML &middot; newleaf-alpaca-r2</span>
+      <span class="sitemap-tier tier-admin">React shell &middot; embedded HTML</span>
     </div>
     <div class="sitemap-routes">
       <div class="route">
@@ -213,27 +213,27 @@ https://newleafsystem.com/desk/                     Trade execution</div>
         <span class="route-tech">Static HTML</span>
       </div>
       <div class="route">
-        <span class="route-path">/workbench/all-stocks.html</span>
+        <span class="route-path">/workbench/all-stocks</span>
         <span class="route-desc">Scanner &mdash; all 111 symbols, scores, strategy recommendations, sector filters.</span>
         <span class="route-tech">Static HTML</span>
       </div>
       <div class="route">
-        <span class="route-path">/workbench/strategy-builder.html</span>
+        <span class="route-path">/workbench/strategy-builder</span>
         <span class="route-desc">Strategy builder &mdash; strike config, payoff charts, gamma + technical overlays, publish to Firebase.</span>
         <span class="route-tech">Static HTML</span>
       </div>
       <div class="route">
-        <span class="route-path">/workbench/watchlist.html</span>
+        <span class="route-path">/workbench/watchlist</span>
         <span class="route-desc">Watchlist tracker &mdash; custom symbol list, price/IV monitoring.</span>
         <span class="route-tech">Static HTML</span>
       </div>
       <div class="route">
-        <span class="route-path">/workbench/stock.html?s=AAPL</span>
+        <span class="route-path">/workbench/stock?symbol=AAPL</span>
         <span class="route-desc">Individual stock analysis &mdash; gamma walls, RSI, Bollinger, MACD, SMA.</span>
         <span class="route-tech">Static HTML</span>
       </div>
       <div class="route">
-        <span class="route-path">/workbench/{strategy}.html</span>
+        <span class="route-path">/workbench/{strategy}</span>
         <span class="route-desc">Strategy pages: sell-puts, wheel, condor-scanner, broken-wing, bull-put, bear-call, bull-call, bear-put, calendar.</span>
         <span class="route-tech">Static HTML</span>
       </div>
@@ -300,11 +300,11 @@ https://newleafsystem.com/desk/                     Trade execution</div>
       <tr><td><code>/trading/position/:tileId</code></td><td>Position detail</td><td class="no">&#8594; /</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>React</td></tr>
       <tr><td><code>/trading/admin</code></td><td>Admin panel</td><td class="no">&#8594; /</td><td class="no">&#10007;</td><td class="yes">&#10003;</td><td>React</td></tr>
 
-      <tr class="group-header"><td colspan="6">Workbench (static HTML &mdash; newleaf-alpaca-r2)</td></tr>
-      <tr><td><code>/workbench/</code></td><td>Strategy hub</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>Static</td></tr>
-      <tr><td><code>/workbench/all-stocks.html</code></td><td>Scanner</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>Static</td></tr>
-      <tr><td><code>/workbench/strategy-builder.html</code></td><td>Strategy builder</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>Static</td></tr>
-      <tr><td><code>/workbench/watchlist.html</code></td><td>Watchlist</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>Static</td></tr>
+      <tr class="group-header"><td colspan="6">Workbench (React shell &mdash; embedded legacy HTML)</td></tr>
+      <tr><td><code>/workbench/</code></td><td>Strategy hub</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>React shell</td></tr>
+      <tr><td><code>/workbench/all-stocks</code></td><td>Scanner</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>React shell</td></tr>
+      <tr><td><code>/workbench/strategy-builder</code></td><td>Strategy builder</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>React shell</td></tr>
+      <tr><td><code>/workbench/watchlist</code></td><td>Watchlist</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td><td>React shell</td></tr>
 
       <tr class="group-header"><td colspan="6">Legacy Apps (pre-built)</td></tr>
       <tr><td><code>/quant/</code></td><td>Quant engine</td><td class="no">&#10007;</td><td class="no">&#10007;</td><td class="yes">&#10003;</td><td>Pre-built</td></tr>
@@ -334,7 +334,7 @@ https://newleafsystem.com/desk/                     Trade execution</div>
     <tbody>
       <tr><td>Hosting</td><td>Firebase Hosting</td><td>newleafsystem.com + www.newleafsystem.com</td><td>Single site, path-based rewrites</td></tr>
       <tr><td>React SPA</td><td>React 18 + Vite 5 + Tailwind 4</td><td>src/ &rarr; dist/index.html + dist/assets/</td><td>Serves /, /trading/*, /picks/*, /strategies/*</td></tr>
-      <tr><td>Workbench</td><td>Static HTML + vanilla JS</td><td>dist/workbench/ (from newleaf-alpaca-r2)</td><td>27 HTML pages, nl-brand.css, load-nav.js</td></tr>
+      <tr><td>Workbench</td><td>React shell + embedded vanilla JS tools</td><td>dist/workbench-static/ raw HTML content</td><td>Legacy HTML pages embedded by WorkbenchStaticPage</td></tr>
       <tr><td>Database</td><td>Cloud Firestore</td><td>newleaf-trading / newleafdb</td><td>Shared across all apps</td></tr>
       <tr><td>Auth</td><td>Firebase Auth</td><td>Google + email/password</td><td>Shared auth, subscription tier in user doc</td></tr>
       <tr><td>Storage</td><td>API-owned object storage</td><td>api.newleafsystem.com/api/v1/public/data</td><td>Reports, ATM contracts, manifests</td></tr>

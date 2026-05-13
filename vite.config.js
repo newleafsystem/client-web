@@ -1,26 +1,58 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { cpSync, existsSync, rmSync } from 'fs';
+import { cpSync, createReadStream, existsSync, rmSync, statSync } from 'fs';
+
+const WORKBENCH_SRC = path.resolve(__dirname, 'workbench');
+const WORKBENCH_STATIC_PREFIX = '/workbench-static';
+
+function contentTypeFor(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.html') return 'text/html; charset=utf-8';
+  if (ext === '.js') return 'text/javascript; charset=utf-8';
+  if (ext === '.css') return 'text/css; charset=utf-8';
+  if (ext === '.json') return 'application/json; charset=utf-8';
+  if (ext === '.png') return 'image/png';
+  if (ext === '.svg') return 'image/svg+xml';
+  return 'application/octet-stream';
+}
 
 /**
- * Copies static app directories (workbench, etc.) into dist/ after build.
- * These are standalone HTML apps that Vite doesn't process — they just
- * need to be present in the output directory for Firebase hosting.
+ * Copies raw Workbench HTML into dist/workbench-static after build.
+ * React owns user-facing /workbench routes; these files are iframe content.
  */
 function copyStaticApps() {
   return {
     name: 'copy-static-apps',
-    closeBundle() {
-      const staticDirs = ['workbench'];
-      for (const dir of staticDirs) {
-        const src = path.resolve(__dirname, dir);
-        const dest = path.resolve(__dirname, 'dist', dir);
-        if (existsSync(src)) {
-          rmSync(dest, { recursive: true, force: true });
-          cpSync(src, dest, { recursive: true });
-          console.log(`  Copied ${dir}/ → dist/${dir}/`);
+    configureServer(server) {
+      server.middlewares.use(WORKBENCH_STATIC_PREFIX, (req, res, next) => {
+        try {
+          const requestPath = decodeURIComponent(new URL(req.url || '/', 'http://localhost').pathname);
+          const relativePath = requestPath.replace(/^\/+/, '');
+          const filePath = path.resolve(WORKBENCH_SRC, relativePath);
+          const rootWithSep = `${WORKBENCH_SRC}${path.sep}`;
+          if (filePath !== WORKBENCH_SRC && !filePath.startsWith(rootWithSep)) {
+            next();
+            return;
+          }
+          const stat = statSync(filePath);
+          if (!stat.isFile()) {
+            next();
+            return;
+          }
+          res.setHeader('Content-Type', contentTypeFor(filePath));
+          createReadStream(filePath).pipe(res);
+        } catch {
+          next();
         }
+      });
+    },
+    closeBundle() {
+      const dest = path.resolve(__dirname, 'dist', 'workbench-static');
+      if (existsSync(WORKBENCH_SRC)) {
+        rmSync(dest, { recursive: true, force: true });
+        cpSync(WORKBENCH_SRC, dest, { recursive: true });
+        console.log('  Copied workbench/ -> dist/workbench-static/');
       }
     },
   };

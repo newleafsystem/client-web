@@ -29,7 +29,7 @@ Use for changes under `src/`, `public/`, `workbench/`, `vite.config.js`, or CSS.
 - Keep browser Firebase config in `VITE_FIREBASE_*`.
 - Reuse existing layouts and components.
 - Run `npm run build`.
-- Check that static workbench files still copy into `dist/workbench`.
+- Check that raw workbench files still copy into `dist/workbench-static` and `/workbench/*` routes render through React.
 
 ## Pipeline Workflow
 
