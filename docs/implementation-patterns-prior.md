@@ -48,6 +48,16 @@ That pattern is superseded by:
 - `workbench/load-nav.js` acting only as an embedded content runtime for loaders, modals, link bridging, and iframe height.
 - No generated `nav-component.html`, static Workbench auth overlay, static footer fallback, or extensionless static Workbench copies.
 
+## 2026-05-13: Dual Eager Home Hero Iframes
+
+Previous guidance allowed the home hero to embed separate desktop and mobile YouTube iframes directly in `LandingPage.jsx` and hide one with CSS. That loaded both players at first paint and exposed native player UI more easily.
+
+That pattern is superseded by:
+
+- `src/trading/components/HeroBackgroundVideo.jsx` selecting one viewport-specific video source.
+- Lazy mounting with an `IntersectionObserver`.
+- No-cookie YouTube embeds with controls disabled, pointer events blocked, and HD/adaptive streaming hints.
+
 ## Architecture
 
 `client-web` combines:

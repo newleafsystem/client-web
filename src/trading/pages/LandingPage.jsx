@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LoginPage } from '../components/LoginPage';
+import { HeroBackgroundVideo } from '../components/HeroBackgroundVideo';
 import { PlantGrowthIllustration } from '../components/PlantGrowthIllustration';
 import PageSEO from '../../shared/components/PageSEO';
 import '../styles/landing.css';
@@ -62,22 +63,7 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
       <section className="hero-vid">
         <h1 className="sr-only">One system. Every step of the trade.</h1>
 
-        {/* Desktop: landscape video */}
-        <iframe
-          className="hero-bg-video hero-bg-desktop"
-          src="https://www.youtube.com/embed/EAjd5E5NK-A?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&modestbranding=1&playlist=EAjd5E5NK-A&playsinline=1&disablekb=1&iv_load_policy=3"
-          title="NewLeaf System growth journey"
-          allow="autoplay; encrypted-media"
-          allowFullScreen
-        ></iframe>
-        {/* Mobile: vertical Shorts video */}
-        <iframe
-          className="hero-bg-video hero-bg-mobile"
-          src="https://www.youtube.com/embed/HCBWTZTsNj0?autoplay=1&mute=1&loop=1&controls=0&rel=0&modestbranding=1&playlist=HCBWTZTsNj0&playsinline=1"
-          title="NewLeaf System mobile overview"
-          allow="autoplay; encrypted-media"
-          allowFullScreen
-        ></iframe>
+        <HeroBackgroundVideo />
 
         <div className="hero-grad"></div>
 
