@@ -1,40 +1,28 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { publicMediaUrl } from '../../shared/api/publicAssets';
 
 const HERO_VIDEO = {
   desktop: {
-    id: 'EAjd5E5NK-A',
     title: 'NewLeaf System growth journey',
     poster: 'https://i.ytimg.com/vi/EAjd5E5NK-A/maxresdefault.jpg',
+    sources: [
+      { src: publicMediaUrl('home/hero-desktop.m3u8'), type: 'application/vnd.apple.mpegurl' },
+      { src: publicMediaUrl('home/hero-desktop.mp4'), type: 'video/mp4' },
+    ],
   },
   mobile: {
-    id: 'HCBWTZTsNj0',
     title: 'NewLeaf System mobile overview',
     poster: 'https://i.ytimg.com/vi/HCBWTZTsNj0/maxresdefault.jpg',
+    sources: [
+      { src: publicMediaUrl('home/hero-mobile.m3u8'), type: 'application/vnd.apple.mpegurl' },
+      { src: publicMediaUrl('home/hero-mobile.mp4'), type: 'video/mp4' },
+    ],
   },
 };
 
 function getInitialVariant() {
   if (typeof window === 'undefined') return 'desktop';
   return window.matchMedia('(max-width: 768px)').matches ? 'mobile' : 'desktop';
-}
-
-function youtubeBackgroundSrc(videoId) {
-  const params = new URLSearchParams({
-    autoplay: '1',
-    mute: '1',
-    loop: '1',
-    controls: '0',
-    rel: '0',
-    modestbranding: '1',
-    playsinline: '1',
-    disablekb: '1',
-    fs: '0',
-    iv_load_policy: '3',
-    cc_load_policy: '0',
-    playlist: videoId,
-    vq: 'hd1080',
-  });
-  return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
 }
 
 function shouldAvoidAutoplay() {
@@ -46,12 +34,13 @@ function shouldAvoidAutoplay() {
 
 export function HeroBackgroundVideo() {
   const rootRef = useRef(null);
+  const videoRef = useRef(null);
   const [variant, setVariant] = useState(getInitialVariant);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const video = HERO_VIDEO[variant];
 
-  const src = useMemo(() => youtubeBackgroundSrc(video.id), [video.id]);
+  const sources = useMemo(() => video.sources, [video.sources]);
 
   useEffect(() => {
     const query = window.matchMedia('(max-width: 768px)');
@@ -85,6 +74,23 @@ export function HeroBackgroundVideo() {
     return () => observer.disconnect();
   }, [variant]);
 
+  useEffect(() => {
+    const node = videoRef.current;
+    if (!node) return undefined;
+
+    function syncPlayback() {
+      if (document.hidden || shouldAvoidAutoplay()) {
+        node.pause();
+        return;
+      }
+      node.play().catch(() => {});
+    }
+
+    document.addEventListener('visibilitychange', syncPlayback);
+    syncPlayback();
+    return () => document.removeEventListener('visibilitychange', syncPlayback);
+  }, [shouldLoad, variant]);
+
   return (
     <div
       ref={rootRef}
@@ -93,16 +99,27 @@ export function HeroBackgroundVideo() {
       aria-hidden="true"
     >
       {shouldLoad && (
-        <iframe
+        <video
+          ref={videoRef}
           className="hero-bg-video"
-          src={src}
-          title={video.title}
-          loading="lazy"
+          aria-label={video.title}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={video.poster}
           tabIndex={-1}
-          allow="autoplay; encrypted-media; picture-in-picture"
-          referrerPolicy="strict-origin-when-cross-origin"
-          onLoad={() => setLoaded(true)}
-        />
+          disablePictureInPicture
+          controlsList="nodownload noplaybackrate noremoteplayback"
+          onCanPlay={() => setLoaded(true)}
+          onLoadedData={() => setLoaded(true)}
+          onError={() => setLoaded(false)}
+        >
+          {sources.map((source) => (
+            <source key={`${variant}-${source.type}`} src={source.src} type={source.type} />
+          ))}
+        </video>
       )}
     </div>
   );

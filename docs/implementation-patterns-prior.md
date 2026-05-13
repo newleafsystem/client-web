@@ -54,9 +54,9 @@ Previous guidance allowed the home hero to embed separate desktop and mobile You
 
 That pattern is superseded by:
 
-- `src/trading/components/HeroBackgroundVideo.jsx` selecting one viewport-specific video source.
+- `src/trading/components/HeroBackgroundVideo.jsx` selecting one viewport-specific native video source.
 - Lazy mounting with an `IntersectionObserver`.
-- No-cookie YouTube embeds with controls disabled, pointer events blocked, and HD/adaptive streaming hints.
+- Native `<video>` with no `controls` attribute, public-media HLS sources, and MP4 fallback. YouTube/Vimeo/third-party iframes are not allowed for the background hero because their overlays can reappear after tab changes.
 
 ## Architecture
 
