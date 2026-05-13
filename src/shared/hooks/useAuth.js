@@ -15,6 +15,7 @@ import {
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase/config';
 import { createDefaultUserEntitlements, normalizeUserAccess } from '../auth/accessControl';
+import { writeCachedNavigationState } from '../components/navigationState';
 import {
   clearCachedAuthState,
   clearCookieSession,
@@ -164,6 +165,12 @@ function applyAuthenticatedState(user, profile, source = 'firebase-auth', option
     photoURL: safeUser.photoURL || safeProfile?.photoURL || null,
   } : null;
   const access = normalizeUserAccess(safeProfile, accessUser);
+
+  writeCachedNavigationState({
+    user: accessUser,
+    profile: safeProfile,
+    access,
+  });
 
   emitAuthState({
     user: accessUser,

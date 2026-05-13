@@ -1,3 +1,5 @@
+import { clearCachedNavigationState } from '../components/navigationState';
+
 const UI_CACHE_COOKIE = 'newleaf_auth_state';
 const CACHE_VERSION = 1;
 
@@ -136,6 +138,7 @@ export function writeCachedAuthState({ user, profile, validatedAt = Date.now() }
 
 export function clearCachedAuthState() {
   writeCookie(UI_CACHE_COOKIE, '', 0);
+  clearCachedNavigationState();
 }
 
 async function readJsonResponse(response) {

@@ -88,11 +88,16 @@ async function prerender() {
       page.on('request', req => {
         const url = req.url();
         if (
+          url.includes('api.newleafsystem.com/api/auth') ||
           url.includes('googleapis.com') ||
           url.includes('gstatic.com') ||
           url.includes('googletagmanager.com') ||
           url.includes('firebase') ||
-          url.includes('google-analytics')
+          url.includes('google-analytics') ||
+          url.includes('youtube.com') ||
+          url.includes('googlevideo.com') ||
+          url.includes('doubleclick.net') ||
+          url.includes('ytimg.com')
         ) {
           req.abort();
         } else {

@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { surfaceConfig } from './navConfig';
-import { APP_IDS, filterNavSections, normalizeUserAccess } from '../auth/accessControl';
+import { APP_IDS, normalizeUserAccess } from '../auth/accessControl';
+import { selectHeaderSections } from './navigationState';
 import { useMarketState } from '../../trading/hooks/useMarketState';
 
 // ═══════════════════════════════════════════════════════════════
@@ -403,7 +404,14 @@ export function BrandBar({
   // by app access so product internals do not become a second page header.
   const sectionsBase = sectionsOverride || config.sections;
   const userAccess = access || normalizeUserAccess(null, user);
-  const effectiveSections = filterNavSections(sectionsBase, userAccess, { authState: navAuthState });
+  const effectiveSections = selectHeaderSections({
+    surface,
+    sections: sectionsBase,
+    user,
+    access: userAccess,
+    authState: navAuthState,
+    useCache: !sectionsOverride,
+  });
   const showBuilderCta = config.builderCta && userAccess.canAccessApp(APP_IDS.WORKBENCH);
   const showAuth = showAuthOverride;
 

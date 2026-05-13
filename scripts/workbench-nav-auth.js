@@ -21,6 +21,7 @@ const auth = app ? getAuth(app) : null;
 const db = app ? getFirestore(app, 'newleafdb') : null;
 const AUTH_SESSION_API_BASE = String(window.NEWLEAF_AUTH_SESSION_API_BASE_URL || '').replace(/\/+$/, '');
 const UI_CACHE_COOKIE = 'newleaf_auth_state';
+const NAVIGATION_CACHE_KEY = 'newleaf_navigation_state';
 const CACHE_VERSION = 1;
 const AUTH_CACHE_TTL_HOURS = Number(window.NEWLEAF_AUTH_STATE_CACHE_TTL_HOURS || 24);
 const AUTH_VALIDATE_INTERVAL_MINUTES = Number(window.NEWLEAF_AUTH_SESSION_VALIDATE_INTERVAL_MINUTES || 15);
@@ -164,6 +165,10 @@ function writeCachedAuthState(options) {
 
 function clearCachedAuthState() {
   writeCookie(UI_CACHE_COOKIE, '', 0);
+  try {
+    window.localStorage.removeItem(NAVIGATION_CACHE_KEY);
+  } catch (error) {
+  }
 }
 
 function shouldValidateCachedAuth(cached) {

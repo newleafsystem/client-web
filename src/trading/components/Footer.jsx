@@ -1,39 +1,18 @@
-export const canonicalLegalLinks = Object.freeze({
-  privacyPolicy: 'https://newleafsystem.com/privacy-policy',
-  termsAndConditions: 'https://newleafsystem.com/terms-and-conditions',
-});
+import { useAuth } from '../../shared/hooks/useAuth';
+import { canonicalLegalLinks } from '../../shared/components/footerConfig';
+import { selectFooterSections } from '../../shared/components/navigationState';
 
-const footerSections = [
-  {
-    title: 'Platform',
-    links: [
-      { label: 'Picks', href: '/picks' },
-      { label: 'Workbench', href: '/workbench/' },
-      { label: 'Invest', href: '/invest' },
-      { label: 'Quant', href: '/quant' },
-      { label: 'Desk', href: '/desk' },
-    ],
-  },
-  {
-    title: 'Research',
-    links: [
-      { label: 'How we pick trades', href: '/how-we-pick' },
-      { label: 'Track record', href: '/track-record' },
-      { label: 'Probability engine', href: '/probability-engine' },
-      { label: 'Blog', href: '/blog' },
-    ],
-  },
-  {
-    title: 'Support',
-    links: [
-      { label: 'Privacy Policy', href: canonicalLegalLinks.privacyPolicy },
-      { label: 'Terms and Conditions', href: canonicalLegalLinks.termsAndConditions },
-      { label: 'Contact', href: 'mailto:hello@newleafsystem.com' },
-    ],
-  },
-];
-
-export function Footer({ className = 'app-footer' }) {
+export function Footer({
+  className = 'app-footer',
+  authState: authStateOverride,
+  user: userOverride,
+  access: accessOverride,
+}) {
+  const auth = useAuth();
+  const user = userOverride !== undefined ? userOverride : auth.user;
+  const access = accessOverride !== undefined ? accessOverride : auth.access;
+  const authState = authStateOverride || (user ? 'in' : auth.loading ? 'loading' : 'out');
+  const footerSections = selectFooterSections({ user, access, authState });
   const year = new Date().getFullYear();
   const classes = ['auth-footer', className].filter(Boolean).join(' ');
 
