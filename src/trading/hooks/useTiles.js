@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from '../../shared/api/firestoreBridge';
-import { db } from '../../firebase/config';
+import { fetchLatestRecommendationBatch, recommendationBatchToTiles } from '../../shared/api/recommendations';
 
 /**
- * Real-time Firestore listener for active tiles
+ * Loads published recommendation tiles from the NewLeaf API.
  * @returns {Object} { tiles, loading, error }
  */
 export function useTiles({ enabled = true } = {}) {
@@ -20,41 +19,24 @@ export function useTiles({ enabled = true } = {}) {
     }
 
     setLoading(true);
-    try {
-      // Query active tiles ordered by sortOrder
-      const tilesRef = collection(db, 'tiles');
-      const q = query(
-        tilesRef,
-        where('isActive', '==', true),
-        orderBy('sortOrder', 'asc')
-      );
+    let cancelled = false;
+    fetchLatestRecommendationBatch()
+      .then((batch) => {
+        if (cancelled) return;
+        setTiles(recommendationBatchToTiles(batch));
+        setLoading(false);
+        setError(null);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setTiles([]);
+        setError(err?.message || 'Unable to load opportunities.');
+        setLoading(false);
+      });
 
-      // Set up real-time listener
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const tilesData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-
-          setTiles(tilesData);
-          setLoading(false);
-          setError(null);
-        },
-        (err) => {
-          setError(err?.message || 'Unable to load opportunities.');
-          setLoading(false);
-        }
-      );
-
-      // Cleanup listener on unmount
-      return () => unsubscribe();
-
-    } catch (err) {
-      setError(err?.message || 'Unable to load opportunities.');
-      setLoading(false);
-    }
+    return () => {
+      cancelled = true;
+    };
   }, [enabled]);
 
   return { tiles, loading, error };

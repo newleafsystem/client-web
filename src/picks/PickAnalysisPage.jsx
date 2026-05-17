@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { collection, query, getDocs, orderBy, limit, doc, getDoc } from '../shared/api/firestoreBridge';
+import { doc, getDoc } from '../shared/api/firestoreBridge';
 import { db } from '../firebase/config';
 import { ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { SectionLoader } from '../shared/components/LeafLoader';
 import { publicDataUrl } from '../shared/api/publicAssets';
+import { fetchLatestRecommendationBatch, recommendationBatchToWeek } from '../shared/api/recommendations';
 
 const mono = "'Space Mono', monospace";
 const serif = "'Playfair Display', serif";
@@ -24,15 +25,13 @@ export default function PickAnalysisPage() {
   useEffect(() => {
     (async () => {
       try {
-        const weekSnap = await getDocs(
-          query(collection(db, 'weeklyPicks'), orderBy('weekId', 'desc'), limit(1))
-        );
-        if (weekSnap.empty) return;
-
-        const week = weekSnap.docs[0].data();
+        const batch = await fetchLatestRecommendationBatch();
+        const week = recommendationBatchToWeek(batch);
+        if (!week) return;
         const pickData = (week.picks || []).find(p => p.symbol?.toUpperCase() === sym);
         if (!pickData) return;
         setPick({ ...pickData, weekId: week.weekId, dateRange: week.dateRange, theme: week.theme });
+        setTile(pickData);
 
         if (pickData.tileId) {
           const [analysisDoc, tileDoc] = await Promise.all([
@@ -40,7 +39,7 @@ export default function PickAnalysisPage() {
             getDoc(doc(db, 'tiles', pickData.tileId)),
           ]);
           if (analysisDoc.exists()) setAnalysis(analysisDoc.data());
-          if (tileDoc.exists()) setTile(tileDoc.data());
+          if (tileDoc.exists()) setTile({ ...pickData, ...tileDoc.data() });
         }
       } catch {
       } finally {

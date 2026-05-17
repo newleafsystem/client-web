@@ -246,6 +246,7 @@ Scanner scripts under `scanner/` should:
 
 Pipeline scripts under `pipeline/` should:
 
+- Treat `admin-web` recommendation batches as the source of truth for current Picks and Invest cards. Client-web should read the published batch from `GET https://api.newleafsystem.com/api/v1/public/recommendations/latest`; legacy `weeklyPicks` scripts are operational fallback/migration utilities, not the primary publishing path for new daily recommendations.
 - Use `lib/runtime-config.cjs` for Node or `pipeline/config_loader.py` for Python.
 - Prefer dry-run or preview modes for publishing changes.
 - Write generated reports to ignored output directories or external stores.

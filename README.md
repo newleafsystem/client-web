@@ -9,7 +9,16 @@ cd client-web
 npm install
 ```
 
-## Weekly Workflow
+## Picks Publishing Workflow
+
+Current picks are published from `admin-web`, not by manually editing client-web JSON or writing `weeklyPicks` from the browser.
+
+1. In `admin-web`, open `Recommendations`.
+2. Create the daily recommendation batch, normally up to five picks.
+3. Approve and publish the batch.
+4. Client-web reads the published batch from `https://api.newleafsystem.com/api/v1/public/recommendations/latest`.
+
+The older commands below remain as migration utilities for historical weeklyPicks data.
 
 ### Monday AM — Publish Picks
 
@@ -51,7 +60,7 @@ npm run deploy
 | Command | What it does |
 |---------|-------------|
 | `npm run picks:preview` | Dry run — shows what would be created |
-| `npm run picks:close` | Close current week + generate review page |
+| `npm run picks:close` | Legacy close-week utility for historical weeklyPicks data |
 | `npm run email:preview` | Generate the weekly email preview |
 | `npm run email:send` | Send the weekly email |
 | `npm run outputs` | Generate pipeline outputs |

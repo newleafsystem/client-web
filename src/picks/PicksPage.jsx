@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from '../shared/api/firestoreBridge';
+import { collection, getDocs } from '../shared/api/firestoreBridge';
 import { db } from '../firebase/config';
 import PageSEO from '../shared/components/PageSEO';
 import { SectionLoader } from '../shared/components/LeafLoader';
+import { fetchLatestRecommendationBatch, recommendationBatchToWeek } from '../shared/api/recommendations';
 
 export default function PicksPage() {
   const [week, setWeek] = useState(null);
@@ -13,14 +14,11 @@ export default function PicksPage() {
   useEffect(() => {
     (async () => {
       try {
-        // Get most recent weeklyPicks document
-        const [weekSnap, outcomeSnap] = await Promise.all([
-          getDocs(query(collection(db, 'weeklyPicks'), orderBy('weekId', 'desc'), limit(1))),
-          getDocs(collection(db, 'pick_outcomes')),
+        const [batch, outcomeSnap] = await Promise.all([
+          fetchLatestRecommendationBatch(),
+          getDocs(collection(db, 'pick_outcomes')).catch(() => ({ empty: true, docs: [] })),
         ]);
-        if (!weekSnap.empty) {
-          setWeek({ id: weekSnap.docs[0].id, ...weekSnap.docs[0].data() });
-        }
+        setWeek(recommendationBatchToWeek(batch));
         // Build performance summary
         if (!outcomeSnap.empty) {
           const all = outcomeSnap.docs.map(d => d.data());
@@ -54,28 +52,7 @@ export default function PicksPage() {
     })();
   }, []);
 
-  // Enrich picks with sentiment from tiles if missing (hooks must be before early returns)
-  const [enrichedPicks, setEnrichedPicks] = useState([]);
-  const weekId = week?.id;
-  useEffect(() => {
-    if (!week?.picks) return;
-    const enrich = async () => {
-      const enriched = await Promise.all(week.picks.map(async (pick) => {
-        if (pick.sentiment) return pick;
-        if (!pick.tileId) return pick;
-        try {
-          const tileSnap = await getDoc(doc(db, 'tiles', pick.tileId));
-          if (tileSnap.exists() && tileSnap.data().sentiment) {
-            return { ...pick, sentiment: tileSnap.data().sentiment };
-          }
-        } catch {}
-        return pick;
-      }));
-      setEnrichedPicks(enriched);
-    };
-    enrich();
-  }, [weekId]);
-  const picks = enrichedPicks.length > 0 ? enrichedPicks : (week?.picks || []);
+  const picks = week?.picks || [];
 
   if (loading) {
     return <SectionLoader label="Loading picks" minHeight={420} />;
