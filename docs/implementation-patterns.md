@@ -23,6 +23,19 @@ Top-level composition:
 - `PublicLayout`, `TradingLayout`, `WorkbenchLayout`, and `PicksLayout` own their respective route surfaces.
 - `/trading/*` is legacy and redirects to `/invest/*`.
 
+## API-Driven Client Contract
+
+Client-web is an API consumer, not an orchestration runtime. Product pages should render state from `https://api.newleafsystem.com` and avoid direct provider/storage calls.
+
+Rules:
+
+- Public pages and signed-in product pages read published data through the API facade. Do not expose Firebase, R2, Google Cloud, Alpaca, Yahoo, or other provider origins in browser network calls.
+- Browser code should not wait for long-running backend work such as scanner runs, daily picks publishing, email delivery, PDF generation, script generation, HeyGen video generation, or social publishing. Those workflows are started and monitored from admin-web/API state.
+- Client-web is read-only by default for shared business data such as recommendations, reports, published videos, picks cards, invest cards, and market snapshots.
+- Client-web may write only narrow, user-owned data: portfolio records, workbench preferences, strategy-builder drafts, user watchlists, auth profile bootstrap, and similar signed-in user state.
+- User-owned writes must use authenticated API routes or Firestore rules scoped to the signed-in user's document. Do not write shared publication or recommendation records from client-web.
+- UI should render queued, stale, unavailable, or partial data states from the API response instead of blocking route rendering while backend work completes.
+
 ## Pattern Maintenance
 
 - Update this file whenever a logic or architectural change lands.
