@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, doc, addDoc, updateDoc, getDocs, query, where, orderBy, limit as firestoreLimit, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, getDocs, query, where, orderBy, limit as firestoreLimit, serverTimestamp } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../shared/hooks/useAuth';
 import { getValidAdjustments, PILL } from '../utils/adjustmentCatalogue';

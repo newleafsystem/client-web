@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { collection, query, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, limit, doc, getDoc } from '../shared/api/firestoreBridge';
 import { db } from '../firebase/config';
 import { ComposedChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { SectionLoader } from '../shared/components/LeafLoader';

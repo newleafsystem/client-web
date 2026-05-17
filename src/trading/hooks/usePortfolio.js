@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, doc, setDoc, getDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, setDoc, getDoc, deleteDoc, updateDoc, serverTimestamp } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../shared/hooks/useAuth';
 

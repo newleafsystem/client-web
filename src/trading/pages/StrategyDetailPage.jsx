@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { usePositionState } from '../hooks/usePositionState';
 import { usePortfolio } from '../hooks/usePortfolio';

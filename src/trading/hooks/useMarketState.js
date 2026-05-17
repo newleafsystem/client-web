@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 
 /**

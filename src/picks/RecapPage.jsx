@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from '../shared/api/firestoreBridge';
 import { db } from '../firebase/config';
 import PageSEO from '../shared/components/PageSEO';
 import { SectionLoader } from '../shared/components/LeafLoader';

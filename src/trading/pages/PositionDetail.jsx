@@ -4,7 +4,7 @@ import { LineChart, Line, AreaChart, Area, ComposedChart, XAxis, YAxis, Cartesia
 import { ArrowLeft, Bookmark, Copy, Share2, Brain, TrendingUp, Clock, Shield, AlertTriangle, Calendar, Zap, CheckCircle, Lightbulb } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useState, useEffect, useMemo } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { formatStrategy } from '../utils/formatters';
 import { calculateMetrics, getUnderlyingPrice } from '../utils/optionsCalc';

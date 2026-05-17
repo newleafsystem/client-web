@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 
 /**

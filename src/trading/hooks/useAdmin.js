@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, query, getDocs, doc, updateDoc, orderBy, where, serverTimestamp, writeBatch, addDoc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, getDocs, doc, updateDoc, orderBy, where, serverTimestamp, writeBatch, addDoc, setDoc, getDoc, deleteDoc } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../shared/hooks/useAuth';
 import { APP_IDS } from '../../shared/auth/accessControl';

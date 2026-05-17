@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { usePortfolioPnl } from '../hooks/usePortfolioPnl';

@@ -12,9 +12,8 @@ import {
   signOut as firebaseSignOut,
   updateProfile,
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase/config';
-import { createDefaultUserEntitlements, normalizeUserAccess } from '../auth/accessControl';
+import { auth } from '../../firebase/config';
+import { normalizeUserAccess } from '../auth/accessControl';
 import { writeCachedNavigationState } from '../components/navigationState';
 import {
   clearCachedAuthState,
@@ -33,18 +32,6 @@ const GOOGLE_LINK_PASSWORD_REQUIRED = 'auth/google-link-password-required';
 
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
-}
-
-function displayNameForUser(user, fallbackName) {
-  return fallbackName || user.displayName || user.email?.split('@')[0] || 'User';
-}
-
-function providerIdsForUser(user) {
-  return [...new Set((user?.providerData || []).map((provider) => provider.providerId).filter(Boolean))];
-}
-
-function authProvidersForUser(user) {
-  return Object.fromEntries(providerIdsForUser(user).map((providerId) => [providerId, true]));
 }
 
 function createGoogleLinkRequiredError(error, signInMethods = []) {
@@ -106,54 +93,17 @@ function signedOutState(source = 'signed-out') {
 
 async function createOrUpdateUserProfile(currentUser, options = {}) {
   if (!currentUser) return null;
-
-  const userRef = doc(db, 'users', currentUser.uid);
-  const userDoc = await getDoc(userRef);
-  const existingProfile = userDoc.exists() ? userDoc.data() : {};
-  const displayName = displayNameForUser(currentUser, options.displayName);
-  const communicationEmail = existingProfile.communicationEmail || currentUser.email || null;
-  const identityPatch = {
-    email: currentUser.email,
-    communicationEmail,
-    displayName,
-    photoURL: currentUser.photoURL || null,
-    emailVerified: currentUser.emailVerified === true,
-    identityProviderIds: providerIdsForUser(currentUser),
-    authProviders: authProvidersForUser(currentUser),
-    primaryProviderId: providerIdsForUser(currentUser)[0] || null,
-    identityUpdatedAt: serverTimestamp(),
-  };
-
-  if (!userDoc.exists()) {
-    const entitlements = createDefaultUserEntitlements(currentUser);
-    await setDoc(userRef, {
-      ...identityPatch,
-      registrationSource: options.registrationSource || 'firebase-auth',
-      ...entitlements,
-      createdAt: serverTimestamp(),
-      lastLogin: serverTimestamp(),
-    });
-  } else {
-    const sourcePatch = (
-      options.registrationSource &&
-      (!existingProfile.registrationSource || existingProfile.registrationSource === 'firebase-auth')
-    ) ? { registrationSource: options.registrationSource } : {};
-    await setDoc(userRef, {
-      ...identityPatch,
-      ...sourcePatch,
-      lastLogin: serverTimestamp(),
-    }, { merge: true });
+  if (options.displayName && currentUser.getIdToken) {
+    await currentUser.getIdToken(true).catch(() => null);
   }
-
-  const refreshed = await getDoc(userRef);
-  return refreshed.exists() ? { uid: refreshed.id, ...refreshed.data() } : null;
+  const session = await createCookieSession(currentUser);
+  return session?.profile || null;
 }
 
 async function loadUserProfile(currentUser) {
   if (!currentUser) return null;
-  const userRef = doc(db, 'users', currentUser.uid);
-  const snapshot = await getDoc(userRef);
-  return snapshot.exists() ? { uid: snapshot.id, ...snapshot.data() } : null;
+  const session = await fetchCookieSession();
+  return session?.profile || null;
 }
 
 function applyAuthenticatedState(user, profile, source = 'firebase-auth', options = {}) {
@@ -258,17 +208,13 @@ function startAuthObserver() {
       if (!authState.user?.uid) {
         emitAuthState({ loading: true, source: 'firebase-auth' });
       }
-      let profile = await createOrUpdateUserProfile(currentUser).catch(() => null);
+      const session = await createCookieSession(currentUser);
+      let profile = session?.profile || null;
       if (!profile) {
         profile = await loadUserProfile(currentUser).catch(() => null);
       }
 
-      const session = await createCookieSession(currentUser);
-      if (session?.profile) {
-        profile = session.profile;
-      }
-
-      applyAuthenticatedState(currentUser, profile, 'firebase-auth');
+      applyAuthenticatedState(session?.user || currentUser, profile, 'firebase-auth');
     } catch {
       applyAuthenticatedState(currentUser, null, 'firebase-auth-fallback');
     }

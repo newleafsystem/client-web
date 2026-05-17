@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useRef } from 'react';
-import { doc, collection, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, addDoc, updateDoc, serverTimestamp } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../shared/hooks/useAuth';
 import { usePortfolio } from './usePortfolio';

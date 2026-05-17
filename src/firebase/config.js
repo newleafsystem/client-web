@@ -1,7 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
 import { getAuth, signOut as fbSignOut } from "firebase/auth";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAI, GoogleAIBackend } from "firebase/ai";
@@ -21,8 +20,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-// Initialize Firestore with the named database "newleafdb"
-export const db = getFirestore(app, 'newleafdb');
+// Firestore reads and writes are proxied through api.newleafsystem.com.
+export const db = Object.freeze({ __newleafApiFirestore: true });
 
 // Initialize Firebase Authentication
 export const auth = getAuth(app);

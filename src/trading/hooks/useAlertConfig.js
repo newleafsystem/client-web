@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from '../../shared/api/firestoreBridge';
 import { db } from '../../firebase/config';
 import { DEFAULT_ALERT_CONFIG } from '../utils/alertEngine';
 
