@@ -36,7 +36,6 @@ function accessAttrs(item) {
 function NavDropdown({ label, href, items, isActive, dark, accessProps = {} }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  const hoverTimeout = useRef(null);
 
   useEffect(() => {
     if (!open) return;
@@ -53,11 +52,13 @@ function NavDropdown({ label, href, items, isActive, dark, accessProps = {} }) {
   }, [open]);
 
   const handleMouseEnter = () => {
-    clearTimeout(hoverTimeout.current);
     setOpen(true);
   };
   const handleMouseLeave = () => {
-    hoverTimeout.current = setTimeout(() => setOpen(false), 150);
+    setOpen(false);
+  };
+  const handleBlur = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
   };
 
   const focusFirstItem = () => {
@@ -87,18 +88,27 @@ function NavDropdown({ label, href, items, isActive, dark, accessProps = {} }) {
     if (e.key === 'Escape') setOpen(false);
   };
 
+  const triggerClassName = `nl-nav-link nl-dd-trigger${isActive ? ' active' : ''}${open ? ' open' : ''}`;
+  const panelClassName = [
+    'nl-dd-panel',
+    open ? 'is-open' : '',
+    dark ? 'nl-dd-dark' : '',
+    items.filter((item) => item.href).length <= 4 ? 'nl-dd-compact' : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <li
       ref={ref}
       className="nl-dd-wrap"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onBlur={handleBlur}
       {...accessProps}
     >
       {href ? (
         <NavAnchor
           href={href}
-          className={`nl-nav-link nl-dd-trigger${isActive ? ' active' : ''}`}
+          className={triggerClassName}
           onFocus={() => setOpen(true)}
           onKeyDown={handleTriggerKey}
           aria-expanded={open}
@@ -116,7 +126,7 @@ function NavDropdown({ label, href, items, isActive, dark, accessProps = {} }) {
       ) : (
         <button
           type="button"
-          className={`nl-nav-link nl-dd-trigger${isActive ? ' active' : ''}`}
+          className={triggerClassName}
           onClick={() => setOpen((o) => !o)}
           onKeyDown={handleTriggerKey}
           aria-expanded={open}
@@ -132,7 +142,7 @@ function NavDropdown({ label, href, items, isActive, dark, accessProps = {} }) {
         </button>
       )}
 
-      <div className={`nl-dd-panel${dark ? ' nl-dd-dark' : ''}`} role="menu" hidden={!open}>
+      <div className={panelClassName} role="menu" aria-hidden={!open}>
           {items.map((item, idx) => {
             if (item.divider) return <div key={`d${idx}`} className="nl-dd-divider" />;
             if (item.heading) return <div key={`h${idx}`} className="nl-dd-heading">{item.heading}</div>;
@@ -141,7 +151,7 @@ function NavDropdown({ label, href, items, isActive, dark, accessProps = {} }) {
                 key={item.href}
                 href={item.href}
                 role="menuitem"
-                tabIndex={0}
+                tabIndex={open ? 0 : -1}
                 className={`nl-dd-item${item.accent ? ' accent' : ''}`}
                 onClick={() => setOpen(false)}
                 onKeyDown={handleItemKey}
