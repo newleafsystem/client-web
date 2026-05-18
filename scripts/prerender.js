@@ -21,6 +21,7 @@ const PORT = 4173;
 // handles them client-side, which avoids breaking JS asset loading.
 const ROUTES = [
   '/',
+  '/pricing',
   '/desk',
   '/quant',
   '/blog',

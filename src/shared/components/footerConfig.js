@@ -24,6 +24,7 @@ export const FOOTER_STATIC_SECTIONS = Object.freeze([
   {
     title: 'Support',
     links: [
+      { label: 'Pricing', href: '/pricing' },
       { label: 'Privacy Policy', href: canonicalLegalLinks.privacyPolicy },
       { label: 'Terms and Conditions', href: canonicalLegalLinks.termsAndConditions },
       { label: 'Contact', href: 'mailto:hello@newleafsystem.com' },

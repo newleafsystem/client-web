@@ -98,6 +98,7 @@ export const MAIN_NAV_SECTIONS = [
   { kind: 'dropdown', label: 'Quant', href: '/quant', items: QUANT_ITEMS, dark: true, public: true, activePrefixes: ['/quant', '/how-we-score', '/probability-engine', '/technical-analysis', '/gamma-analysis'] },
   { kind: 'dropdown', label: 'Desk', href: '/desk', items: DESK_ITEMS, dark: true, public: true, activePrefixes: ['/desk', '/verification-desk'] },
   { kind: 'link', label: 'Blog', href: '/blog', public: true },
+  { kind: 'link', label: 'Pricing', href: '/pricing', public: true },
   { kind: 'dropdown', label: 'How it works', items: HOW_IT_WORKS_ITEMS, dark: true, public: true, activePrefixes: ['/how-we', '/track-record', '/ai-sentiment', '/ai-portfolio'] },
 ];
 

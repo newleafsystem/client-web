@@ -48,7 +48,7 @@ Rules:
 
 Route ownership:
 
-- `src/App.jsx`: public routes, product routes, strategy skill pages, picks, workbench analysis, blog, and legacy redirects.
+- `src/App.jsx`: public routes, product routes, pricing, strategy skill pages, picks, workbench analysis, blog, and legacy redirects.
 - `src/trading`: investor app, product pages, strategy education pages, hooks, calculations, and shared trading UI.
 - `src/marketing`: public explanation and trust pages.
 - `src/picks`: weekly picks, recaps, monthly views, and symbol analysis.
@@ -69,7 +69,7 @@ UI patterns:
 - Keep layout shells eager when they affect navigation/header/footer timing.
 - Reuse existing layouts before adding new shells.
 - Use `BrandBar` plus `src/shared/components/navConfig.js` as the central navigation model.
-- `BrandBar` renders one stable main header across public, picks, workbench, invest, quant, desk, blog, and how-it-works routes. The main header order is Picks, Workbench, Invest, Quant, Desk, Blog, and How it works.
+- `BrandBar` renders one stable main header across public, picks, workbench, invest, quant, desk, blog, pricing, and how-it-works routes. The main header order is Picks, Workbench, Invest, Quant, Desk, Blog, Pricing, and How it works.
 - Product-specific navigation belongs inside `BrandBar` flyouts. Do not add page-local product nav bars under the NewLeaf logo or create secondary headers inside product pages.
 - Top-level product labels such as Picks, Workbench, Invest, Quant, and Desk must be real links to the product landing page. Do not duplicate that same landing page as an `Overview`, `Hub`, or `Home` item inside the flyout.
 - Use `Footer` in every route surface. Layout shells should own footer placement when the page belongs to a route family.
@@ -156,7 +156,7 @@ See [access-control.md](access-control.md) for the shared admin-web/client-web s
 
 The build must not retain deleted static pages:
 
-- `scripts/clean-spa.js` removes stale `dist/workbench/` and `dist/workbench-static/` before build.
+- `scripts/clean-spa.js` removes stale Vite assets, embedded Workbench output, and prerendered public route directories before build.
 - `vite.config.js` copies `workbench/` into `dist/workbench-static/` after Vite builds the React shell.
 - Browser credential/API test pages do not belong in hosted `workbench/`.
 
@@ -216,7 +216,7 @@ Patterns:
 - Vite builds the React SPA into `dist/`.
 - Raw Workbench HTML is copied into `dist/workbench-static/`.
 - Extensionless `/workbench/*` URLs are served by the React SPA and embedded raw Workbench content through `WorkbenchStaticPage`.
-- `scripts/prerender.js` prerenders the configured public routes for crawler-friendly HTML.
+- `scripts/prerender.js` prerenders the configured public routes, including `/pricing`, for crawler-friendly HTML.
 - `dist/` is generated output and must not be committed.
 - Keep runtime HTML in `index.html`, `workbench/`, `public/`, and `pipeline/templates/`.
 

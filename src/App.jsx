@@ -29,6 +29,7 @@ const HowWePickPage = lazy(() => import('./marketing/how-we-pick/HowWePickPage')
 const HowWeManagePage = lazy(() => import('./marketing/how-we-manage/HowWeManagePage').then(m => ({ default: m.HowWeManagePage })));
 const HowWeRecommendPage = lazy(() => import('./marketing/how-we-recommend/HowWeRecommendPage').then(m => ({ default: m.HowWeRecommendPage })));
 const TrackRecordPage = lazy(() => import('./marketing/track-record/TrackRecordPage').then(m => ({ default: m.TrackRecordPage })));
+const PricingPage = lazy(() => import('./marketing/pricing/PricingPage').then(m => ({ default: m.PricingPage })));
 
 // Documentation pages — lazy
 const ScoringAlgorithmPage = lazy(() => import('./marketing/scoring-algorithm/ScoringAlgorithmPage').then(m => ({ default: m.ScoringAlgorithmPage })));
@@ -115,6 +116,7 @@ export default function App() {
           <Route path="/how-we-manage" element={<HowWeManagePage />} />
           <Route path="/how-we-recommend" element={<HowWeRecommendPage />} />
           <Route path="/track-record" element={<TrackRecordPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/how-we-score" element={<ScoringAlgorithmPage />} />
           <Route path="/probability-engine" element={<ProbabilityEnginePage />} />
           <Route path="/strategy-selection" element={<StrategySelectionPage />} />

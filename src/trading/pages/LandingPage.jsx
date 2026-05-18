@@ -539,7 +539,7 @@ export function LandingPage({ onSignInWithGoogle, onSignInWithEmail, onSignUp, o
               <p>Start free on newleaf-invest. Explore today's curated strategy library, build your risk-budgeted portfolio, and execute with full confidence.</p>
             </div>
             <div className="cta-right">
-              <a className="btn-cta-ghost" href="/register">View Pricing</a>
+              <a className="btn-cta-ghost" href="/pricing">View Pricing</a>
               <a className="btn-cta-gold" href="/register">Start Free →</a>
             </div>
           </div>

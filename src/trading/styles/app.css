@@ -1486,6 +1486,45 @@ body {
   justify-content: flex-end;
 }
 
+@media (max-width: 768px) {
+  .auth-footer.app-footer {
+    overflow: hidden;
+    padding: 32px 18px 18px;
+  }
+
+  .site-footer-inner {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .site-footer-brand,
+  .site-footer-nav,
+  .site-footer-column {
+    min-width: 0;
+  }
+
+  .site-footer-brand {
+    max-width: none;
+  }
+
+  .site-footer-nav {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 22px;
+  }
+
+  .site-footer-bottom {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 28px;
+  }
+
+  .site-footer-bottom nav {
+    justify-content: flex-start;
+  }
+}
+
 /* EMPTY STATE */
 .empty-state {
   display: flex;
