@@ -168,6 +168,8 @@ export function PricingPage() {
 
       <style>{`
         .pricing-page {
+          --pricing-font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          --pricing-font-display: 'Playfair Display', Georgia, serif;
           --pricing-bg: #f7f4ee;
           --pricing-card: #ffffff;
           --pricing-ink: #0b0f14;
@@ -180,10 +182,13 @@ export function PricingPage() {
           --pricing-dim: rgba(11, 15, 20, 0.42);
           --pricing-border: rgba(11, 15, 20, 0.1);
           --pricing-shadow: 0 18px 50px rgba(11, 15, 20, 0.08);
+          --pricing-brand-gradient:
+            radial-gradient(420px 260px at 100% 0%, rgba(201, 169, 110, 0.32), rgba(201, 169, 110, 0) 62%),
+            linear-gradient(135deg, #061c15 0%, #0b2d23 45%, #155a42 74%, #7e682b 100%);
           min-height: 100vh;
           background: var(--pricing-bg);
           color: var(--pricing-ink);
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-family: var(--pricing-font-body);
         }
 
         .pricing-page a { text-decoration: none; }
@@ -213,7 +218,7 @@ export function PricingPage() {
         .pricing-hero h1 {
           margin: 0;
           color: var(--pricing-forest);
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: var(--pricing-font-display);
           font-size: clamp(35px, 5vw, 49px);
           font-weight: 900;
           letter-spacing: 0;
@@ -325,15 +330,15 @@ export function PricingPage() {
         }
 
         .pricing-card-featured {
-          background: var(--pricing-forest-deep);
+          background: var(--pricing-brand-gradient);
           color: #fff;
-          border-color: rgba(201, 169, 110, 0.28);
-          box-shadow: 0 26px 70px rgba(6, 39, 29, 0.25);
+          border-color: rgba(201, 169, 110, 0.42);
+          box-shadow: 0 28px 76px rgba(6, 39, 29, 0.3);
         }
 
         .pricing-card-featured:hover {
-          border-color: rgba(201, 169, 110, 0.48);
-          box-shadow: 0 34px 88px rgba(6, 39, 29, 0.34);
+          border-color: rgba(201, 169, 110, 0.62);
+          box-shadow: 0 36px 92px rgba(6, 39, 29, 0.4);
         }
 
         .pricing-card-badge {
@@ -387,14 +392,14 @@ export function PricingPage() {
         .pricing-currency {
           margin-top: 7px;
           margin-right: 2px;
-          font-family: 'Inter', -apple-system, sans-serif;
+          font-family: var(--pricing-font-body);
           font-size: 24px;
           font-weight: 500;
           line-height: 1;
         }
 
         .pricing-price {
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: var(--pricing-font-display);
           font-size: 52px;
           font-weight: 500;
           line-height: 0.95;
@@ -406,7 +411,7 @@ export function PricingPage() {
           margin-left: 5px;
           margin-bottom: 8px;
           color: var(--pricing-muted);
-          font-family: 'Inter', -apple-system, sans-serif;
+          font-family: var(--pricing-font-body);
           font-size: 14px;
           font-weight: 650;
         }
@@ -471,7 +476,7 @@ export function PricingPage() {
         }
 
         .pricing-card-featured .pricing-feature-list svg {
-          color: #66e0c9;
+          color: var(--pricing-gold);
         }
 
         .pricing-card:not(.pricing-card-featured):last-child .pricing-feature-list svg {
@@ -558,7 +563,7 @@ export function PricingPage() {
         .pricing-faq h2 {
           margin: 0;
           color: var(--pricing-forest);
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: var(--pricing-font-display);
           font-size: clamp(28px, 3vw, 34px);
           font-weight: 900;
           letter-spacing: 0;
