@@ -1,8 +1,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../firebase/config';
+import { getFirebaseFunctions } from '../../firebase/config';
 
-const aiChatFn = httpsCallable(functions, 'aiChat');
+async function callAiChat(payload) {
+  const functions = await getFirebaseFunctions();
+  return httpsCallable(functions, 'aiChat')(payload);
+}
 
 export function useAIChat({ portfolioItems, tiles, settings }) {
   const [messages, setMessages] = useState([]);
@@ -55,7 +58,7 @@ export function useAIChat({ portfolioItems, tiles, settings }) {
 
       const history = historyRef.current.slice(-10);
 
-      const result = await aiChatFn({
+      const result = await callAiChat({
         message: text.trim(),
         portfolio,
         tiles: clientTiles,

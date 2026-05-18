@@ -23,6 +23,17 @@ That pattern is superseded by:
 - No readable auth-state cookie means the first auth state is anonymous.
 - Session validation and Firebase custom-token restore run only when an existing sanitized UI auth cookie indicates there may be a browser session to restore.
 
+## 2026-05-18: Eager Firebase Service Initialization
+
+Previous guidance allowed `src/firebase/config.js` to initialize Firebase Analytics, Auth, Functions, and Firebase AI at module import time. Since shared auth/navigation hooks are used on public pages, this could trigger Firebase web config network calls on anonymous first paint.
+
+That pattern is superseded by:
+
+- Lazy Firebase service getters in `src/firebase/config.js`.
+- Public routes importing auth/navigation code without initializing Firebase products.
+- Firebase Auth loading only when an existing auth-state cookie exists or the user actively signs in.
+- Firebase Functions and Firebase AI loading only when signed-in product features call them.
+
 ## 2026-05-09: Surface-Specific Product Navigation
 
 Previous guidance allowed `BrandBar` surface configs such as `root`, `picks`, `workbench`, and `invest` to define different top-level navigation links. Product pages could therefore feel like separate applications and static Workbench pages could keep their own generated header behavior.

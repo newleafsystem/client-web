@@ -1,1 +1,8 @@
-export { app, db, auth, functions, ai } from './config';
+export {
+  db,
+  getFirebaseAI,
+  getFirebaseAnalytics,
+  getFirebaseApp,
+  getFirebaseAuth,
+  getFirebaseFunctions,
+} from './config';

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { getLiveGenerativeModel, ResponseModality, startAudioConversation } from 'firebase/ai';
-import { ai } from '../../firebase/config';
+import { getFirebaseAI } from '../../firebase/config';
 
 const SYSTEM_INSTRUCTION = `You are NewLeaf AI, a structured options strategy assistant inside the NewLeaf System platform — a disciplined, rules-based options strategy framework.
 
@@ -35,6 +35,7 @@ export function useVoiceAssistant() {
     setStatus('connecting');
 
     try {
+      const ai = await getFirebaseAI();
       const liveModel = getLiveGenerativeModel(ai, {
         model: 'gemini-2.5-flash-native-audio-preview-12-2025',
         systemInstruction: SYSTEM_INSTRUCTION,

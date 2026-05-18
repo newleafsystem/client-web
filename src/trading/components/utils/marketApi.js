@@ -4,7 +4,7 @@
  */
 
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../../firebase/config';
+import { getFirebaseFunctions } from '../../../firebase/config';
 
 // Toggle to use mock data in development (before functions are deployed)
 const USE_MOCK_DATA = import.meta.env.DEV && window.location.hostname === 'localhost';
@@ -17,14 +17,10 @@ console.log('[marketApi] Configuration:', {
   ENABLE_LOGGING,
 });
 
-// Initialize Cloud Function references
-const getStockPriceFn = httpsCallable(functions, 'getStockPrice');
-const getWatchlistPricesFn = httpsCallable(functions, 'getWatchlistPrices');
-const getStockHistoryFn = httpsCallable(functions, 'getStockHistory');
-const getOptionsDataFn = httpsCallable(functions, 'getOptionsData');
-const searchStocksFn = httpsCallable(functions, 'searchStocks');
-const getStockStatsFn = httpsCallable(functions, 'getStockStats');
-const calculateGreeksFn = httpsCallable(functions, 'calculateGreeks');
+async function callFunction(name, payload) {
+  const functions = await getFirebaseFunctions();
+  return httpsCallable(functions, name)(payload);
+}
 
 /**
  * Get current price for a single stock symbol
@@ -62,7 +58,7 @@ export async function getStockPrice(symbol) {
 
   try {
     console.log('[marketApi] Calling Firebase function getStockPrice...');
-    const result = await getStockPriceFn({ symbol });
+    const result = await callFunction('getStockPrice', { symbol });
     console.log('[marketApi] Firebase function response:', result);
 
     if (result.data.success) {
@@ -117,7 +113,7 @@ export async function getWatchlistPrices(symbols) {
 
   try {
     console.log('[marketApi] Calling Firebase function getWatchlistPrices...');
-    const result = await getWatchlistPricesFn({ symbols });
+    const result = await callFunction('getWatchlistPrices', { symbols });
     console.log('[marketApi] Firebase function response:', result);
 
     if (result.data.success) {
@@ -141,7 +137,7 @@ export async function getWatchlistPrices(symbols) {
  */
 export async function getStockHistory(symbol, startDate, endDate, interval = '1d') {
   try {
-    const result = await getStockHistoryFn({
+    const result = await callFunction('getStockHistory', {
       symbol,
       startDate: startDate instanceof Date ? startDate.toISOString() : startDate,
       endDate: endDate instanceof Date ? endDate.toISOString() : endDate,
@@ -165,7 +161,7 @@ export async function getStockHistory(symbol, startDate, endDate, interval = '1d
  */
 export async function getOptionsData(symbol, expirationDate = null) {
   try {
-    const result = await getOptionsDataFn({
+    const result = await callFunction('getOptionsData', {
       symbol,
       expirationDate: expirationDate ? (expirationDate instanceof Date ? expirationDate.toISOString() : expirationDate) : null,
     });
@@ -186,7 +182,7 @@ export async function getOptionsData(symbol, expirationDate = null) {
  */
 export async function searchStocks(query) {
   try {
-    const result = await searchStocksFn({ query });
+    const result = await callFunction('searchStocks', { query });
     if (result.data.success) {
       return result.data.data;
     }
@@ -204,7 +200,7 @@ export async function searchStocks(query) {
  */
 export async function getStockStats(symbol) {
   try {
-    const result = await getStockStatsFn({ symbol });
+    const result = await callFunction('getStockStats', { symbol });
     if (result.data.success) {
       return result.data.data;
     }
@@ -222,7 +218,7 @@ export async function getStockStats(symbol) {
  */
 export async function calculateGreeks(params) {
   try {
-    const result = await calculateGreeksFn(params);
+    const result = await callFunction('calculateGreeks', params);
     if (result.data.success) {
       return result.data.data;
     }

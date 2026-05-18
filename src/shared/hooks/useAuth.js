@@ -1,18 +1,4 @@
 import { useEffect, useState } from 'react';
-import {
-  onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail,
-  linkWithCredential,
-  sendEmailVerification,
-  signInWithCustomToken,
-  signOut as firebaseSignOut,
-  updateProfile,
-} from 'firebase/auth';
-import { auth } from '../../firebase/config';
 import { normalizeUserAccess } from '../auth/accessControl';
 import { writeCachedNavigationState } from '../components/navigationState';
 import {
@@ -29,22 +15,35 @@ import {
 } from '../auth/authSession';
 
 const GOOGLE_LINK_PASSWORD_REQUIRED = 'auth/google-link-password-required';
+let firebaseAuthApiPromise = null;
 
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
 }
 
-function createGoogleLinkRequiredError(error, signInMethods = []) {
+function createGoogleLinkRequiredError(error, signInMethods = [], pendingCredential = null) {
   const email = normalizeEmail(error?.customData?.email);
-  const credential = GoogleAuthProvider.credentialFromError(error);
   const linkError = new Error(
     'This email already has a NewLeaf account. Sign in with your password once to link Google to the same account.'
   );
   linkError.code = GOOGLE_LINK_PASSWORD_REQUIRED;
   linkError.email = email;
-  linkError.credential = credential;
+  linkError.credential = pendingCredential;
   linkError.signInMethods = signInMethods;
   return linkError;
+}
+
+async function loadFirebaseAuthApi() {
+  if (!firebaseAuthApiPromise) {
+    firebaseAuthApiPromise = Promise.all([
+      import('firebase/auth'),
+      import('../../firebase/config'),
+    ]).then(async ([firebaseAuth, firebaseConfig]) => ({
+      ...firebaseAuth,
+      auth: await firebaseConfig.getFirebaseAuth(),
+    }));
+  }
+  return firebaseAuthApiPromise;
 }
 
 function stateFromCachedAuth() {
@@ -157,8 +156,10 @@ async function hydrateFromCookieSession(options = {}) {
 }
 
 async function restoreFirebaseFromCookieSession(cached = readCachedAuthState()) {
-  if (auth.currentUser) return false;
   if (!cached?.user) return false;
+
+  const { auth, signInWithCustomToken } = await loadFirebaseAuthApi();
+  if (auth.currentUser) return false;
 
   const customToken = await fetchCustomTokenFromCookie();
   if (!customToken) return false;
@@ -166,29 +167,15 @@ async function restoreFirebaseFromCookieSession(cached = readCachedAuthState()) 
   return true;
 }
 
-function startAuthObserver() {
-  if (authStarted) return;
-  authStarted = true;
+async function hasCurrentFirebaseUser() {
+  const { auth } = await loadFirebaseAuthApi();
+  return Boolean(auth.currentUser);
+}
 
-  const startupCache = readCachedAuthState();
-  if (startupCache?.user) {
-    applyAuthenticatedState(startupCache.user, startupCache.profile, startupCache.source, {
-      validatedAt: startupCache.validatedAt,
-    });
-  } else {
-    clearCachedAuthState();
-    emitAuthState(signedOutState('anonymous-no-cookie'));
-  }
-
-  if (startupCache?.user) {
-    hydrateFromCookieSession({ force: shouldValidateCachedAuth(startupCache) }).then((hasSession) => {
-      const cached = readCachedAuthState();
-      if (!auth.currentUser && hasSession && cached?.user && shouldValidateCachedAuth(startupCache)) {
-        return restoreFirebaseFromCookieSession(cached);
-      }
-      return false;
-    }).catch(() => {});
-  }
+async function startFirebaseAuthObserver() {
+  if (unsubscribeAuth) return;
+  const { auth, onAuthStateChanged } = await loadFirebaseAuthApi();
+  if (unsubscribeAuth) return;
 
   unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
     if (!currentUser) {
@@ -231,6 +218,32 @@ function startAuthObserver() {
   });
 }
 
+function startAuthObserver() {
+  if (authStarted) return;
+  authStarted = true;
+
+  const startupCache = readCachedAuthState();
+  if (startupCache?.user) {
+    applyAuthenticatedState(startupCache.user, startupCache.profile, startupCache.source, {
+      validatedAt: startupCache.validatedAt,
+    });
+  } else {
+    clearCachedAuthState();
+    emitAuthState(signedOutState('anonymous-no-cookie'));
+  }
+
+  if (startupCache?.user) {
+    hydrateFromCookieSession({ force: shouldValidateCachedAuth(startupCache) }).then(async (hasSession) => {
+      const cached = readCachedAuthState();
+      if (!(await hasCurrentFirebaseUser()) && hasSession && cached?.user && shouldValidateCachedAuth(startupCache)) {
+        return restoreFirebaseFromCookieSession(cached);
+      }
+      await startFirebaseAuthObserver();
+      return false;
+    }).catch(() => {});
+  }
+}
+
 function subscribeAuth(listener) {
   startAuthObserver();
   subscribers.add(listener);
@@ -242,24 +255,40 @@ function subscribeAuth(listener) {
 
 async function signInWithGoogle() {
   try {
+    const { auth, GoogleAuthProvider, signInWithPopup } = await loadFirebaseAuthApi();
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    return await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    const profile = await createOrUpdateUserProfile(result.user, {
+      registrationSource: 'google',
+    }).catch(() => null);
+    applyAuthenticatedState(result.user, profile, 'firebase-auth');
+    await startFirebaseAuthObserver();
+    return result;
   } catch (error) {
     if (error?.code === 'auth/account-exists-with-different-credential') {
+      const { auth, GoogleAuthProvider, fetchSignInMethodsForEmail } = await loadFirebaseAuthApi();
       const email = normalizeEmail(error?.customData?.email);
       const signInMethods = email ? await fetchSignInMethodsForEmail(auth, email).catch(() => []) : [];
-      throw createGoogleLinkRequiredError(error, signInMethods);
+      throw createGoogleLinkRequiredError(error, signInMethods, GoogleAuthProvider.credentialFromError(error));
     }
     throw error;
   }
 }
 
 async function signInWithEmail(email, password) {
-  return signInWithEmailAndPassword(auth, normalizeEmail(email), password);
+  const { auth, signInWithEmailAndPassword } = await loadFirebaseAuthApi();
+  const result = await signInWithEmailAndPassword(auth, normalizeEmail(email), password);
+  const profile = await createOrUpdateUserProfile(result.user, {
+    registrationSource: 'email-password-login',
+  }).catch(() => null);
+  applyAuthenticatedState(result.user, profile, 'firebase-auth');
+  await startFirebaseAuthObserver();
+  return result;
 }
 
 async function signUp(email, password, options = {}) {
+  const { auth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } = await loadFirebaseAuthApi();
   const result = await createUserWithEmailAndPassword(auth, normalizeEmail(email), password);
   const displayName = String(options.displayName || '').trim();
 
@@ -276,6 +305,7 @@ async function signUp(email, password, options = {}) {
     registrationSource: 'email-password',
   }).catch(() => null);
   applyAuthenticatedState(result.user, profile, 'firebase-auth');
+  await startFirebaseAuthObserver();
 
   return result;
 }
@@ -288,6 +318,7 @@ async function linkGoogleWithPassword(email, password, pendingCredential) {
   }
 
   const normalizedEmail = normalizeEmail(email);
+  const { auth, signInWithEmailAndPassword, linkWithCredential } = await loadFirebaseAuthApi();
   const result = await signInWithEmailAndPassword(auth, normalizedEmail, password);
 
   if (normalizeEmail(result.user.email) !== normalizedEmail) {
@@ -307,16 +338,17 @@ async function linkGoogleWithPassword(email, password, pendingCredential) {
     registrationSource: 'linked-google',
   }).catch(() => null);
   applyAuthenticatedState(linkedUser, profile, 'firebase-auth');
+  await startFirebaseAuthObserver();
 
   return result;
 }
 
 async function signOut() {
   try {
-    await Promise.allSettled([
-      clearCookieSession(),
-      firebaseSignOut(auth),
-    ]);
+    const firebaseSignOutPromise = loadFirebaseAuthApi()
+      .then(({ auth, signOut: firebaseSignOut }) => firebaseSignOut(auth))
+      .catch(() => null);
+    await Promise.allSettled([clearCookieSession(), firebaseSignOutPromise]);
   } finally {
     clearCachedAuthState();
     emitAuthState(signedOutState());

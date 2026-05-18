@@ -5,7 +5,7 @@ import {
   startAudioConversation,
   ResponseModality,
 } from 'firebase/ai';
-import { ai } from '../../firebase/config';
+import { getFirebaseAI } from '../../firebase/config';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { usePortfolioSettings } from '../hooks/usePortfolioSettings';
 
@@ -61,6 +61,7 @@ export function VoiceAssistant({ tiles }) {
       setError(null);
 
       const systemPrompt = buildSystemPrompt(portfolioItems, tiles, settings);
+      const ai = await getFirebaseAI();
 
       const model = getLiveGenerativeModel(ai, {
         model: "gemini-2.5-flash-native-audio-preview-12-2025",

@@ -1,9 +1,6 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth, signOut as fbSignOut } from "firebase/auth";
-import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
-import { getAI, GoogleAIBackend } from "firebase/ai";
+// Import only the core Firebase App SDK at module load time. Product SDKs
+// are loaded lazily so public pages do not initialize Firebase services.
+import { getApp, getApps, initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -16,26 +13,65 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+let appInstance = null;
+let authInstance = null;
+let functionsInstance = null;
+let aiInstance = null;
+let analyticsPromise = null;
+
+export function getFirebaseApp() {
+  if (!appInstance) {
+    appInstance = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  }
+  return appInstance;
+}
 
 // Firestore reads and writes are proxied through api.newleafsystem.com.
 export const db = Object.freeze({ __newleafApiFirestore: true });
 
-// Initialize Firebase Authentication
-export const auth = getAuth(app);
+export async function getFirebaseAuth() {
+  if (!authInstance) {
+    const { getAuth } = await import("firebase/auth");
+    authInstance = getAuth(getFirebaseApp());
+  }
+  return authInstance;
+}
 
-// Initialize Cloud Functions
-export const functions = getFunctions(app);
+export async function getFirebaseFunctions() {
+  if (!functionsInstance) {
+    const { getFunctions } = await import("firebase/functions");
+    functionsInstance = getFunctions(getFirebaseApp());
+  }
+  return functionsInstance;
+}
 
 // Use emulator for local development (uncomment to enable)
 // if (window.location.hostname === 'localhost') {
-//   connectFunctionsEmulator(functions, 'localhost', 5001);
+//   const { connectFunctionsEmulator } = await import("firebase/functions");
+//   connectFunctionsEmulator(await getFirebaseFunctions(), 'localhost', 5001);
 // }
 
-// Initialize Firebase AI Logic (Gemini Developer API)
-export const ai = typeof window !== 'undefined' ? getAI(app, { backend: new GoogleAIBackend() }) : null;
+export async function getFirebaseAI() {
+  if (typeof window === 'undefined') return null;
+  if (!aiInstance) {
+    const { getAI, GoogleAIBackend } = await import("firebase/ai");
+    aiInstance = getAI(getFirebaseApp(), { backend: new GoogleAIBackend() });
+  }
+  return aiInstance;
+}
+
+export function getFirebaseAnalytics() {
+  if (typeof window === 'undefined') return Promise.resolve(null);
+  if (!analyticsPromise) {
+    analyticsPromise = import("firebase/analytics")
+      .then(async ({ getAnalytics, isSupported }) => {
+        if (!(await isSupported())) return null;
+        return getAnalytics(getFirebaseApp());
+      })
+      .catch(() => null);
+  }
+  return analyticsPromise;
+}
 
 
 // Legacy helper: route through the shared account page instead of opening a provider-only popup.
@@ -46,8 +82,9 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
+  const [{ signOut: fbSignOut }, auth] = await Promise.all([
+    import("firebase/auth"),
+    getFirebaseAuth(),
+  ]);
   return fbSignOut(auth);
 }
-
-// Export app instance
-export { app };
