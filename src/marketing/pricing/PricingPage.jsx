@@ -300,29 +300,40 @@ export function PricingPage() {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 20px;
-          align-items: start;
+          align-items: stretch;
           padding: 18px 0 74px;
         }
 
         .pricing-card {
           position: relative;
           display: flex;
-          min-height: 526px;
+          min-height: 604px;
           flex-direction: column;
           padding: 34px 28px 28px;
           border: 1px solid var(--pricing-border);
           border-radius: 14px;
           background: var(--pricing-card);
           box-shadow: var(--pricing-shadow);
+          transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+          will-change: transform;
+        }
+
+        .pricing-card:hover {
+          transform: translateY(-8px);
+          border-color: rgba(11, 45, 35, 0.18);
+          box-shadow: 0 30px 76px rgba(11, 15, 20, 0.14);
         }
 
         .pricing-card-featured {
-          min-height: 604px;
-          margin-top: -12px;
           background: var(--pricing-forest-deep);
           color: #fff;
           border-color: rgba(201, 169, 110, 0.28);
           box-shadow: 0 26px 70px rgba(6, 39, 29, 0.25);
+        }
+
+        .pricing-card-featured:hover {
+          border-color: rgba(201, 169, 110, 0.48);
+          box-shadow: 0 34px 88px rgba(6, 39, 29, 0.34);
         }
 
         .pricing-card-badge {
@@ -363,10 +374,9 @@ export function PricingPage() {
 
         .pricing-price-row {
           display: flex;
-          align-items: baseline;
-          min-height: 55px;
+          align-items: flex-start;
+          min-height: 58px;
           color: var(--pricing-ink);
-          font-family: 'Playfair Display', Georgia, serif;
           line-height: 1;
         }
 
@@ -375,19 +385,26 @@ export function PricingPage() {
         }
 
         .pricing-currency {
-          font-size: 36px;
+          margin-top: 7px;
+          margin-right: 2px;
+          font-family: 'Inter', -apple-system, sans-serif;
+          font-size: 24px;
           font-weight: 500;
+          line-height: 1;
         }
 
         .pricing-price {
-          margin-left: -2px;
-          font-size: 49px;
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 52px;
           font-weight: 500;
+          line-height: 0.95;
           font-variant-numeric: tabular-nums;
         }
 
         .pricing-period {
+          align-self: flex-end;
           margin-left: 5px;
+          margin-bottom: 8px;
           color: var(--pricing-muted);
           font-family: 'Inter', -apple-system, sans-serif;
           font-size: 14px;
@@ -630,7 +647,6 @@ export function PricingPage() {
           .pricing-card,
           .pricing-card-featured {
             min-height: 0;
-            margin-top: 0;
           }
         }
 
@@ -667,6 +683,10 @@ export function PricingPage() {
             margin-top: 10px;
           }
 
+          .pricing-card:hover {
+            transform: translateY(-4px);
+          }
+
           .pricing-trust-grid {
             align-items: flex-start;
             justify-content: flex-start;
@@ -683,6 +703,18 @@ export function PricingPage() {
 
           .pricing-faq {
             padding-bottom: 82px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .pricing-card,
+          .pricing-card-cta {
+            transition: none;
+          }
+
+          .pricing-card:hover,
+          .pricing-card-cta:hover {
+            transform: none;
           }
         }
       `}</style>
