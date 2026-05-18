@@ -123,6 +123,18 @@ nav.nl-nav,
   background: transparent !important;
 }
 
+.nl-nav .nl-nav-links a.nl-nav-link:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item):hover,
+.nl-nav .nl-nav-links a.nl-nav-link:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item).active,
+.nl-nav .nl-nav-links a.nl-nav-link:not(.nl-nav-pill):not(.nl-nav-cta):not(.nl-dd-item).open,
+.nl-nav .nl-nav-links .nl-dd-wrap:hover > a.nl-dd-trigger,
+.nl-nav .nl-nav-links .nl-dd-wrap:hover > button.nl-dd-trigger,
+.nl-nav .nl-nav-links .nl-dd-wrap > a.nl-dd-trigger.open,
+.nl-nav .nl-nav-links .nl-dd-wrap > button.nl-dd-trigger.open {
+  color: var(--brand-gold, #d7b56d) !important;
+  border-bottom-color: var(--brand-gold, #d7b56d) !important;
+  background: transparent !important;
+}
+
 /* "How it works" / outline pill */
 .nl-nav-pill,
 .nl-nav .nl-nav-pill {
