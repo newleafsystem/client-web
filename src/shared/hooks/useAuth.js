@@ -50,14 +50,7 @@ function createGoogleLinkRequiredError(error, signInMethods = []) {
 function stateFromCachedAuth() {
   const cached = readCachedAuthState();
   if (!cached?.user) {
-    return {
-      user: null,
-      profile: null,
-      access: normalizeUserAccess(null, null),
-      loading: true,
-      sessionValidationPending: false,
-      source: 'initial',
-    };
+    return signedOutState('anonymous-no-cookie');
   }
 
   return {
@@ -141,6 +134,8 @@ function applyAuthenticatedState(user, profile, source = 'firebase-auth', option
 
 async function hydrateFromCookieSession(options = {}) {
   const cached = readCachedAuthState();
+  if (!cached?.user) return false;
+
   if (!options.force && cached?.user && !shouldValidateCachedAuth(cached)) {
     applyAuthenticatedState(cached.user, cached.profile, cached.source, {
       validatedAt: cached.validatedAt,
@@ -149,7 +144,11 @@ async function hydrateFromCookieSession(options = {}) {
   }
 
   const session = await fetchCookieSession();
-  if (!session?.user) return false;
+  if (!session?.user) {
+    clearCachedAuthState();
+    emitAuthState(signedOutState('session-cookie-missing'));
+    return false;
+  }
 
   applyAuthenticatedState(session.user, session.profile, session.source, {
     validatedAt: Date.now(),
@@ -157,8 +156,10 @@ async function hydrateFromCookieSession(options = {}) {
   return true;
 }
 
-async function restoreFirebaseFromCookieSession() {
+async function restoreFirebaseFromCookieSession(cached = readCachedAuthState()) {
   if (auth.currentUser) return false;
+  if (!cached?.user) return false;
+
   const customToken = await fetchCustomTokenFromCookie();
   if (!customToken) return false;
   await signInWithCustomToken(auth, customToken);
@@ -174,17 +175,20 @@ function startAuthObserver() {
     applyAuthenticatedState(startupCache.user, startupCache.profile, startupCache.source, {
       validatedAt: startupCache.validatedAt,
     });
+  } else {
+    clearCachedAuthState();
+    emitAuthState(signedOutState('anonymous-no-cookie'));
   }
 
-  hydrateFromCookieSession({ force: shouldValidateCachedAuth(startupCache) }).then((hasSession) => {
-    if (!hasSession && !auth.currentUser && !readCachedAuthState()) {
-      emitAuthState({ loading: true, sessionValidationPending: false, source: 'firebase-auth' });
-    }
-    if (!auth.currentUser && (!startupCache?.user || shouldValidateCachedAuth(startupCache))) {
-      return restoreFirebaseFromCookieSession();
-    }
-    return false;
-  }).catch(() => {});
+  if (startupCache?.user) {
+    hydrateFromCookieSession({ force: shouldValidateCachedAuth(startupCache) }).then((hasSession) => {
+      const cached = readCachedAuthState();
+      if (!auth.currentUser && hasSession && cached?.user && shouldValidateCachedAuth(startupCache)) {
+        return restoreFirebaseFromCookieSession(cached);
+      }
+      return false;
+    }).catch(() => {});
+  }
 
   unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
     if (!currentUser) {
@@ -196,7 +200,13 @@ function startAuthObserver() {
         return;
       }
 
-      const restored = await restoreFirebaseFromCookieSession().catch(() => false);
+      if (!cached?.user) {
+        clearCachedAuthState();
+        emitAuthState(signedOutState('anonymous-no-cookie'));
+        return;
+      }
+
+      const restored = await restoreFirebaseFromCookieSession(cached).catch(() => false);
       if (!restored) {
         clearCachedAuthState();
         emitAuthState(signedOutState());

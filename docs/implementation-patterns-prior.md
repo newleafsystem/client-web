@@ -13,6 +13,16 @@ That pattern is superseded by:
 - A sanitized UI cache cookie for first-paint identity only.
 - Configurable 24-hour default session expiry through `AUTH_SESSION_MAX_AGE_HOURS` and `VITE_AUTH_STATE_CACHE_TTL_HOURS`.
 
+## 2026-05-18: Cold Session Probe On Missing UI Cookie
+
+Previous guidance allowed the shared auth store to call `/api/auth/session` on startup even when the browser did not have the readable sanitized auth-state cookie. In a fresh or incognito browser this could leave protected route shells waiting on a server auth check before deciding the visitor was anonymous.
+
+That pattern is superseded by:
+
+- Cookie-gated startup in `src/shared/hooks/useAuth.js`.
+- No readable auth-state cookie means the first auth state is anonymous.
+- Session validation and Firebase custom-token restore run only when an existing sanitized UI auth cookie indicates there may be a browser session to restore.
+
 ## 2026-05-09: Surface-Specific Product Navigation
 
 Previous guidance allowed `BrandBar` surface configs such as `root`, `picks`, `workbench`, and `invest` to define different top-level navigation links. Product pages could therefore feel like separate applications and static Workbench pages could keep their own generated header behavior.
